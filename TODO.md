@@ -8,6 +8,9 @@
 - Using that great power, see if I can modify the liked playlist (like a video, unlike it / delete from liked playlist)
 - See if I can add to a playlist
 
+- Re-architect program to do meet the needs of future matt (once I know what I want it to do properly)
+- Write tests, have decent coverage
+
 Further things / ideas:
 - Get the contents of all playlists
 - Save them somewhere / somehow

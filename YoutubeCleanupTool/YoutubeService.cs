@@ -1,0 +1,52 @@
+﻿using AdysTech.CredentialManager;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using Google.Apis.YouTube.v3;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace YoutubeCleanupTool
+{
+    public class YoutubeService
+    {
+        public YoutubeService()
+        {
+
+        }
+
+        public async Task<YouTubeService> CreateYouTubeService(string googleApiKeyCredentialName, string clientSecretPath, string fileDataStoreName)
+        {
+            var apiKey = CredentialManager.GetICredential(googleApiKeyCredentialName).UserName;
+            UserCredential credential;
+            using (var stream = new FileStream(clientSecretPath, FileMode.Open, FileAccess.Read))
+            {
+                var installedApp = new AuthorizationCodeInstalledApp(
+                    new GoogleAuthorizationCodeFlow(
+                        new GoogleAuthorizationCodeFlow.Initializer
+                        {
+                            ClientSecrets = GoogleClientSecrets.Load(stream).Secrets,
+                            Scopes = new List<string> { YouTubeService.Scope.YoutubeReadonly },
+                            DataStore = new FileDataStore(fileDataStoreName)
+                        }),
+                        new LocalServerCodeReceiver());
+                credential = await installedApp.AuthorizeAsync("user", CancellationToken.None);
+            }
+
+            // Create the service.
+            var service = new YouTubeService(new BaseClientService.Initializer()
+            {
+                ApiKey = apiKey,
+                HttpClientInitializer = credential,
+                ApplicationName = "Youtube cleanup tool",
+            });
+            apiKey = null;
+            return service;
+        }
+    }
+}

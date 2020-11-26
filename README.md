@@ -19,3 +19,11 @@ Go to Credential manager (Control Panel -> User Accounts -> Credential Manager)
 1. Create a `googleapikey` generic credential
    The 'password' field for this should be your google api key
 2. Download the JSON for your oauth, and put it in the place that's read in
+
+
+# General notes
+
+1. The "playlists" returned from youtube are a mix of youtube and youtube music / imported google play music
+2. Youtube somehow knows how to hide "music" ones
+3. Likes aren't returned at all
+4. We can get thumbnails for the playlists. Some playlists don't have thumbnails (eg, one or more videos got deleted)

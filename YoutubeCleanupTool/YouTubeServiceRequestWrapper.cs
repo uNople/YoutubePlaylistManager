@@ -1,26 +1,29 @@
 ﻿using Google.Apis.Requests;
 using Google.Apis.YouTube.v3.Data;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using static Google.Apis.YouTube.v3.ActivitiesResource;
 
 namespace YoutubeCleanupTool
 {
     public class YouTubeServiceRequestWrapper
     {
-        public static List<TResult> GetResults<TResult>(dynamic request)
+        public static async Task<List<TResult>> GetResults<TResult>(dynamic request)
         {
-            request.MaxResults = 50;
             var result = new List<TResult>();
-            var response = request.Execute();
+            request.MaxResults = 50;
+            var response = await request.ExecuteAsync();
             result.AddRange(response.Items);
 
             while (response.NextPageToken != null)
             {
                 request.PageToken = response.NextPageToken;
-                response = request.Execute();
+                response = await request.ExecuteAsync();
                 result.AddRange(response.Items);
             }
 

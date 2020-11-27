@@ -1,3 +1,8 @@
+Next:
+- Cache playlist items
+- Add 'force get' for this cache
+- Continue "working" on differentiating between youtube music playlist vs youtube playlist
+
 Differentiating between youtube playlist and youtube music playlist:
 - Get playlists themselves (get all content, videos, better description, more metadata, something other than "snippet"?)
 - Is there some way of differentiating between the playlists?

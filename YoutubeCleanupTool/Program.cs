@@ -27,6 +27,8 @@ namespace YoutubeCleanupTool
             Task.WaitAll(Execute());
         }
 
+        private static YouTubeService _youTubeService;
+
         private static async Task Execute()
         {
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
@@ -34,51 +36,54 @@ namespace YoutubeCleanupTool
                 Formatting = Formatting.Indented,
             };
 
-            var youTubeService = await new YoutubeService().CreateYouTubeService("googleapikey", @"C:\Users\unopl\source\repos\Creds\client_secret.json", "Youtube.Api.Storage");
+            _youTubeService = await new YoutubeService().CreateYouTubeService("googleapikey", @"C:\Users\unopl\source\repos\Creds\client_secret.json", "Youtube.Api.Storage");
 
-            const string playlistFile = "playlists.json";
-            List<Playlist> playlists;
-            if (File.Exists(playlistFile))
+            var playlists = await GetPlaylists(false);
+
+            const string playlistItemFile = "playlistItems.json";
+            var cachedPlaylistItems = new Dictionary<string, List<PlaylistItem>>();
+            if (File.Exists(playlistItemFile))
             {
-                playlists = JsonConvert.DeserializeObject<List<Playlist>>(File.ReadAllText(playlistFile));
-            }
-            else
-            {
-                playlists = await GetPlaylists(youTubeService);
-                var serialized = JsonConvert.SerializeObject(playlists);
-                File.WriteAllText(playlistFile, serialized);
+                cachedPlaylistItems = JsonConvert.DeserializeObject<Dictionary<string, List<PlaylistItem>>>(File.ReadAllText(playlistItemFile));
             }
 
-            // https://developers.google.com/youtube/v3/docs/playlistItems
-            var playlistItems = youTubeService.PlaylistItems.List("contentDetails,id,snippet,status");
-            playlistItems.PlaylistId = "PLDA36B67C0C113339";
-            var response2 = YouTubeServiceRequestWrapper.GetResults<PlaylistItem>(playlistItems);
+            foreach (var playlist in playlists)
+            {
+                // TODO: get the playlist items
+                
+            }
+            // TODO: Save the playlist items
         }
 
-        private static async Task<List<Playlist>> GetPlaylists(YouTubeService service)
+        private static async Task<List<PlaylistItem>> GetPlaylistItems(string playlistId)
         {
+            // https://developers.google.com/youtube/v3/docs/playlistItems
+            // playlist LL and LM to get liked videos / liked music
+            var playlistItems = _youTubeService.PlaylistItems.List("contentDetails,id,snippet,status");
+            playlistItems.PlaylistId = playlistId;
+            return await YouTubeServiceRequestWrapper.GetResults<PlaylistItem>(playlistItems);
+        }
+
+        private static async Task<List<Playlist>> GetPlaylists(bool forceGet)
+        {
+            const string playlistFile = "playlists.json";
+            if (!forceGet && File.Exists(playlistFile))
+            {
+                return JsonConvert.DeserializeObject<List<Playlist>>(File.ReadAllText(playlistFile));
+            }
+
             // auditDetails requires youtubepartner-channel-audit scope
             // brandingSettings, contentOwnerDetails requires something?
             // statistics topicDetails
             // Don't care about: localizations (even though I can get it)
-            var playlistRequest = service.Playlists.List("contentDetails,id,snippet,status");
+            var playlistRequest = _youTubeService.Playlists.List("contentDetails,id,snippet,status");
             playlistRequest.Mine = true;
-            // NOTE: it's limited to 50 by google
-            playlistRequest.MaxResults = 50;
-            var playlists = new List<Playlist>();
+            var result = await YouTubeServiceRequestWrapper.GetResults<Playlist>(playlistRequest);
 
-            // TODO: error handling
-            var playlistResponse = await playlistRequest.ExecuteAsync();
-            playlists.AddRange(playlistResponse.Items);
+            var serialized = JsonConvert.SerializeObject(result);
+            File.WriteAllText(playlistFile, serialized);
 
-            while (playlistResponse.NextPageToken != null)
-            {
-                playlistRequest.PageToken = playlistResponse.NextPageToken;
-                playlistResponse = await playlistRequest.ExecuteAsync();
-                playlists.AddRange(playlistResponse.Items);
-            }
-
-            return playlists;
+            return result;
         }
     }
 }

@@ -27,3 +27,8 @@ Go to Credential manager (Control Panel -> User Accounts -> Credential Manager)
 2. Youtube somehow knows how to hide "music" ones
 3. Likes aren't returned at all
 4. We can get thumbnails for the playlists. Some playlists don't have thumbnails (eg, one or more videos got deleted)
+
+
+
+listing playlists has a number of properties it takes in as per https://developers.google.com/youtube/v3/docs/channels/list
+auditDetails,brandingSettings,contentDetails,contentOwnerDetails,id,localizations,snippet,statistics,status,topicDetails

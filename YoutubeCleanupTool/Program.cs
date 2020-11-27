@@ -16,6 +16,7 @@ using System.Net.Http;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
+using static Google.Apis.YouTube.v3.ActivitiesResource;
 
 namespace YoutubeCleanupTool
 {
@@ -47,11 +48,20 @@ namespace YoutubeCleanupTool
                 var serialized = JsonConvert.SerializeObject(playlists);
                 File.WriteAllText(playlistFile, serialized);
             }
+
+            // https://developers.google.com/youtube/v3/docs/playlistItems
+            var playlistItems = youTubeService.PlaylistItems.List("contentDetails,id,snippet,status");
+            playlistItems.PlaylistId = "PLDA36B67C0C113339";
+            var response2 = YouTubeServiceRequestWrapper.GetResults<PlaylistItem>(playlistItems);
         }
 
         private static async Task<List<Playlist>> GetPlaylists(YouTubeService service)
         {
-            var playlistRequest = service.Playlists.List("snippet");
+            // auditDetails requires youtubepartner-channel-audit scope
+            // brandingSettings, contentOwnerDetails requires something?
+            // statistics topicDetails
+            // Don't care about: localizations (even though I can get it)
+            var playlistRequest = service.Playlists.List("contentDetails,id,snippet,status");
             playlistRequest.Mine = true;
             // NOTE: it's limited to 50 by google
             playlistRequest.MaxResults = 50;

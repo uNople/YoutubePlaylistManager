@@ -15,6 +15,8 @@ namespace YoutubeCleanupTool
 {
     public class YoutubeService
     {
+        public YouTubeService YouTubeService { get; set; }
+
         public YoutubeService()
         {
 
@@ -48,5 +50,7 @@ namespace YoutubeCleanupTool
             apiKey = null;
             return service;
         }
+
+        
     }
 }

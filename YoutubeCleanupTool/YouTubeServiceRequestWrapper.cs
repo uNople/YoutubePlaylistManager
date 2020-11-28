@@ -22,6 +22,7 @@ namespace YoutubeCleanupTool
 
             while (response.NextPageToken != null)
             {
+                Console.Write(".");
                 request.PageToken = response.NextPageToken;
                 response = await request.ExecuteAsync();
                 result.AddRange(response.Items);

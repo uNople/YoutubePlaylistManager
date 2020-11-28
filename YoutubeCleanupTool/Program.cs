@@ -39,12 +39,13 @@ namespace YoutubeCleanupTool
             };
 
             _youTubeService = await new YoutubeService().CreateYouTubeService("googleapikey", @"C:\Users\unopl\source\repos\Creds\client_secret.json", "Youtube.Api.Storage");
+            var forceGetAll = false;
 
-            var playlists = await GetPlaylists(true);
+            var playlists = await GetPlaylists(forceGetAll);
 
             const string playlistItemFile = "playlistItems.json";
             var cachedPlaylistItems = new Dictionary<string, List<PlaylistItem>>();
-            if (File.Exists(playlistItemFile))
+            if (!forceGetAll && File.Exists(playlistItemFile))
             {
                 cachedPlaylistItems = JsonConvert.DeserializeObject<Dictionary<string, List<PlaylistItem>>>(File.ReadAllText(playlistItemFile));
             }
@@ -63,6 +64,25 @@ namespace YoutubeCleanupTool
                     // This is a 'force re-get'
                 }
             }
+
+            var videos = new List<Video>();
+            foreach (var item in cachedPlaylistItems)
+            {
+                foreach (var videoData in item.Value)
+                {
+                    var videoz = await GetVideos("Joed0P3hhbc");
+                    videos.AddRange(videoz);
+                }
+            }
+        }
+
+        private static async Task<List<Video>> GetVideos(string id)
+        {
+            // https://developers.google.com/youtube/v3/docs/playlistItems
+            // playlist LL and LM to get liked videos / liked music
+            var items = _youTubeService.Videos.List("contentDetails,id,snippet,status,player,projectDetails,recordingDetails,statistics,topicDetails");
+            items.Id = id;
+            return await YouTubeServiceRequestWrapper.GetResults<Video>(items);
         }
 
         private static async Task<List<PlaylistItem>> GetPlaylistItems(string playlistId)

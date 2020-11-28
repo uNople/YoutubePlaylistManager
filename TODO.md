@@ -1,11 +1,6 @@
 Next:
-- Cache playlist items
-- Add 'force get' for this cache
-- Continue "working" on differentiating between youtube music playlist vs youtube playlist
-
-Differentiating between youtube playlist and youtube music playlist:
-- Get playlists themselves (get all content, videos, better description, more metadata, something other than "snippet"?)
-- Is there some way of differentiating between the playlists?
+- Get the video data. See if there's something in there that tells us if it's music or video
+- Investigate other parts of the api to see if the data is hidden elsewhere
 
 Likes:
 - See if I can get liked playlist from API

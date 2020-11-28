@@ -27,8 +27,11 @@ Go to Credential manager (Control Panel -> User Accounts -> Credential Manager)
 2. Youtube somehow knows how to hide "music" ones
 3. Likes aren't returned at all
 4. We can get thumbnails for the playlists. Some playlists don't have thumbnails (eg, one or more videos got deleted)
-
-
+5. Liked playlist for youtube is LL. Liked for youtube music is LM
+6. There seems to to be no way of differentiating between music and video
+7. Uploaded music migrated from google play is all private - and not accesible on youtube - even though the playlist is on youtube
+8. There's an option in https://music.youtube.com - click your profile icon -> settings -> unselect "Show your liked music from YouTube". You can then use the LM playlist to act as the "delete from LL playlist" list
+9. Deleting a youtube music like deletes it from your youtube likes and vice-versa. DISAPPOINTED!
 
 listing playlists has a number of properties it takes in as per https://developers.google.com/youtube/v3/docs/channels/list
 auditDetails,brandingSettings,contentDetails,contentOwnerDetails,id,localizations,snippet,statistics,status,topicDetails

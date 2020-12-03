@@ -58,27 +58,48 @@ namespace YoutubeCleanupTool
                     cachedPlaylistItems.Add(playlist.Id, playlistItems);
                     File.WriteAllText(playlistItemFile, JsonConvert.SerializeObject(cachedPlaylistItems));
                 }
-                else
-                {
-                    // update the cached version of these playlist items with new ones
-                    // This is a 'force re-get'
-                }
             }
 
+            const string videosFile = "videosFile.json";
+
             var videos = new List<Video>();
+            var videosThatExist = new HashSet<string>();
+            if (!forceGetAll && File.Exists(videosFile))
+            {
+                videos = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(videosFile));
+                videosThatExist = new HashSet<string>(videos.Select(x => x.Id));
+            }
+
+            const int saveEvery = 10;
+            var current = 0;
             foreach (var item in cachedPlaylistItems)
             {
-                foreach (var videoData in item.Value)
+                foreach (var playlistItem in item.Value)
                 {
-                    var videoz = await GetVideos("Joed0P3hhbc");
-                    videos.AddRange(videoz);
+                    if (videosThatExist.Contains(playlistItem.ContentDetails.VideoId))
+                        continue;
+
+                    current++;
+                    var video = await GetVideos(playlistItem.ContentDetails.VideoId);
+                    Console.Write(".");
+                    foreach (var videoData in video)
+                    {
+                        videos.Add(videoData);
+                        videosThatExist.Add(videoData.Id);
+                    }
+
+                    if (current % saveEvery == 0)
+                    {
+                        File.WriteAllText(videosFile, JsonConvert.SerializeObject(videos));
+                    }
                 }
             }
+            File.WriteAllText(videosFile, JsonConvert.SerializeObject(videos));
         }
 
         private static async Task<List<Video>> GetVideos(string id)
         {
-            // https://developers.google.com/youtube/v3/docs/playlistItems
+            // https://developers.google.com/youtube/v3/docs/videos/list
             // playlist LL and LM to get liked videos / liked music
             var items = _youTubeService.Videos.List("contentDetails,id,snippet,status,player,projectDetails,recordingDetails,statistics,topicDetails");
             items.Id = id;
@@ -87,8 +108,7 @@ namespace YoutubeCleanupTool
 
         private static async Task<List<PlaylistItem>> GetPlaylistItems(string playlistId)
         {
-            // https://developers.google.com/youtube/v3/docs/playlistItems
-            // playlist LL and LM to get liked videos / liked music
+            // https://developers.google.com/youtube/v3/docs/playlistItems/list
             var playlistItems = _youTubeService.PlaylistItems.List("contentDetails,id,snippet,status");
             playlistItems.PlaylistId = playlistId;
             return await YouTubeServiceRequestWrapper.GetResults<PlaylistItem>(playlistItems);

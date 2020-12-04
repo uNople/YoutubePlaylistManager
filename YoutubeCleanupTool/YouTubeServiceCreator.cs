@@ -13,18 +13,18 @@ using System.Threading.Tasks;
 
 namespace YoutubeCleanupTool
 {
-    public class YoutubeService
+    public class YouTubeServiceCreator : IYouTubeServiceCreator
     {
-        public YouTubeService YouTubeService { get; set; }
+        private readonly ICredentialManagerWrapper _credentialManagerWrapper;
 
-        public YoutubeService()
+        public YouTubeServiceCreator(ICredentialManagerWrapper credentialManagerWrapper)
         {
-
+            _credentialManagerWrapper = credentialManagerWrapper ?? throw new ArgumentNullException(nameof(credentialManagerWrapper));
         }
 
         public async Task<YouTubeService> CreateYouTubeService(string googleApiKeyCredentialName, string clientSecretPath, string fileDataStoreName)
         {
-            var apiKey = CredentialManager.GetICredential(googleApiKeyCredentialName).UserName;
+            var apiKey = _credentialManagerWrapper.GetApiKey();
             UserCredential credential;
             using (var stream = new FileStream(clientSecretPath, FileMode.Open, FileAccess.Read))
             {

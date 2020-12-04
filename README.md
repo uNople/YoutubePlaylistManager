@@ -37,6 +37,7 @@ Go to Credential manager (Control Panel -> User Accounts -> Credential Manager)
    b) potentially contentDetails.regionRestriction (but not sure if this can be on videos)
    c) topicDetails.topicCategories -> contains https://en.wikipedia.org/wiki/Music seems to be how they tell
    d) categoryId
+11. None of the above really matters. YouTube data api doesn't indicate if something's really music or not. Even if something's not in the cateory, etc it *could* be playable on youtube music probably due to ContentId or flagging.
 
 listing playlists has a number of properties it takes in as per https://developers.google.com/youtube/v3/docs/channels/list
 auditDetails,brandingSettings,contentDetails,contentOwnerDetails,id,localizations,snippet,statistics,status,topicDetails

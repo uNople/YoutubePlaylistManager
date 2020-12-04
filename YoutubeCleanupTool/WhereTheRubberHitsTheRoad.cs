@@ -3,39 +3,39 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YoutubeCleanupTool.Interfaces;
 
 namespace YoutubeCleanupTool
 {
-    // TODO: Move basically everything out of here - it's just here temporarily... """"temporarily""""
-    internal class ConsoleUi : IConsoleUi
+    // TODO: Rename
+    // TODO: This class mixes saving/getting data with 'pure' get the data. It's also inconsistent - some things read data first, and then
+    // based off the result of that, it either gets more things, or doesn't get as much (eg, we don't get all videos each time, only new ones)
+    public class WhereTheRubberHitsTheRoad : IWhereTheRubberHitsTheRoad
     {
         private readonly IYouTubeServiceWrapper _youTubeServiceWrapper;
         private readonly IPersister _persister;
 
-        public ConsoleUi(IYouTubeServiceWrapper youTubeServiceWrapper, IPersister persister)
+        public WhereTheRubberHitsTheRoad(IYouTubeServiceWrapper youTubeServiceWrapper, IPersister persister)
         {
             _youTubeServiceWrapper = youTubeServiceWrapper ?? throw new ArgumentNullException(nameof(youTubeServiceWrapper));
             _persister = persister ?? throw new ArgumentNullException(nameof(persister));
         }
 
-        public void Run()
+        public async Task<List<Playlist>> GetPlaylists()
         {
-            Task.WaitAll(Execute());
+            const string playlistFile = "playlists.json";
+            var playlists = await _youTubeServiceWrapper.GetPlaylists();
+            _persister.SaveData(playlistFile, playlists);
+            return playlists;
         }
 
-        private async Task Execute()
+        public async Task<Dictionary<string, List<PlaylistItem>>> GetPlaylistItems(List<Playlist> playlists)
         {
-            var forceGetAll = false;
-
-            var playlists = await _youTubeServiceWrapper.GetPlaylists(forceGetAll);
-
             const string playlistItemFile = "playlistItems.json";
             var cachedPlaylistItems = new Dictionary<string, List<PlaylistItem>>();
-            if (!forceGetAll && File.Exists(playlistItemFile))
+            if (_persister.DataExists(playlistItemFile))
             {
                 cachedPlaylistItems = _persister.GetData<Dictionary<string, List<PlaylistItem>>>(playlistItemFile);
             }
@@ -50,11 +50,16 @@ namespace YoutubeCleanupTool
                 }
             }
 
+            return cachedPlaylistItems;
+        }
+
+        public async Task<List<Video>> GetVideos(Dictionary<string, List<PlaylistItem>> cachedPlaylistItems)
+        {
             const string videosFile = "videosFile.json";
 
             var videos = new List<Video>();
             var videosThatExist = new HashSet<string>();
-            if (!forceGetAll && File.Exists(videosFile))
+            if (_persister.DataExists(videosFile))
             {
                 videos = _persister.GetData<List<Video>>(videosFile);
                 videosThatExist = new HashSet<string>(videos.Select(x => x.Id));
@@ -71,7 +76,6 @@ namespace YoutubeCleanupTool
 
                     current++;
                     var video = await _youTubeServiceWrapper.GetVideos(playlistItem.ContentDetails.VideoId);
-                    Console.Write(".");
                     foreach (var videoData in video)
                     {
                         videos.Add(videoData);
@@ -85,6 +89,8 @@ namespace YoutubeCleanupTool
                 }
             }
             _persister.SaveData(videosFile, videos);
+
+            return videos;
         }
     }
 }

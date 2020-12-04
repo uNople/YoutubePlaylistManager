@@ -10,7 +10,6 @@ namespace YoutubeCleanupTool
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<ConsoleUi>().As<IConsoleUi>();
             builder.RegisterType<YouTubeServiceCreator>().As<IYouTubeServiceCreator>();
             builder.RegisterType<CredentialManagerWrapper>().As<ICredentialManagerWrapper>();
             builder.RegisterType<Persister>().As<IPersister>();
@@ -24,6 +23,7 @@ namespace YoutubeCleanupTool
                 var creator = x.Resolve<IYouTubeServiceCreator>();
                 return creator.CreateYouTubeService().Result;
             }).As<IYouTubeServiceWrapper>();
+            builder.RegisterType<WhereTheRubberHitsTheRoad>().As<IWhereTheRubberHitsTheRoad>();
         }
     }
 }

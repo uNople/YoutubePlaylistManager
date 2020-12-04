@@ -18,13 +18,11 @@ namespace YoutubeCleanupTool
     {
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
-        private readonly IPersister _persister;
 
-        public YouTubeServiceCreator(ICredentialManagerWrapper credentialManagerWrapper, YoutubeServiceCreatorOptions youtubeServiceCreatorOptions, IPersister persister)
+        public YouTubeServiceCreator(ICredentialManagerWrapper credentialManagerWrapper, YoutubeServiceCreatorOptions youtubeServiceCreatorOptions)
         {
             _credentialManagerWrapper = credentialManagerWrapper ?? throw new ArgumentNullException(nameof(credentialManagerWrapper));
             _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions ?? throw new ArgumentNullException(nameof(youtubeServiceCreatorOptions));
-            _persister = persister ?? throw new ArgumentNullException(nameof(persister));
         }
 
         public async Task<IYouTubeServiceWrapper> CreateYouTubeService()
@@ -46,7 +44,7 @@ namespace YoutubeCleanupTool
             }
 
             // Create the service.
-            var service = new YouTubeServiceWrapper(_persister, new BaseClientService.Initializer()
+            var service = new YouTubeServiceWrapper(new BaseClientService.Initializer()
             {
                 ApiKey = apiKey,
                 HttpClientInitializer = credential,

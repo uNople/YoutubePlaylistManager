@@ -10,10 +10,8 @@ namespace YoutubeCleanupTool
 {
     public class YouTubeServiceWrapper : YouTubeService, IYouTubeServiceWrapper
     {
-        private readonly IPersister _persister;
-        public YouTubeServiceWrapper(IPersister persister, Initializer initializer) : base(initializer)
+        public YouTubeServiceWrapper(Initializer initializer) : base(initializer)
         {
-            _persister = persister ?? throw new ArgumentNullException(nameof(persister));
         }
 
         public async Task<List<Video>> GetVideos(string id)
@@ -33,14 +31,8 @@ namespace YoutubeCleanupTool
             return await YouTubeServiceRequestWrapper.GetResults<PlaylistItem>(playlistItems);
         }
 
-        public async Task<List<Playlist>> GetPlaylists(bool forceGet)
+        public async Task<List<Playlist>> GetPlaylists()
         {
-            const string playlistFile = "playlists.json";
-            if (!forceGet && _persister.DataExists(playlistFile))
-            {
-                return _persister.GetData<List<Playlist>>(playlistFile);
-            }
-
             // auditDetails requires youtubepartner-channel-audit scope
             // brandingSettings, contentOwnerDetails requires something?
             // statistics topicDetails
@@ -56,8 +48,6 @@ namespace YoutubeCleanupTool
             playlistRequest.Id = "LM";
             result.AddRange(await YouTubeServiceRequestWrapper.GetResults<Playlist>(playlistRequest));
 
-            _persister.SaveData(playlistFile, result);
-            
             return result;
         }
     }

@@ -8,6 +8,6 @@ namespace YoutubeCleanupTool.Interfaces
     {
         Task<List<PlaylistItem>> GetPlaylistItems(string playlistId);
         Task<List<Video>> GetVideos(string id);
-        Task<List<Playlist>> GetPlaylists(bool forceGet);
+        Task<List<Playlist>> GetPlaylists();
     }
 }

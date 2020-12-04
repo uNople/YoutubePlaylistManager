@@ -1,24 +1,25 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using YoutubeCleanupTool.Interfaces;
 
 namespace YoutubeCleanupTool
 {
     // TODO: Move basically everything out of here - it's just here temporarily... """"temporarily""""
     internal class ConsoleUi : IConsoleUi
     {
-        private YouTubeService _youTubeService;
-        private IYouTubeServiceCreator _youTubeServiceWrapper;
+        private readonly IYouTubeServiceWrapper _youTubeServiceWrapper;
+        private readonly IPersister _persister;
 
-        public ConsoleUi(IYouTubeServiceCreator youTubeServiceWrapper)
+        public ConsoleUi(IYouTubeServiceWrapper youTubeServiceWrapper, IPersister persister)
         {
             _youTubeServiceWrapper = youTubeServiceWrapper ?? throw new ArgumentNullException(nameof(youTubeServiceWrapper));
+            _persister = persister ?? throw new ArgumentNullException(nameof(persister));
         }
 
         public void Run()
@@ -28,30 +29,24 @@ namespace YoutubeCleanupTool
 
         private async Task Execute()
         {
-            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-            };
-
-            _youTubeService = await _youTubeServiceWrapper.CreateYouTubeService("googleapikey", @"C:\Users\unopl\source\repos\Creds\client_secret.json", "Youtube.Api.Storage");
             var forceGetAll = false;
 
-            var playlists = await GetPlaylists(forceGetAll);
+            var playlists = await _youTubeServiceWrapper.GetPlaylists(forceGetAll);
 
             const string playlistItemFile = "playlistItems.json";
             var cachedPlaylistItems = new Dictionary<string, List<PlaylistItem>>();
             if (!forceGetAll && File.Exists(playlistItemFile))
             {
-                cachedPlaylistItems = JsonConvert.DeserializeObject<Dictionary<string, List<PlaylistItem>>>(File.ReadAllText(playlistItemFile));
+                cachedPlaylistItems = _persister.GetData<Dictionary<string, List<PlaylistItem>>>(playlistItemFile);
             }
 
             foreach (var playlist in playlists)
             {
                 if (!cachedPlaylistItems.ContainsKey(playlist.Id))
                 {
-                    var playlistItems = await GetPlaylistItems(playlist.Id);
+                    var playlistItems = await _youTubeServiceWrapper.GetPlaylistItems(playlist.Id);
                     cachedPlaylistItems.Add(playlist.Id, playlistItems);
-                    File.WriteAllText(playlistItemFile, JsonConvert.SerializeObject(cachedPlaylistItems));
+                    _persister.SaveData(playlistItemFile, cachedPlaylistItems);
                 }
             }
 
@@ -61,7 +56,7 @@ namespace YoutubeCleanupTool
             var videosThatExist = new HashSet<string>();
             if (!forceGetAll && File.Exists(videosFile))
             {
-                videos = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(videosFile));
+                videos = _persister.GetData<List<Video>>(videosFile);
                 videosThatExist = new HashSet<string>(videos.Select(x => x.Id));
             }
 
@@ -75,7 +70,7 @@ namespace YoutubeCleanupTool
                         continue;
 
                     current++;
-                    var video = await GetVideos(playlistItem.ContentDetails.VideoId);
+                    var video = await _youTubeServiceWrapper.GetVideos(playlistItem.ContentDetails.VideoId);
                     Console.Write(".");
                     foreach (var videoData in video)
                     {
@@ -85,57 +80,11 @@ namespace YoutubeCleanupTool
 
                     if (current % saveEvery == 0)
                     {
-                        File.WriteAllText(videosFile, JsonConvert.SerializeObject(videos));
+                        _persister.SaveData(videosFile, videos);
                     }
                 }
             }
-            File.WriteAllText(videosFile, JsonConvert.SerializeObject(videos));
-        }
-
-        private async Task<List<Video>> GetVideos(string id)
-        {
-            // https://developers.google.com/youtube/v3/docs/videos/list
-            // playlist LL and LM to get liked videos / liked music
-            var items = _youTubeService.Videos.List("contentDetails,id,snippet,status,player,projectDetails,recordingDetails,statistics,topicDetails");
-            items.Id = id;
-            return await YouTubeServiceRequestWrapper.GetResults<Video>(items);
-        }
-
-        private async Task<List<PlaylistItem>> GetPlaylistItems(string playlistId)
-        {
-            // https://developers.google.com/youtube/v3/docs/playlistItems/list
-            var playlistItems = _youTubeService.PlaylistItems.List("contentDetails,id,snippet,status");
-            playlistItems.PlaylistId = playlistId;
-            return await YouTubeServiceRequestWrapper.GetResults<PlaylistItem>(playlistItems);
-        }
-
-        private async Task<List<Playlist>> GetPlaylists(bool forceGet)
-        {
-            const string playlistFile = "playlists.json";
-            if (!forceGet && File.Exists(playlistFile))
-            {
-                return JsonConvert.DeserializeObject<List<Playlist>>(File.ReadAllText(playlistFile));
-            }
-
-            // auditDetails requires youtubepartner-channel-audit scope
-            // brandingSettings, contentOwnerDetails requires something?
-            // statistics topicDetails
-            // Don't care about: localizations (even though I can get it)
-            var playlistRequest = _youTubeService.Playlists.List("contentDetails,id,snippet,status");
-            playlistRequest.Mine = true;
-            var result = await YouTubeServiceRequestWrapper.GetResults<Playlist>(playlistRequest);
-
-            // force-get LL and LM playlists
-            playlistRequest = _youTubeService.Playlists.List("contentDetails,id,snippet,status");
-            playlistRequest.Id = "LL";
-            result.AddRange(await YouTubeServiceRequestWrapper.GetResults<Playlist>(playlistRequest));
-            playlistRequest.Id = "LM";
-            result.AddRange(await YouTubeServiceRequestWrapper.GetResults<Playlist>(playlistRequest));
-
-            var serialized = JsonConvert.SerializeObject(result);
-            File.WriteAllText(playlistFile, serialized);
-
-            return result;
+            _persister.SaveData(videosFile, videos);
         }
     }
 }

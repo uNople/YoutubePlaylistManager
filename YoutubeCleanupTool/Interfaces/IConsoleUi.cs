@@ -1,4 +1,4 @@
-﻿namespace YoutubeCleanupTool
+﻿namespace YoutubeCleanupTool.Interfaces
 {
     internal interface IConsoleUi
     {

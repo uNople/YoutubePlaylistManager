@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace YoutubeCleanupTool.Interfaces
 {
     public interface IYouTubeServiceCreator
     {
-        Task<IYouTubeServiceWrapper> CreateYouTubeService();
+        Lazy<Task<IYouTubeServiceWrapper>> YouTubeServiceWrapper { get; set; }
     }
 }

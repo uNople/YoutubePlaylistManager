@@ -14,19 +14,20 @@ namespace YoutubeCleanupTool
     // based off the result of that, it either gets more things, or doesn't get as much (eg, we don't get all videos each time, only new ones)
     public class WhereTheRubberHitsTheRoad : IWhereTheRubberHitsTheRoad
     {
-        private readonly IYouTubeServiceWrapper _youTubeServiceWrapper;
+        private readonly IYouTubeServiceCreator _youTubeServiceCreator;
         private readonly IPersister _persister;
 
-        public WhereTheRubberHitsTheRoad(IYouTubeServiceWrapper youTubeServiceWrapper, IPersister persister)
+        public WhereTheRubberHitsTheRoad(IYouTubeServiceCreator youTubeServiceCreator, IPersister persister)
         {
-            _youTubeServiceWrapper = youTubeServiceWrapper ?? throw new ArgumentNullException(nameof(youTubeServiceWrapper));
+            _youTubeServiceCreator = youTubeServiceCreator ?? throw new ArgumentNullException(nameof(youTubeServiceCreator));
             _persister = persister ?? throw new ArgumentNullException(nameof(persister));
         }
 
         public async Task<List<Playlist>> GetPlaylists()
         {
             const string playlistFile = "playlists.json";
-            var playlists = await _youTubeServiceWrapper.GetPlaylists();
+            // TODO: Make less ugly
+            var playlists = await (await _youTubeServiceCreator.YouTubeServiceWrapper.Value).GetPlaylists();
             _persister.SaveData(playlistFile, playlists);
             return playlists;
         }
@@ -44,7 +45,7 @@ namespace YoutubeCleanupTool
             {
                 if (!cachedPlaylistItems.ContainsKey(playlist.Id))
                 {
-                    var playlistItems = await _youTubeServiceWrapper.GetPlaylistItems(playlist.Id);
+                    var playlistItems = await (await _youTubeServiceCreator.YouTubeServiceWrapper.Value).GetPlaylistItems(playlist.Id);
                     cachedPlaylistItems.Add(playlist.Id, playlistItems);
                     _persister.SaveData(playlistItemFile, cachedPlaylistItems);
                 }
@@ -75,7 +76,7 @@ namespace YoutubeCleanupTool
                         continue;
 
                     current++;
-                    var video = await _youTubeServiceWrapper.GetVideos(playlistItem.ContentDetails.VideoId);
+                    var video = await (await _youTubeServiceCreator.YouTubeServiceWrapper.Value).GetVideos(playlistItem.ContentDetails.VideoId);
                     foreach (var videoData in video)
                     {
                         videos.Add(videoData);

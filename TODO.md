@@ -1,11 +1,13 @@
 Next:
 - Write tests, have decent coverage
+- Make the lazy YoutubeWrapper creation less ugly
+- Figure out why the credential creator fails if there's already a credential there
 
 After?
-- Re-architect program
-    - Have some kind of 'SearchableField' attribute for later
 - Add Sqlite - not saving JSON to disk -> EF core
 - Create some kind of UI for what I have
+- Re-architect program
+    - Have some kind of 'SearchableField' attribute for later
 
 Future features:
 - Make a UI to modify my playlists easier than through youtube

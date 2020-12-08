@@ -11,75 +11,117 @@ using YoutubeCleanupTool.Utils;
 
 namespace YoutubeCleanupConsole
 {
-    // TODO: Move basically everything out of here - it's just here temporarily... """"temporarily""""
     public class ConsoleUi : IConsoleUi
     {
-        private readonly IYouTubeServiceWrapper _youTubeServiceWrapper;
-        private readonly IPersister _persister;
         private readonly ConsoleDisplayParams _consoleDisplayParams;
         private readonly IWhereTheRubberHitsTheRoad _whereTheRubberHitsTheRoad;
+        private readonly ICredentialManagerWrapper _credentialManagerWrapper;
 
-        public ConsoleUi(IYouTubeServiceWrapper youTubeServiceWrapper, IPersister persister, ConsoleDisplayParams consoleDisplayParams,
-            IWhereTheRubberHitsTheRoad whereTheRubberHitsTheRoad)
+        public ConsoleUi(ConsoleDisplayParams consoleDisplayParams,
+            IWhereTheRubberHitsTheRoad whereTheRubberHitsTheRoad,
+            ICredentialManagerWrapper credentialManagerWrapper)
         {
-            _youTubeServiceWrapper = youTubeServiceWrapper ?? throw new ArgumentNullException(nameof(youTubeServiceWrapper));
-            _persister = persister ?? throw new ArgumentNullException(nameof(persister));
             _consoleDisplayParams = consoleDisplayParams ?? throw new ArgumentNullException(nameof(consoleDisplayParams));
             _whereTheRubberHitsTheRoad = whereTheRubberHitsTheRoad ?? throw new ArgumentNullException(nameof(whereTheRubberHitsTheRoad));
+            _credentialManagerWrapper = credentialManagerWrapper ?? throw new ArgumentNullException(nameof(credentialManagerWrapper));
         }
 
         public async Task Run()
         {
+            var commands = new Dictionary<string, Func<Task>>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                { "GetPlaylists", async () => await GetPlaylists() },
+                { "UpdateApiKey", async () => await Task.Run(() => _credentialManagerWrapper.PromptForKey()) }
+            };
+
+            //PromptForKeyIfNotExists();
+
+            CheckClientJsonExists();
+
             while (true)
             {
-                Draw();
 
-                
+                Draw(commands.Keys.ToList());
 
                 var command = Console.ReadLine();
 
-                if (command == "GetPlaylists")
+                if (commands.TryGetValue(command, out var func))
                 {
-                    try
-                    {
-                        Console.WriteLine("Playlist Details:");
-                        Console.WriteLine();
-                        (await _whereTheRubberHitsTheRoad.GetPlaylists())
-                            .ForEach(x => Console.WriteLine($"{x.Id} - {x.Snippet.Title}"));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error: {ex}");
-                    }
-                    Console.WriteLine("Press enter to go again");
-                    Console.ReadLine();
+                    await func();
                 }
             }
         }
 
-        private void Draw()
+        private async Task GetPlaylists()
         {
+            try
+            {
+                Console.WriteLine("Playlist Details:");
+                Console.WriteLine();
+                (await _whereTheRubberHitsTheRoad.GetPlaylists())
+                    .ForEach(x => Console.WriteLine($"{x.Id} - {x.Snippet.Title}"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex}");
+            }
+        }
+
+        // TODO: Move these Check Credential things into another class - but... maybe don't need to move it?
+        // TODO: Write tests
+        private void CheckClientJsonExists()
+        {
+            // TODO: prompt for new path for client.json
+            // make sure it exists there
+            // validate we can create a YoutubeClientwrapper at this point?
+        }
+
+        private void PromptForKeyIfNotExists()
+        {
+            if (!_credentialManagerWrapper.Exists())
+            {
+                _credentialManagerWrapper.PromptForKey();
+            }
+        }
+
+        private void Draw(List<string> commands)
+        {
+            int commandIndex = 0;
+
             for (int line = 0; line < _consoleDisplayParams.Lines; line++)
             {
+                if (!IsCommandLines(line) && !IsBorderLine(line))
+                {
+                    if (commandIndex < commands.Count)
+                    {
+                        Console.Write($" >   {commands[commandIndex++]}");
+                    }
+                }
                 for (int column = 0; column < _consoleDisplayParams.Columns; column++)
                 {
-                    if (line >= _consoleDisplayParams.Lines - _consoleDisplayParams.BottomPadding + 1)
+                    if (IsCommandLines(line))
                     {
-
+                        // TODO: Please enter a command
                     }
-                    else if (line == 0 || column == 0 || column == _consoleDisplayParams.Columns - 1 || 
-                        // is last line we should draw
-                        (line + _consoleDisplayParams.BottomPadding) == _consoleDisplayParams.Lines)
+                    else if (IsBorderLine(line))
                     {
                         Console.Write(_consoleDisplayParams.Border);
-                    }
-                    else
-                    {
-                        Console.Write(_consoleDisplayParams.Filler);
                     }
                 }
                 Console.WriteLine();
             }
+        }
+
+        private bool IsCommandLines(int line)
+        {
+            return line >= _consoleDisplayParams.Lines - _consoleDisplayParams.BottomPadding + 1;
+        }
+
+        private bool IsBorderLine(int line)
+        {
+            return line == 0 || 
+                // is last line we should draw
+                (line + _consoleDisplayParams.BottomPadding) == _consoleDisplayParams.Lines;
         }
     }
 }

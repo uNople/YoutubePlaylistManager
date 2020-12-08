@@ -12,9 +12,10 @@ It's also super slow to do anything with playlists, especially when they're mass
 # how to run
 
 First, you need a api key, and a oauth key.
-Follow the instructions here: https://developers.google.com/identity/protocols/oauth2/openid-connect
+[Follow the instructions here](https://developers.google.com/identity/protocols/oauth2/openid-connect)
+[Developer console here](https://console.developers.google.com/?pli=1)
 
-Go to Credential manager (Control Panel -> User Accounts -> Credential Manager)
+Go to Credential manager in windows (Control Panel -> User Accounts -> Credential Manager)
 
 1. Create a `googleapikey` generic credential
    The 'password' field for this should be your google api key

@@ -18,11 +18,13 @@ namespace YoutubeCleanupTool
     {
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
+        public Lazy<Task<IYouTubeServiceWrapper>> YouTubeServiceWrapper { get; set; }
 
         public YouTubeServiceCreator(ICredentialManagerWrapper credentialManagerWrapper, YoutubeServiceCreatorOptions youtubeServiceCreatorOptions)
         {
             _credentialManagerWrapper = credentialManagerWrapper ?? throw new ArgumentNullException(nameof(credentialManagerWrapper));
             _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions ?? throw new ArgumentNullException(nameof(youtubeServiceCreatorOptions));
+            YouTubeServiceWrapper = new Lazy<Task<IYouTubeServiceWrapper>>(async () => await CreateYouTubeService());
         }
 
         public async Task<IYouTubeServiceWrapper> CreateYouTubeService()

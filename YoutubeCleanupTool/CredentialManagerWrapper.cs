@@ -8,10 +8,27 @@ namespace YoutubeCleanupTool
 {
     public class CredentialManagerWrapper : ICredentialManagerWrapper
     {
-        private const string _googleApiKeyCredentialName = "googleapikey";
+        private const string _googleApiKeyCredentialName = "YouTubeCleanupTool_googleapikey";
         public string GetApiKey()
         {
             return CredentialManager.GetICredential(_googleApiKeyCredentialName).UserName;
+        }
+
+        public void PromptForKey()
+        {
+            CredentialManager.PromptForCredentialsConsole(_googleApiKeyCredentialName);
+        }
+
+        public bool Exists()
+        {
+            try
+            {
+                return GetApiKey() != null;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -15,14 +15,10 @@ namespace YoutubeCleanupTool
             builder.RegisterType<Persister>().As<IPersister>();
             builder.RegisterInstance(new YoutubeServiceCreatorOptions
             {
-                ClientSecretPath = @"C:\Users\unopl\source\repos\Creds\client_secret.json",
+                // TODO: Move to app settings
+                ClientSecretPath = @"C:\temp\client_secret.json",
                 FileDataStoreName = "Youtube.Api.Storage",
             });
-            builder.Register(x =>
-            {
-                var creator = x.Resolve<IYouTubeServiceCreator>();
-                return creator.CreateYouTubeService().Result;
-            }).As<IYouTubeServiceWrapper>();
             builder.RegisterType<WhereTheRubberHitsTheRoad>().As<IWhereTheRubberHitsTheRoad>();
         }
     }

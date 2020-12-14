@@ -7,13 +7,22 @@ namespace YoutubeCleanupConsole
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule<YouTubeCleanupToolModule>();
             builder.RegisterModule<YoutubeCleanupConsoleModule>();
             var container = builder.Build();
-            Task.WaitAll(container.Resolve<IConsoleUi>().Run());
+            try
+            {
+                await container.Resolve<IConsoleUi>().Run();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unhandled exception: {ex}");
+                Console.WriteLine("Press enter to exit");
+                Console.ReadLine();
+            }
         }
     }
 }

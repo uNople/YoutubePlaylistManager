@@ -47,24 +47,26 @@ namespace YoutubeCleanupConsole
 
                 if (commands.TryGetValue(command, out var func))
                 {
-                    await func();
+                    try
+                    {
+                        await func();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error running command {command}. Error: {ex}");
+                        Console.WriteLine("Press ENTER to continue");
+                        Console.ReadLine();
+                    }
                 }
             }
         }
 
         private async Task GetPlaylists()
         {
-            try
-            {
-                Console.WriteLine("Playlist Details:");
-                Console.WriteLine();
-                (await _whereTheRubberHitsTheRoad.GetPlaylists())
-                    .ForEach(x => Console.WriteLine($"{x.Id} - {x.Snippet.Title}"));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex}");
-            }
+            Console.WriteLine("Playlist Details:");
+            Console.WriteLine();
+            (await _whereTheRubberHitsTheRoad.GetPlaylists())
+                .ForEach(x => Console.WriteLine($"{x.Id} - {x.Snippet.Title}"));
         }
 
         // TODO: Move these Check Credential things into another class - but... maybe don't need to move it?

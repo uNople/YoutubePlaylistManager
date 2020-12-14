@@ -1,7 +1,7 @@
 Next:
+- Add Sqlite - not saving JSON to disk -> EF core
 - Write tests, have decent coverage
 - Make the lazy YoutubeWrapper creation less ugly
-- Figure out why the credential creator fails if there's already a credential there
 
 After?
 - Add Sqlite - not saving JSON to disk -> EF core

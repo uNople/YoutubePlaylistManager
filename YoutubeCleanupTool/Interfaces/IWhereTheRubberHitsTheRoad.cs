@@ -6,8 +6,8 @@ namespace YoutubeCleanupTool.Interfaces
 {
     public interface IWhereTheRubberHitsTheRoad
     {
-        Task<Dictionary<string, List<PlaylistItem>>> GetPlaylistItems(List<Playlist> playlists);
+        Task<List<PlaylistItem>> GetPlaylistItems(List<Playlist> playlists);
         Task<List<Playlist>> GetPlaylists();
-        Task<List<Video>> GetVideos(Dictionary<string, List<PlaylistItem>> cachedPlaylistItems);
+        Task<List<Video>> GetVideos(List<PlaylistItem> cachedPlaylistItems);
     }
 }

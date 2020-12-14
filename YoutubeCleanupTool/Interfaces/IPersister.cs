@@ -2,8 +2,8 @@
 {
     public interface IPersister
     {
-        bool DataExists(string playlistFile);
-        T GetData<T>(string playlistFile);
-        void SaveData<T>(string playlistFile, T saveThis);
+        bool DataExists(string name);
+        T GetData<T>(string name) where T : new();
+        void SaveData<T>(string name, T saveThis);
     }
 }

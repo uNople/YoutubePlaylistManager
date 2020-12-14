@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using YoutubeCleanupTool.Interfaces;
+using YoutubeCleanupTool.Model;
 
 namespace YoutubeCleanupTool
 {
@@ -25,73 +26,65 @@ namespace YoutubeCleanupTool
 
         public async Task<List<Playlist>> GetPlaylists()
         {
-            const string playlistFile = "playlists.json";
-            // TODO: Make less ugly
-            var playlists = await (await _youTubeServiceCreator.YouTubeServiceWrapper.Value).GetPlaylists();
-            _persister.SaveData(playlistFile, playlists);
+            var playlists = await GetYouYubeWrapper().GetPlaylists();
+            _persister.SaveData(SavePathNames.PlaylistFile, playlists);
             return playlists;
         }
 
-        public async Task<Dictionary<string, List<PlaylistItem>>> GetPlaylistItems(List<Playlist> playlists)
+        public async Task<List<PlaylistItem>> GetPlaylistItems(List<Playlist> playlists)
         {
-            const string playlistItemFile = "playlistItems.json";
-            var cachedPlaylistItems = new Dictionary<string, List<PlaylistItem>>();
-            if (_persister.DataExists(playlistItemFile))
-            {
-                cachedPlaylistItems = _persister.GetData<Dictionary<string, List<PlaylistItem>>>(playlistItemFile);
-            }
 
+            var playlistItemData = new List<PlaylistItem>();
             foreach (var playlist in playlists)
             {
-                if (!cachedPlaylistItems.ContainsKey(playlist.Id))
-                {
-                    var playlistItems = await (await _youTubeServiceCreator.YouTubeServiceWrapper.Value).GetPlaylistItems(playlist.Id);
-                    cachedPlaylistItems.Add(playlist.Id, playlistItems);
-                    _persister.SaveData(playlistItemFile, cachedPlaylistItems);
-                }
+                var playlistItems = await GetYouYubeWrapper().GetPlaylistItems(playlist.Id);
+                playlistItemData.AddRange(playlistItems);
             }
+            _persister.SaveData(SavePathNames.PlaylistItemFile, playlistItemData);
 
-            return cachedPlaylistItems;
+            return playlistItemData;
         }
 
-        public async Task<List<Video>> GetVideos(Dictionary<string, List<PlaylistItem>> cachedPlaylistItems)
+        public async Task<List<Video>> GetVideos(List<PlaylistItem> cachedPlaylistItems)
         {
-            const string videosFile = "videosFile.json";
 
+            // TODO: do I actually want to get only if it doesn't exist?
             var videos = new List<Video>();
             var videosThatExist = new HashSet<string>();
-            if (_persister.DataExists(videosFile))
+            if (_persister.DataExists(SavePathNames.VideosFile))
             {
-                videos = _persister.GetData<List<Video>>(videosFile);
+                videos = _persister.GetData<List<Video>>(SavePathNames.VideosFile);
                 videosThatExist = new HashSet<string>(videos.Select(x => x.Id));
             }
 
             const int saveEvery = 10;
             var current = 0;
-            foreach (var item in cachedPlaylistItems)
+            foreach (var playlistItem in cachedPlaylistItems)
             {
-                foreach (var playlistItem in item.Value)
+                if (videosThatExist.Contains(playlistItem.ContentDetails.VideoId))
+                    continue;
+
+                current++;
+                var video = await GetYouYubeWrapper().GetVideos(playlistItem.ContentDetails.VideoId);
+                foreach (var videoData in video)
                 {
-                    if (videosThatExist.Contains(playlistItem.ContentDetails.VideoId))
-                        continue;
+                    videos.Add(videoData);
+                    videosThatExist.Add(videoData.Id);
+                }
 
-                    current++;
-                    var video = await (await _youTubeServiceCreator.YouTubeServiceWrapper.Value).GetVideos(playlistItem.ContentDetails.VideoId);
-                    foreach (var videoData in video)
-                    {
-                        videos.Add(videoData);
-                        videosThatExist.Add(videoData.Id);
-                    }
-
-                    if (current % saveEvery == 0)
-                    {
-                        _persister.SaveData(videosFile, videos);
-                    }
+                if (current % saveEvery == 0)
+                {
+                    _persister.SaveData(SavePathNames.VideosFile, videos);
                 }
             }
-            _persister.SaveData(videosFile, videos);
+            _persister.SaveData(SavePathNames.VideosFile, videos);
 
             return videos;
+        }
+
+        private IYouTubeServiceWrapper GetYouYubeWrapper()
+        {
+            return _youTubeServiceCreator.YouTubeServiceWrapper.Value.GetAwaiter().GetResult();
         }
     }
 }

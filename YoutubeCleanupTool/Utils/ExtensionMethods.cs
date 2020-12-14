@@ -12,5 +12,15 @@ namespace YoutubeCleanupTool.Utils
                 action(v);
             }
         }
+
+        public static bool StartsWithCi(this string str, string secondString)
+        {
+            return str.ToUpper().StartsWith(secondString.ToUpper());
+        }
+
+        public static bool EndsWithCi(this string str, string secondString)
+        {
+            return str.ToUpper().EndsWith(secondString.ToUpper());
+        }
     }
 }

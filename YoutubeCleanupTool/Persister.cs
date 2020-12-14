@@ -17,19 +17,26 @@ namespace YoutubeCleanupTool
             };
         }
 
-        public bool DataExists(string playlistFile)
+        public bool DataExists(string name)
         {
-            return File.Exists(playlistFile);
+            return File.Exists(name);
         }
 
-        public T GetData<T>(string playlistFile)
+        public T GetData<T>(string name) where T : new()
         {
-            return JsonConvert.DeserializeObject<T>(File.ReadAllText(playlistFile));
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(File.ReadAllText(name));
+            }
+            catch
+            {
+                return new T();
+            }
         }
 
-        public void SaveData<T>(string playlistFile, T saveThis)
+        public void SaveData<T>(string name, T saveThis)
         {
-            File.WriteAllText(playlistFile, JsonConvert.SerializeObject(saveThis));
+            File.WriteAllText(name, JsonConvert.SerializeObject(saveThis));
         }
     }
 }

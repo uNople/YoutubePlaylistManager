@@ -26,7 +26,9 @@ namespace YouTubeCleanupToolTests
             youtubeServiceWrapper.GetPlaylists().Returns(new List<Playlist>());
 
             // Act
-            await whereTheRubberHitsTheRoad.GetVideos(new Dictionary<string, List<PlaylistItem>>());
+            await foreach (var _ in whereTheRubberHitsTheRoad.GetVideos(new List<PlaylistItem>()))
+            { 
+            }
 
             // Assert
             persister.Received(1).SaveData("videosFile.json", Arg.Any<List<Video>>());

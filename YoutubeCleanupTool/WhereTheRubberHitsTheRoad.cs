@@ -45,7 +45,7 @@ namespace YoutubeCleanupTool
             return playlistItemData;
         }
 
-        public async Task<List<Video>> GetVideos(List<PlaylistItem> cachedPlaylistItems)
+        public async IAsyncEnumerable<Video> GetVideos(List<PlaylistItem> cachedPlaylistItems)
         {
 
             // TODO: do I actually want to get only if it doesn't exist?
@@ -65,12 +65,13 @@ namespace YoutubeCleanupTool
                     continue;
 
                 current++;
-                var video = await GetYouYubeWrapper().GetVideos(playlistItem.ContentDetails.VideoId);
-                foreach (var videoData in video)
-                {
-                    videos.Add(videoData);
-                    videosThatExist.Add(videoData.Id);
-                }
+                var video = (await GetYouYubeWrapper().GetVideos(playlistItem.ContentDetails.VideoId)).FirstOrDefault();
+                if (video == null)
+                    continue;
+
+                videos.Add(video);
+                videosThatExist.Add(video.Id);
+                yield return video;
 
                 if (current % saveEvery == 0)
                 {
@@ -78,8 +79,6 @@ namespace YoutubeCleanupTool
                 }
             }
             _persister.SaveData(SavePathNames.VideosFile, videos);
-
-            return videos;
         }
 
         private IYouTubeServiceWrapper GetYouYubeWrapper()

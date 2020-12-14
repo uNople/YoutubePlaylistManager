@@ -106,8 +106,10 @@ namespace YoutubeCleanupConsole
             }
 
             Console.WriteLine("Video Details:");
-            (await _whereTheRubberHitsTheRoad.GetVideos(playlistItems))
-                .ForEach(x => Console.WriteLine($"{x.Id} - {x.Snippet.Title}"));
+            await foreach (var video in _whereTheRubberHitsTheRoad.GetVideos(playlistItems))
+            {
+                Console.WriteLine($"{video.Id} - {video.Snippet.Title}");
+            }
         }
 
         // TODO: Move these Check Credential things into another class - but... maybe don't need to move it?

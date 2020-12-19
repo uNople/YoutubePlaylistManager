@@ -1,11 +1,9 @@
 Next:
 - Add Sqlite - not saving JSON to disk -> EF core
 - Write tests, have decent coverage
-- Make the lazy YoutubeWrapper creation less ugly
 
 After?
-- Add Sqlite - not saving JSON to disk -> EF core
-- Create some kind of UI for what I have
+- Create some kind of UI for what I have (Razer/express?)
 - Re-architect program
     - Have some kind of 'SearchableField' attribute for later
 

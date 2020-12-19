@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace YoutubeCleanupTool.Model
 {
+	[Table("PlaylistItems")]
 	public class PlaylistItemData
 	{
-		public string PlaylistTitle { get; set; }
+		[Key]
+		public string VideoId { get; set; }
 		public string PlaylistId { get; set; }
+		public string PlaylistTitle { get; set; }
 		public string PlaylistPrivacyStatus { get; set; }
 		public string Title { get; set; }
-		public string VideoId { get; set; }
 		public string VideoPublishedAt { get; set; }
 		public long? Position { get; set; }
 		public string ItemKind { get; set; }

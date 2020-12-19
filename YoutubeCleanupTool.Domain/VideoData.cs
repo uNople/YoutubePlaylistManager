@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using YoutubeCleanupTool.Utils;
 
 namespace YoutubeCleanupTool.Model
 {
+	[Table("Videos")]
 	public class VideoData
 	{
+		[Key]
 		public string Id { get; set; }
 		public string Title { get; set; }
 		public string ThumbnailUrl { get; set; }
@@ -20,7 +24,6 @@ namespace YoutubeCleanupTool.Model
 		public bool IsMusicByCategoryLink => Categories?.Any(x => x.EndsWithCi("music")) ?? false;
 		public bool CouldBeMusic => IsMusicByCategoryId || IsMusicByCategoryLink || IsMusicByDescription;
 		public List<string> Categories { get; set; }
-		public Google.Apis.YouTube.v3.Data.Video OriginalYouTubeObject { get; set; }
 	}
 
 }

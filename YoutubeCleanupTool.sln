@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Help", "Help", "{78B20DB0-E
 		TODO.md = TODO.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoutubeCleanupTool.Domain", "YoutubeCleanupTool.Domain\YoutubeCleanupTool.Domain.csproj", "{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoutubeCleanupTool.DataAccess", "YoutubeCleanupTool.DataAccess\YoutubeCleanupTool.DataAccess.csproj", "{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{28A7A840-755B-4DD0-B16A-B1B4111F4D67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28A7A840-755B-4DD0-B16A-B1B4111F4D67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28A7A840-755B-4DD0-B16A-B1B4111F4D67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

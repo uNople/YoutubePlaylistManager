@@ -6,6 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YoutubeCleanupTool.DataAccess\YoutubeCleanupTool.DataAccess.csproj" />
+    <ProjectReference Include="..\YoutubeCleanupTool.Domain\YoutubeCleanupTool.Domain.csproj" />
     <ProjectReference Include="..\YoutubeCleanupTool\YoutubeCleanupTool.csproj" />
   </ItemGroup>
 

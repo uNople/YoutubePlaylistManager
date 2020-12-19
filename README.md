@@ -21,6 +21,12 @@ Go to Credential manager in windows (Control Panel -> User Accounts -> Credentia
    The 'password' field for this should be your google api key
 2. Download the JSON for your oauth, and put it in the place that's read in
 
+# How to add migrations
+
+1. Make your change in YoutubeCleanupTool.Domain
+2. Go to package manager console in vs
+3. Change project to YoutubeCleanupTool.DataAccess
+4. `Add-Migration MigrationName`
 
 # General notes
 

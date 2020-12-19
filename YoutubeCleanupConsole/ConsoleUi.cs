@@ -3,11 +3,14 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YoutubeCleanupTool;
+using YoutubeCleanupTool.DataAccess;
 using YoutubeCleanupTool.Interfaces;
+using YoutubeCleanupTool.Model;
 using YoutubeCleanupTool.Utils;
 
 namespace YoutubeCleanupConsole
@@ -19,18 +22,22 @@ namespace YoutubeCleanupConsole
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly IPersister _persister;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
+        private readonly IYoutubeCleanupToolDbContext _youtubeCleanupToolDbContext;
 
-        public ConsoleUi(ConsoleDisplayParams consoleDisplayParams,
-            IWhereTheRubberHitsTheRoad whereTheRubberHitsTheRoad,
-            ICredentialManagerWrapper credentialManagerWrapper,
-            IPersister persister,
-            YoutubeServiceCreatorOptions youtubeServiceCreatorOptions)
+        public ConsoleUi(
+            [NotNull] ConsoleDisplayParams consoleDisplayParams,
+            [NotNull] IWhereTheRubberHitsTheRoad whereTheRubberHitsTheRoad,
+            [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
+            [NotNull] IPersister persister,
+            [NotNull] YoutubeServiceCreatorOptions youtubeServiceCreatorOptions,
+            [NotNull] IYoutubeCleanupToolDbContext youtubeCleanupToolDbContext)
         {
-            _consoleDisplayParams = consoleDisplayParams ?? throw new ArgumentNullException(nameof(consoleDisplayParams));
-            _whereTheRubberHitsTheRoad = whereTheRubberHitsTheRoad ?? throw new ArgumentNullException(nameof(whereTheRubberHitsTheRoad));
-            _credentialManagerWrapper = credentialManagerWrapper ?? throw new ArgumentNullException(nameof(credentialManagerWrapper));
-            _persister = persister ?? throw new ArgumentNullException(nameof(persister));
-            _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions ?? throw new ArgumentNullException(nameof(youtubeServiceCreatorOptions));
+            _consoleDisplayParams = consoleDisplayParams;
+            _whereTheRubberHitsTheRoad = whereTheRubberHitsTheRoad;
+            _credentialManagerWrapper = credentialManagerWrapper;
+            _persister = persister;
+            _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions;
+            _youtubeCleanupToolDbContext = youtubeCleanupToolDbContext;
         }
 
         public async Task Run()
@@ -78,7 +85,25 @@ namespace YoutubeCleanupConsole
         private async Task GetPlaylists()
         {
             Console.WriteLine("Playlist Details:");
-            (await _whereTheRubberHitsTheRoad.GetPlaylists())
+            var playlists = await _whereTheRubberHitsTheRoad.GetPlaylists();
+
+            // TODO: use automapper or something
+            var translatedPlaylists = playlists.Select(x => new PlaylistData
+            {
+                Title = x.Snippet.Localized.Title,
+                Id = x.Id,
+                PrivacyStatus = x.Status.PrivacyStatus,
+                Kind = x.Kind,
+                ThumbnailUrl = x.Snippet.Thumbnails.Default__.Url,
+            }).ToList();
+
+            // TODO: refactor out to a store or something. Would need to update entity if exists (or leave it) instead
+            var currentItems = _youtubeCleanupToolDbContext.Playlists.ToList();
+            _youtubeCleanupToolDbContext.Playlists.RemoveRange(currentItems);
+            _youtubeCleanupToolDbContext.Playlists.AddRange(translatedPlaylists);
+            await _youtubeCleanupToolDbContext.SaveChangesAsync();
+
+            playlists
                 .ForEach(x => Console.WriteLine($"{x.Id} - {x.Snippet.Title}"));
         }
 

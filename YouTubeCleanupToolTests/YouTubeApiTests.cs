@@ -13,20 +13,20 @@ using YoutubeCleanupTool.Interfaces;
 namespace YouTubeCleanupToolTests
 {
     [TestFixture]
-    public class WhereTheRubberHitsTheRoadTests
+    public class YouTubeApiTests
     {
         [Test, AutoNSubstituteData]
         public async Task When_getting_videos_then_they_are_saved(
             [Frozen] IPersister persister,
             [Frozen] IYouTubeServiceWrapper youtubeServiceWrapper,
-            WhereTheRubberHitsTheRoad whereTheRubberHitsTheRoad
+            YouTubeApi youTubeApi
             )
         {
             // Setup
             youtubeServiceWrapper.GetPlaylists().Returns(new List<Playlist>());
 
             // Act
-            await foreach (var _ in whereTheRubberHitsTheRoad.GetVideos(new List<PlaylistItem>()))
+            await foreach (var _ in youTubeApi.GetVideos(new List<PlaylistItem>()))
             { 
             }
 

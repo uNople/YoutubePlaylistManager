@@ -1,4 +1,5 @@
-﻿using Google.Apis.Services;
+﻿using AutoMapper;
+using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using System;
@@ -18,7 +19,7 @@ namespace YoutubeCleanupConsole
     public class ConsoleUi : IConsoleUi
     {
         private readonly ConsoleDisplayParams _consoleDisplayParams;
-        private readonly IWhereTheRubberHitsTheRoad _whereTheRubberHitsTheRoad;
+        private readonly IYouTubeApiWrapper _whereTheRubberHitsTheRoad;
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly IPersister _persister;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
@@ -26,7 +27,7 @@ namespace YoutubeCleanupConsole
 
         public ConsoleUi(
             [NotNull] ConsoleDisplayParams consoleDisplayParams,
-            [NotNull] IWhereTheRubberHitsTheRoad whereTheRubberHitsTheRoad,
+            [NotNull] IYouTubeApiWrapper whereTheRubberHitsTheRoad,
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
             [NotNull] IPersister persister,
             [NotNull] YoutubeServiceCreatorOptions youtubeServiceCreatorOptions,
@@ -87,34 +88,18 @@ namespace YoutubeCleanupConsole
             Console.WriteLine("Playlist Details:");
             var playlists = await _whereTheRubberHitsTheRoad.GetPlaylists();
 
-            // TODO: use automapper or something
-            var translatedPlaylists = playlists.Select(x => new PlaylistData
-            {
-                Title = x.Snippet.Localized.Title,
-                Id = x.Id,
-                PrivacyStatus = x.Status.PrivacyStatus,
-                Kind = x.Kind,
-                ThumbnailUrl = x.Snippet.Thumbnails.Default__.Url,
-            }).ToList();
-
             // TODO: refactor out to a store or something. Would need to update entity if exists (or leave it) instead
             var currentItems = _youtubeCleanupToolDbContext.Playlists.ToList();
             _youtubeCleanupToolDbContext.Playlists.RemoveRange(currentItems);
-            _youtubeCleanupToolDbContext.Playlists.AddRange(translatedPlaylists);
+            _youtubeCleanupToolDbContext.Playlists.AddRange(playlists);
             await _youtubeCleanupToolDbContext.SaveChangesAsync();
 
             playlists
-                .ForEach(x => Console.WriteLine($"{x.Id} - {x.Snippet.Title}"));
+                .ForEach(x => Console.WriteLine($"{x.Id} - {x.Title}"));
         }
 
         private async Task<List<PlaylistItem>> GetPlaylistItems()
         {
-            var playlists = _persister.GetData<List<Playlist>>(SavePathNames.PlaylistFile);
-            if (!playlists.Any())
-            {
-                playlists = await _whereTheRubberHitsTheRoad.GetPlaylists();
-            }
-
             var playlistItems = (await _whereTheRubberHitsTheRoad.GetPlaylistItems(await _whereTheRubberHitsTheRoad.GetPlaylists()));
 
             Console.WriteLine("Playlist Item Details:");

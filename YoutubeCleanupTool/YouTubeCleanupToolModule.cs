@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using AutoMapper.Contrib.Autofac.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,7 +20,8 @@ namespace YoutubeCleanupTool
                 ClientSecretPath = @"C:\temp\client_secret.json",
                 FileDataStoreName = "Youtube.Api.Storage",
             });
-            builder.RegisterType<WhereTheRubberHitsTheRoad>().As<IWhereTheRubberHitsTheRoad>();
+            builder.RegisterAutoMapper(typeof(YouTubeCleanupToolModule).Assembly);
+            builder.RegisterType<YouTubeApi>().As<IYouTubeApiWrapper>();
         }
     }
 }

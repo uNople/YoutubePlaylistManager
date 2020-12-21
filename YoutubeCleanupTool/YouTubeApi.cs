@@ -1,8 +1,10 @@
-﻿using Google.Apis.Services;
+﻿using AutoMapper;
+using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using YoutubeCleanupTool.Interfaces;
@@ -13,25 +15,29 @@ namespace YoutubeCleanupTool
     // TODO: Rename
     // TODO: This class mixes saving/getting data with 'pure' get the data. It's also inconsistent - some things read data first, and then
     // based off the result of that, it either gets more things, or doesn't get as much (eg, we don't get all videos each time, only new ones)
-    public class WhereTheRubberHitsTheRoad : IWhereTheRubberHitsTheRoad
+    public class YouTubeApi : IYouTubeApiWrapper
     {
         private readonly IYouTubeServiceCreator _youTubeServiceCreator;
         private readonly IPersister _persister;
+        private readonly IMapper _mapper;
 
-        public WhereTheRubberHitsTheRoad(IYouTubeServiceCreator youTubeServiceCreator, IPersister persister)
+        public YouTubeApi([NotNull] IYouTubeServiceCreator youTubeServiceCreator,
+            [NotNull] IPersister persister,
+            [NotNull] IMapper mapper)
         {
-            _youTubeServiceCreator = youTubeServiceCreator ?? throw new ArgumentNullException(nameof(youTubeServiceCreator));
-            _persister = persister ?? throw new ArgumentNullException(nameof(persister));
+            _youTubeServiceCreator = youTubeServiceCreator;
+            _persister = persister;
+            _mapper = mapper;
         }
 
-        public async Task<List<Playlist>> GetPlaylists()
+        public async Task<List<PlaylistData>> GetPlaylists()
         {
             var playlists = await GetYouYubeWrapper().GetPlaylists();
             _persister.SaveData(SavePathNames.PlaylistFile, playlists);
-            return playlists;
+            return _mapper.Map<List<PlaylistData>>(playlists);
         }
 
-        public async Task<List<PlaylistItem>> GetPlaylistItems(List<Playlist> playlists)
+        public async Task<List<PlaylistItem>> GetPlaylistItems(List<PlaylistData> playlists)
         {
 
             var playlistItemData = new List<PlaylistItem>();

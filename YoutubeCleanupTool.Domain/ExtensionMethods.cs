@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace YoutubeCleanupTool.Utils
+namespace YoutubeCleanupTool.Domain
 {
     public static class ExtensionMethods
     {

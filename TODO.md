@@ -1,5 +1,5 @@
 Next:
-- Write more tests
+- Create the migration for the rename of columns in the PlaylistData table
 - Decide on update strategy
     - What happens if a title of a playlist changes, description of video, etc
     - What happens on deletion
@@ -9,11 +9,11 @@ Next:
     - Create some kind of store/stores (rather than accessing YoutubeCleanupToolDbContext directly)
 - Add searching
     - Add indexes for searches and things
+- Write tests
 
 After?
+- Re-architect program - does what I have make sense
 - Create some kind of UI for what I have (Razer/express?)
-- Re-architect program
-    - Have some kind of 'SearchableField' attribute for later
 
 Future features:
 - Make a UI to modify my playlists easier than through youtube

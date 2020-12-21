@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using YoutubeCleanupTool;
 using YoutubeCleanupTool.Interfaces;
-using YoutubeCleanupTool.Model;
 
 namespace YouTubeCleanupToolTests
 {
@@ -19,7 +18,6 @@ namespace YouTubeCleanupToolTests
     {
         [Test, AutoNSubstituteData]
         public async Task When_getting_videos_then_they_are_saved(
-            [Frozen] IPersister persister,
             [Frozen] IYouTubeServiceWrapper youtubeServiceWrapper,
             YouTubeApi youTubeApi
             )
@@ -28,12 +26,10 @@ namespace YouTubeCleanupToolTests
             youtubeServiceWrapper.GetPlaylists().Returns(new List<Playlist>());
 
             // Act
-            await foreach (var _ in youTubeApi.GetVideos(new List<PlaylistItemData>()))
+            await foreach (var _ in youTubeApi.GetVideos(new List<string>()))
             { 
             }
 
-            // Assert
-            persister.Received(1).SaveData("videosFile.json", Arg.Any<List<Video>>());
         }
 
         public class AutoNSubstituteDataAttribute : AutoDataAttribute

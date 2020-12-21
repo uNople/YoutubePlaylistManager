@@ -10,33 +10,29 @@ using System.Linq;
 using System.Threading.Tasks;
 using YoutubeCleanupTool;
 using YoutubeCleanupTool.DataAccess;
+using YoutubeCleanupTool.Domain;
 using YoutubeCleanupTool.Interfaces;
-using YoutubeCleanupTool.Model;
-using YoutubeCleanupTool.Utils;
 
 namespace YoutubeCleanupConsole
 {
     public class ConsoleUi : IConsoleUi
     {
         private readonly ConsoleDisplayParams _consoleDisplayParams;
-        private readonly IYouTubeApiWrapper _youTubeApiWrapper;
+        private readonly IYouTubeApi _youTubeApi;
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
-        private readonly IPersister _persister;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
         private readonly IYoutubeCleanupToolDbContext _youtubeCleanupToolDbContext;
 
         public ConsoleUi(
             [NotNull] ConsoleDisplayParams consoleDisplayParams,
-            [NotNull] IYouTubeApiWrapper youTubeApiWrapper,
+            [NotNull] IYouTubeApi youTubeApi,
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
-            [NotNull] IPersister persister,
             [NotNull] YoutubeServiceCreatorOptions youtubeServiceCreatorOptions,
             [NotNull] IYoutubeCleanupToolDbContext youtubeCleanupToolDbContext)
         {
             _consoleDisplayParams = consoleDisplayParams;
-            _youTubeApiWrapper = youTubeApiWrapper;
+            _youTubeApi = youTubeApi;
             _credentialManagerWrapper = credentialManagerWrapper;
-            _persister = persister;
             _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions;
             _youtubeCleanupToolDbContext = youtubeCleanupToolDbContext;
         }
@@ -86,7 +82,7 @@ namespace YoutubeCleanupConsole
         private async Task GetPlaylists()
         {
             Console.WriteLine("Playlist Details:");
-            var playlists = await _youTubeApiWrapper.GetPlaylists();
+            var playlists = await _youTubeApi.GetPlaylists();
 
             // TODO: refactor out to a store or something. Would need to update entity if exists (or leave it) instead
             var currentItems = _youtubeCleanupToolDbContext.Playlists.ToList();
@@ -100,7 +96,7 @@ namespace YoutubeCleanupConsole
 
         private async Task<List<PlaylistItemData>> GetPlaylistItems()
         {
-            var playlistItems = (await _youTubeApiWrapper.GetPlaylistItems(await _youTubeApiWrapper.GetPlaylists()));
+            var playlistItems = (await _youTubeApi.GetPlaylistItems(await _youTubeApi.GetPlaylists()));
 
             Console.WriteLine("Playlist Item Details:");
             playlistItems.ForEach(x => Console.WriteLine($"{x.Id} - {x.Title}"));
@@ -111,7 +107,7 @@ namespace YoutubeCleanupConsole
         {
             var playlistItems = await GetPlaylistItems();
             Console.WriteLine("Video Details:");
-            await foreach (var video in _youTubeApiWrapper.GetVideos(playlistItems))
+            await foreach (var video in _youTubeApi.GetVideos(playlistItems.Select(x => x.VideoId).ToList()))
             {
                 Console.WriteLine($"{video.Id} - {video.Title}");
             }
@@ -121,7 +117,8 @@ namespace YoutubeCleanupConsole
         // TODO: Write tests
         private void CheckClientJsonExists()
         {
-            while (!_persister.DataExists(_youtubeServiceCreatorOptions.ClientSecretPath))
+            // TODO: Change this to a wrapper or something, so we can set this to exist and things will be nice with tests
+            while (!File.Exists(_youtubeServiceCreatorOptions.ClientSecretPath))
             {
                 Console.WriteLine("Please download your client secret from google. URL should be: https://console.developers.google.com/?pli=1");
                 Console.WriteLine($"Place client.json in {_youtubeServiceCreatorOptions.ClientSecretPath}");

@@ -5,12 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using YoutubeCleanupTool.Domain;
-using YoutubeCleanupTool.Model;
 
 namespace YoutubeCleanupTool
 {
 
-	public class YouTubeObjectsMapperProfile : Profile
+    public class YouTubeObjectsMapperProfile : Profile
 	{
 		public YouTubeObjectsMapperProfile()
         {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YoutubeCleanupTool.Interfaces
+﻿namespace YoutubeCleanupTool.Domain
 {
     public class YoutubeServiceCreatorOptions
     {

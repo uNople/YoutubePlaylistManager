@@ -11,13 +11,11 @@ namespace YoutubeCleanupTool.Model
 	{
 		[Key]
 		public string VideoId { get; set; }
-		public string PlaylistId { get; set; }
-		public string PlaylistTitle { get; set; }
-		public string PlaylistPrivacyStatus { get; set; }
+		public string Id { get; set; }
 		public string Title { get; set; }
 		public string VideoPublishedAt { get; set; }
 		public long? Position { get; set; }
-		public string ItemKind { get; set; }
+		public string Kind { get; set; }
 		public string VideoKind { get; set; }
 		public string ThumbnailUrl { get; set; }
 		public string PrivacyStatus { get; set; }

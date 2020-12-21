@@ -20,6 +20,7 @@ Future features:
 - Cache thumbnails for playlists and videos (once it's in sqlite)
 - build a search (make sure we're saving all the data we would want to search on)
 - build some kind of auto-categorizer (put liked videos in specific playlist if they match things)
+- Handle secret revocation - eg, how do we prompt the client for reauth via google again
 
 Final (countdown) goal
 - Some kind of tool to manage my youtube videos / playlists / likes quicker than on the website

@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using AutoFixture.NUnit3;
+using AutoMapper;
 using Google.Apis.YouTube.v3.Data;
 using NSubstitute;
 using NUnit.Framework;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using YoutubeCleanupTool;
 using YoutubeCleanupTool.Interfaces;
+using YoutubeCleanupTool.Model;
 
 namespace YouTubeCleanupToolTests
 {
@@ -26,7 +28,7 @@ namespace YouTubeCleanupToolTests
             youtubeServiceWrapper.GetPlaylists().Returns(new List<Playlist>());
 
             // Act
-            await foreach (var _ in youTubeApi.GetVideos(new List<PlaylistItem>()))
+            await foreach (var _ in youTubeApi.GetVideos(new List<PlaylistItemData>()))
             { 
             }
 

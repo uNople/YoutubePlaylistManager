@@ -37,7 +37,7 @@ namespace YoutubeCleanupTool
             return _mapper.Map<List<PlaylistData>>(playlists);
         }
 
-        public async Task<List<PlaylistItem>> GetPlaylistItems(List<PlaylistData> playlists)
+        public async Task<List<PlaylistItemData>> GetPlaylistItems(List<PlaylistData> playlists)
         {
 
             var playlistItemData = new List<PlaylistItem>();
@@ -48,10 +48,10 @@ namespace YoutubeCleanupTool
             }
             _persister.SaveData(SavePathNames.PlaylistItemFile, playlistItemData);
 
-            return playlistItemData;
+            return _mapper.Map<List<PlaylistItemData>>(playlistItemData);
         }
 
-        public async IAsyncEnumerable<Video> GetVideos(List<PlaylistItem> cachedPlaylistItems)
+        public async IAsyncEnumerable<VideoData> GetVideos(List<PlaylistItemData> cachedPlaylistItems)
         {
 
             // TODO: do I actually want to get only if it doesn't exist?
@@ -67,17 +67,17 @@ namespace YoutubeCleanupTool
             var current = 0;
             foreach (var playlistItem in cachedPlaylistItems)
             {
-                if (videosThatExist.Contains(playlistItem.ContentDetails.VideoId))
+                if (videosThatExist.Contains(playlistItem.VideoId))
                     continue;
 
                 current++;
-                var video = (await GetYouYubeWrapper().GetVideos(playlistItem.ContentDetails.VideoId)).FirstOrDefault();
+                var video = (await GetYouYubeWrapper().GetVideos(playlistItem.VideoId)).FirstOrDefault();
                 if (video == null)
                     continue;
 
                 videos.Add(video);
                 videosThatExist.Add(video.Id);
-                yield return video;
+                yield return _mapper.Map<VideoData>(video);
 
                 if (current % saveEvery == 0)
                 {

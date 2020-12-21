@@ -7,8 +7,8 @@ namespace YoutubeCleanupTool.Interfaces
 {
     public interface IYouTubeApiWrapper
     {
-        Task<List<PlaylistItem>> GetPlaylistItems(List<PlaylistData> playlists);
+        Task<List<PlaylistItemData>> GetPlaylistItems(List<PlaylistData> playlists);
         Task<List<PlaylistData>> GetPlaylists();
-        IAsyncEnumerable<Video> GetVideos(List<PlaylistItem> cachedPlaylistItems);
+        IAsyncEnumerable<VideoData> GetVideos(List<PlaylistItemData> cachedPlaylistItems);
     }
 }

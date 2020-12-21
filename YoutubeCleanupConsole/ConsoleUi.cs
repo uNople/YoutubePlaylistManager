@@ -19,7 +19,7 @@ namespace YoutubeCleanupConsole
     public class ConsoleUi : IConsoleUi
     {
         private readonly ConsoleDisplayParams _consoleDisplayParams;
-        private readonly IYouTubeApiWrapper _whereTheRubberHitsTheRoad;
+        private readonly IYouTubeApiWrapper _youTubeApiWrapper;
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly IPersister _persister;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
@@ -27,14 +27,14 @@ namespace YoutubeCleanupConsole
 
         public ConsoleUi(
             [NotNull] ConsoleDisplayParams consoleDisplayParams,
-            [NotNull] IYouTubeApiWrapper whereTheRubberHitsTheRoad,
+            [NotNull] IYouTubeApiWrapper youTubeApiWrapper,
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
             [NotNull] IPersister persister,
             [NotNull] YoutubeServiceCreatorOptions youtubeServiceCreatorOptions,
             [NotNull] IYoutubeCleanupToolDbContext youtubeCleanupToolDbContext)
         {
             _consoleDisplayParams = consoleDisplayParams;
-            _whereTheRubberHitsTheRoad = whereTheRubberHitsTheRoad;
+            _youTubeApiWrapper = youTubeApiWrapper;
             _credentialManagerWrapper = credentialManagerWrapper;
             _persister = persister;
             _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions;
@@ -86,7 +86,7 @@ namespace YoutubeCleanupConsole
         private async Task GetPlaylists()
         {
             Console.WriteLine("Playlist Details:");
-            var playlists = await _whereTheRubberHitsTheRoad.GetPlaylists();
+            var playlists = await _youTubeApiWrapper.GetPlaylists();
 
             // TODO: refactor out to a store or something. Would need to update entity if exists (or leave it) instead
             var currentItems = _youtubeCleanupToolDbContext.Playlists.ToList();
@@ -98,27 +98,22 @@ namespace YoutubeCleanupConsole
                 .ForEach(x => Console.WriteLine($"{x.Id} - {x.Title}"));
         }
 
-        private async Task<List<PlaylistItem>> GetPlaylistItems()
+        private async Task<List<PlaylistItemData>> GetPlaylistItems()
         {
-            var playlistItems = (await _whereTheRubberHitsTheRoad.GetPlaylistItems(await _whereTheRubberHitsTheRoad.GetPlaylists()));
+            var playlistItems = (await _youTubeApiWrapper.GetPlaylistItems(await _youTubeApiWrapper.GetPlaylists()));
 
             Console.WriteLine("Playlist Item Details:");
-            playlistItems.ForEach(x => Console.WriteLine($"{x.Id} - {x.Snippet.Title}"));
+            playlistItems.ForEach(x => Console.WriteLine($"{x.Id} - {x.Title}"));
             return playlistItems;
         }
 
         private async Task GetVideos()
         {
-            var playlistItems = _persister.GetData<List<PlaylistItem>>(SavePathNames.PlaylistItemFile);
-            if (!playlistItems.Any())
-            {
-                playlistItems = await GetPlaylistItems();
-            }
-
+            var playlistItems = await GetPlaylistItems();
             Console.WriteLine("Video Details:");
-            await foreach (var video in _whereTheRubberHitsTheRoad.GetVideos(playlistItems))
+            await foreach (var video in _youTubeApiWrapper.GetVideos(playlistItems))
             {
-                Console.WriteLine($"{video.Id} - {video.Snippet.Title}");
+                Console.WriteLine($"{video.Id} - {video.Title}");
             }
         }
 

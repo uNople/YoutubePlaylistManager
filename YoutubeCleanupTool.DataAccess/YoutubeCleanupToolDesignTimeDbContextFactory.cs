@@ -15,7 +15,7 @@ namespace YoutubeCleanupConsole
 
             builder.UseSqlite();
 
-            return new YoutubeCleanupToolDbContext(builder.Options);
+            return new YoutubeCleanupToolDbContext(builder.Options, null);
         }
     }
 }

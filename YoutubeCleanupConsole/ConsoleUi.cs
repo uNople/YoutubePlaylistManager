@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YoutubeCleanupTool;
-using YoutubeCleanupTool.DataAccess;
 using YoutubeCleanupTool.Domain;
 using YoutubeCleanupTool.Interfaces;
 
@@ -21,20 +20,20 @@ namespace YoutubeCleanupConsole
         private readonly IYouTubeApi _youTubeApi;
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
-        private readonly IYoutubeCleanupToolDbContext _youtubeCleanupToolDbContext;
+        private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
 
         public ConsoleUi(
             [NotNull] ConsoleDisplayParams consoleDisplayParams,
             [NotNull] IYouTubeApi youTubeApi,
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
             [NotNull] YoutubeServiceCreatorOptions youtubeServiceCreatorOptions,
-            [NotNull] IYoutubeCleanupToolDbContext youtubeCleanupToolDbContext)
+            [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData)
         {
             _consoleDisplayParams = consoleDisplayParams;
             _youTubeApi = youTubeApi;
             _credentialManagerWrapper = credentialManagerWrapper;
             _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions;
-            _youtubeCleanupToolDbContext = youtubeCleanupToolDbContext;
+            _getAndCacheYouTubeData = getAndCacheYouTubeData;
         }
 
         public async Task Run()
@@ -42,9 +41,9 @@ namespace YoutubeCleanupConsole
             var commands = new Dictionary<string, Func<Task>>(StringComparer.InvariantCultureIgnoreCase)
             {
                 { "UpdateApiKey", async () => await Task.Run(() => _credentialManagerWrapper.PromptForKey()) },
-                { "GetPlaylists", async () => await GetPlaylists() },
-                { "GetPlaylistItems", async () => await Task.Run(async () => await GetPlaylistItems()) },
-                { "GetVideos", async () => await Task.Run(async () => await GetVideos()) },
+                { "GetPlaylists", async () => await _getAndCacheYouTubeData.GetPlaylists((PlaylistData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}")) },
+                { "GetPlaylistItems", async () => await _getAndCacheYouTubeData.GetPlaylistItems((PlaylistItemData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}")) },
+                { "GetVideos", async () => await _getAndCacheYouTubeData.GetNewVideos((VideoData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}")) },
             };
 
             PromptForKeyIfNotExists();
@@ -77,40 +76,6 @@ namespace YoutubeCleanupConsole
         {
             Console.WriteLine("Press ENTER to continue");
             Console.ReadLine();
-        }
-
-        private async Task GetPlaylists()
-        {
-            Console.WriteLine("Playlist Details:");
-            var playlists = await _youTubeApi.GetPlaylists();
-
-            // TODO: refactor out to a store or something. Would need to update entity if exists (or leave it) instead
-            var currentItems = _youtubeCleanupToolDbContext.Playlists.ToList();
-            _youtubeCleanupToolDbContext.Playlists.RemoveRange(currentItems);
-            _youtubeCleanupToolDbContext.Playlists.AddRange(playlists);
-            await _youtubeCleanupToolDbContext.SaveChangesAsync();
-
-            playlists
-                .ForEach(x => Console.WriteLine($"{x.Id} - {x.Title}"));
-        }
-
-        private async Task<List<PlaylistItemData>> GetPlaylistItems()
-        {
-            var playlistItems = (await _youTubeApi.GetPlaylistItems(await _youTubeApi.GetPlaylists()));
-
-            Console.WriteLine("Playlist Item Details:");
-            playlistItems.ForEach(x => Console.WriteLine($"{x.Id} - {x.Title}"));
-            return playlistItems;
-        }
-
-        private async Task GetVideos()
-        {
-            var playlistItems = await GetPlaylistItems();
-            Console.WriteLine("Video Details:");
-            await foreach (var video in _youTubeApi.GetVideos(playlistItems.Select(x => x.VideoId).ToList()))
-            {
-                Console.WriteLine($"{video.Id} - {video.Title}");
-            }
         }
 
         // TODO: Move these Check Credential things into another class - but... maybe don't need to move it?

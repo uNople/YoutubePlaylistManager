@@ -8,7 +8,6 @@ using YoutubeCleanupTool.Domain;
 
 namespace YoutubeCleanupTool
 {
-
     public class YouTubeObjectsMapperProfile : Profile
 	{
 		public YouTubeObjectsMapperProfile()

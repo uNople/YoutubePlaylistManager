@@ -10,8 +10,6 @@ namespace YoutubeCleanupTool.Domain
         [Key]
         public string Id { get; set; }
         public string VideoId { get; set; }
-        [ForeignKey("VideoId")]
-        public VideoData Video { get; set; }
         public string Title { get; set; }
         public string VideoPublishedAt { get; set; }
         public long? Position { get; set; }

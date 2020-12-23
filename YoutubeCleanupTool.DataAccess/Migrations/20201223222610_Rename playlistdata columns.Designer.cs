@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using YoutubeCleanupTool.DataAccess;
 
 namespace YoutubeCleanupTool.DataAccess.Migrations
 {
     [DbContext(typeof(YoutubeCleanupToolDbContext))]
-    partial class YoutubeCleanupToolDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201223222610_Rename playlistdata columns")]
+    partial class Renameplaylistdatacolumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

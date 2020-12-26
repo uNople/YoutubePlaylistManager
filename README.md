@@ -5,6 +5,8 @@ A tool to manage playlists locally - then sync those changes to the YouTube api
 
 I made this initially to clean google play music / YouTube music likes out of the liked YouTube playlist
 
+I'm actively developing this on my stream - [come check it out](https://www.twitch.tv/uNople)
+
 # Why ???
 
 Because I only want my liked videos in my liked videos playlist. If I wanted music there, I would have liked it on YouTube myself

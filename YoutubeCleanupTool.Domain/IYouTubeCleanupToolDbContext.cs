@@ -16,5 +16,6 @@ namespace YoutubeCleanupTool.Domain
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task<bool> VideoExists(string id);
         Task<List<string>> GetVideoTitles();
+        Task<List<IData>> FindAll(string regex);
     }
 }

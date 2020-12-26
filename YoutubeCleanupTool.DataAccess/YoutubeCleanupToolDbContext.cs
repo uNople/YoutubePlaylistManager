@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using YoutubeCleanupTool.Domain;
@@ -50,6 +51,32 @@ namespace YoutubeCleanupTool.DataAccess
                 dbSet.Add(data);
             }
             return status;
+        }
+
+        public async Task<List<IData>> FindAll(string regex)
+        {
+            var searchResults = new List<IData>();
+            var searchTerm = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+            searchResults.AddRange(
+                (await Videos
+                    .ToListAsync())
+                    .Where(x => searchTerm.IsMatch(x.Title)) // || searchTerm.IsMatch(x?.Description ?? "")
+                );
+
+            searchResults.AddRange(
+                    (await Playlists
+                        .ToListAsync())
+                        .Where(x => searchTerm.IsMatch(x.Title))
+                );
+
+            searchResults.AddRange(
+                    (await PlaylistItems
+                        .ToListAsync())
+                        .Where(x => searchTerm.IsMatch(x.Title))
+                );
+
+            return searchResults;
         }
 
         public void Migrate()

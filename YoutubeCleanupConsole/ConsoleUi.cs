@@ -21,19 +21,22 @@ namespace YoutubeCleanupConsole
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
         private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
+        private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
 
         public ConsoleUi(
             [NotNull] ConsoleDisplayParams consoleDisplayParams,
             [NotNull] IYouTubeApi youTubeApi,
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
             [NotNull] YoutubeServiceCreatorOptions youtubeServiceCreatorOptions,
-            [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData)
+            [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
+            [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext)
         {
             _consoleDisplayParams = consoleDisplayParams;
             _youTubeApi = youTubeApi;
             _credentialManagerWrapper = credentialManagerWrapper;
             _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions;
             _getAndCacheYouTubeData = getAndCacheYouTubeData;
+            _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
         }
 
         public async Task Run()
@@ -44,14 +47,15 @@ namespace YoutubeCleanupConsole
 
             void logCallback(IData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}");
 
-            var commands = new Dictionary<string, Func<Task>>(StringComparer.InvariantCultureIgnoreCase)
+            var commands = new Dictionary<string, Func<string, Task>>(StringComparer.InvariantCultureIgnoreCase)
             {
-                { "UpdateApiKey", async () => await Task.Run(() => _credentialManagerWrapper.PromptForKey()) },
-                { "GetPlaylists", async () => await _getAndCacheYouTubeData.GetPlaylists(logCallback) },
-                { "GetPlaylistItems", async () => await _getAndCacheYouTubeData.GetPlaylistItems(logCallback) },
-                { "GetVideos", async () => await _getAndCacheYouTubeData.GetVideos(logCallback, false) },
-                { "GetAllVideos", async () => await _getAndCacheYouTubeData.GetVideos(logCallback, true) },
-                { "GetUnicodeVideoTitles", async () => await _getAndCacheYouTubeData.GetUnicodeVideoTitles((string title) => Console.WriteLine(title)) },
+                { "UpdateApiKey", async (s) => await Task.Run(() => _credentialManagerWrapper.PromptForKey()) },
+                { "GetPlaylists", async (s) => await _getAndCacheYouTubeData.GetPlaylists(logCallback) },
+                { "GetPlaylistItems", async (s) => await _getAndCacheYouTubeData.GetPlaylistItems(logCallback) },
+                { "GetVideos", async (s) => await _getAndCacheYouTubeData.GetVideos(logCallback, false) },
+                { "GetAllVideos", async (s) => await _getAndCacheYouTubeData.GetVideos(logCallback, true) },
+                { "GetUnicodeVideoTitles", async (s) => await _getAndCacheYouTubeData.GetUnicodeVideoTitles((string title) => Console.WriteLine(title)) },
+                { "Search", Search },
             };
 
             PromptForKeyIfNotExists();
@@ -65,11 +69,11 @@ namespace YoutubeCleanupConsole
 
                 var command = Console.ReadLine();
 
-                if (commands.TryGetValue(command, out var func))
+                if (commands.TryGetValue(command.Split(' ')[0], out var func))
                 {
                     try
                     {
-                        await func();
+                        await func(command.Split(' ').Skip(1).FirstOrDefault());
                     }
                     catch (Exception ex)
                     {
@@ -78,6 +82,13 @@ namespace YoutubeCleanupConsole
                     }
                 }
             }
+        }
+
+        private async Task Search(string searchTerm)
+        {
+            Console.WriteLine($"Searching for term {searchTerm}");
+            var searchResults = await _youTubeCleanupToolDbContext.FindAll(searchTerm);
+            searchResults.ForEach(x => Console.WriteLine($"{x.GetType().Name} - {x.Title}"));
         }
 
         private static void PromptToContinue()

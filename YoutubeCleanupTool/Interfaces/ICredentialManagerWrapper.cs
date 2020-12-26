@@ -1,4 +1,4 @@
-﻿namespace YoutubeCleanupTool.Interfaces
+﻿namespace YouTubeApiWrapper.Interfaces
 {
     public interface ICredentialManagerWrapper
     {

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace YoutubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain
 {
     public interface IYouTubeApi
     {

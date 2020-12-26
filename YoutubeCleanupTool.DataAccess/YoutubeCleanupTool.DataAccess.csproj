@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YoutubeCleanupTool.Domain\YoutubeCleanupTool.Domain.csproj" />
+    <ProjectReference Include="..\YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
   </ItemGroup>
 
 </Project>

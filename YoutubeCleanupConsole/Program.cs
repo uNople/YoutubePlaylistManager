@@ -1,25 +1,25 @@
-﻿using Autofac;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using YoutubeCleanupTool;
-using YoutubeCleanupTool.DataAccess;
-using YoutubeCleanupTool.Domain;
+using Autofac;
+using Microsoft.EntityFrameworkCore;
+using YouTubeApiWrapper;
+using YouTubeCleanupTool.DataAccess;
+using YouTubeCleanupTool.Domain;
 
-namespace YoutubeCleanupConsole
+namespace YouTubeCleanupConsole
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterModule<YouTubeCleanupToolModule>();
+            builder.RegisterModule<YouTubeApiWrapperModule>();
             builder.RegisterModule<YoutubeCleanupConsoleModule>();
             builder.RegisterModule<YouTubeCleanupToolDefaultModule>();
 
             var dbContextBuilder = new DbContextOptionsBuilder<YoutubeCleanupToolDbContext>();
             dbContextBuilder.UseSqlite("Data Source=Application.db");
-            builder.RegisterInstance(dbContextBuilder.Options).As<Microsoft.EntityFrameworkCore.DbContextOptions>();
+            builder.RegisterInstance(dbContextBuilder.Options).As<DbContextOptions>();
             builder.RegisterType<YoutubeCleanupToolDbContext>().As<IYouTubeCleanupToolDbContext>();
             var container = builder.Build();
             try

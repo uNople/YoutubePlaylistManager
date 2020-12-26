@@ -1,12 +1,10 @@
-﻿using AutoMapper;
-using Google.Apis.YouTube.v3.Data;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using YoutubeCleanupTool.Domain;
+using AutoMapper;
+using Google.Apis.YouTube.v3.Data;
+using YouTubeCleanupTool.Domain;
 
-namespace YoutubeCleanupTool
+namespace YouTubeApiWrapper
 {
     public class YouTubeObjectsMapperProfile : Profile
 	{

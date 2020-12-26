@@ -1,25 +1,22 @@
 ﻿using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using YoutubeCleanupTool.Domain;
-using YoutubeCleanupTool.Interfaces;
+using YouTubeApiWrapper.Interfaces;
+using YouTubeCleanupTool.Domain;
 
-namespace YoutubeCleanupTool
+namespace YouTubeApiWrapper
 {
-    public class YouTubeCleanupToolModule : Module
+    public class YouTubeApiWrapperModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<CredentialManagerWrapper>().As<ICredentialManagerWrapper>();
-            builder.RegisterInstance(new YoutubeServiceCreatorOptions
+            builder.RegisterInstance(new YouTubeServiceCreatorOptions
             {
                 // TODO: Move to app settings
                 ClientSecretPath = @"C:\temp\client_secret.json",
                 FileDataStoreName = "Youtube.Api.Storage",
             });
-            builder.RegisterAutoMapper(typeof(YouTubeCleanupToolModule).Assembly);
+            builder.RegisterAutoMapper(typeof(YouTubeApiWrapperModule).Assembly);
             builder.RegisterType<YouTubeApi>().As<IYouTubeApi>();
         }
     }

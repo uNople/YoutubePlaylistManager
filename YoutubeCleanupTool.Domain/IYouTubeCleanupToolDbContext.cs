@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace YoutubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain
 {
     public interface IYouTubeCleanupToolDbContext
     {

@@ -1,6 +1,6 @@
-﻿namespace YoutubeCleanupTool.Domain
+﻿namespace YouTubeCleanupTool.Domain
 {
-    public class YoutubeServiceCreatorOptions
+    public class YouTubeServiceCreatorOptions
     {
         public string ClientSecretPath { get; set; }
         public string FileDataStoreName { get; set; }

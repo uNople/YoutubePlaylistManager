@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace YoutubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain
 {
     [Table("Videos")]
     public class VideoData : IData
@@ -13,7 +13,7 @@ namespace YoutubeCleanupTool.Domain
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
         public string Description { get; set; }
-        public string License { get; set; } // doesn't seem to indicate music. Only "youtube" and "creativeCommon" seen
+        public string License { get; set; } // doesn't seem to indicate music. Only "YouTube" and "creativeCommon" seen
         public string RecordingDate { get; set; }
         public int CategoryId { get; set; }
         public List<Category> Categories { get; set; }

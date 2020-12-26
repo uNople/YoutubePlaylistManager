@@ -4,33 +4,32 @@ using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Google.Apis.YouTube.v3;
-using Google.Apis.YouTube.v3.Data;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using YoutubeCleanupTool.Domain;
-using YoutubeCleanupTool.Interfaces;
+using YouTubeApiWrapper.Interfaces;
+using YouTubeCleanupTool;
+using YouTubeCleanupTool.Domain;
 
-namespace YoutubeCleanupTool
+namespace YouTubeApiWrapper
 {
     public class YouTubeApi : IYouTubeApi
     {
         private readonly IMapper _mapper;
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
-        private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
+        private readonly YouTubeServiceCreatorOptions _youTubeServiceCreatorOptions;
         private IYouTubeServiceWrapper _youTubeServiceWrapper;
 
         public YouTubeApi([NotNull] IMapper mapper,
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
-            [NotNull] YoutubeServiceCreatorOptions youtubeServiceCreatorOptions)
+            [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions)
         {
             _mapper = mapper;
             _credentialManagerWrapper = credentialManagerWrapper;
-            _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions;
+            _youTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
         }
 
         public async IAsyncEnumerable<PlaylistData> GetPlaylists()
@@ -39,7 +38,7 @@ namespace YoutubeCleanupTool
             foreach (var playlist in playlists)
             {
                 yield return _mapper.Map<PlaylistData>(playlist);
-            }    
+            }
         }
 
         public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(List<PlaylistData> playlists)
@@ -82,7 +81,7 @@ namespace YoutubeCleanupTool
 
             var apiKey = _credentialManagerWrapper.GetApiKey();
             UserCredential credential;
-            using (var stream = new FileStream(_youtubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream(_youTubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
             {
                 var installedApp = new AuthorizationCodeInstalledApp(
                     new GoogleAuthorizationCodeFlow(
@@ -90,7 +89,7 @@ namespace YoutubeCleanupTool
                         {
                             ClientSecrets = GoogleClientSecrets.Load(stream).Secrets,
                             Scopes = new List<string> { YouTubeService.Scope.YoutubeReadonly },
-                            DataStore = new FileDataStore(_youtubeServiceCreatorOptions.FileDataStoreName)
+                            DataStore = new FileDataStore(_youTubeServiceCreatorOptions.FileDataStoreName)
                         }),
                         new LocalServerCodeReceiver());
                 credential = await installedApp.AuthorizeAsync("user", CancellationToken.None);

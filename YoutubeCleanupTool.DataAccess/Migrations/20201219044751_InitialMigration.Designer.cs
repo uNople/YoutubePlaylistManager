@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using YoutubeCleanupTool.DataAccess;
+using YouTubeCleanupTool.DataAccess;
 
-namespace YoutubeCleanupTool.DataAccess.Migrations
+namespace YouTubeCleanupTool.DataAccess.Migrations
 {
     [DbContext(typeof(YoutubeCleanupToolDbContext))]
     [Migration("20201219044751_InitialMigration")]

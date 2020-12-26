@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YoutubeCleanupTool.Domain
+﻿namespace YouTubeCleanupTool.Domain
 {
     public enum InsertStatus
     {

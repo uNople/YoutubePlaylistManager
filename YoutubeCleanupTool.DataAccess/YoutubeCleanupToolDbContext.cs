@@ -1,16 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
-using YoutubeCleanupTool.Domain;
+using YouTubeCleanupTool.Domain;
 
-namespace YoutubeCleanupTool.DataAccess
+namespace YouTubeCleanupTool.DataAccess
 {
     public class YoutubeCleanupToolDbContext : DbContext, IYouTubeCleanupToolDbContext
     {
@@ -22,9 +19,9 @@ namespace YoutubeCleanupTool.DataAccess
             _mapper = mapper;
         }
 
-        public DbSet<PlaylistData> Playlists { get; set; }
-        public DbSet<PlaylistItemData> PlaylistItems { get; set; }
-        public DbSet<VideoData> Videos { get; set; }
+        private DbSet<PlaylistData> Playlists { get; set; }
+        private DbSet<PlaylistItemData> PlaylistItems { get; set; }
+        private DbSet<VideoData> Videos { get; set; }
 
         // These methods exist so that our interface doesn't pull in DbSet, or anything EF core related
         public async Task<List<PlaylistData>> GetPlaylists() => await Playlists.ToListAsync();
@@ -61,7 +58,7 @@ namespace YoutubeCleanupTool.DataAccess
             searchResults.AddRange(
                 (await Videos
                     .ToListAsync())
-                    .Where(x => searchTerm.IsMatch(x.Title)) // || searchTerm.IsMatch(x?.Description ?? "")
+                    .Where(x => searchTerm.IsMatch(x.Title))
                 );
 
             searchResults.AddRange(
@@ -82,14 +79,6 @@ namespace YoutubeCleanupTool.DataAccess
         public void Migrate()
         {
             Database.Migrate();
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // Note: No need to do anything here because everything's attributed with [Table]
-            // Only need to do this for indexes and more complicated things
-
-            base.OnModelCreating(modelBuilder);
         }
     }
 }

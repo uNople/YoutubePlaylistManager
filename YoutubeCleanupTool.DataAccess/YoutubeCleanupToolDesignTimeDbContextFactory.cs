@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using YoutubeCleanupTool.DataAccess;
 
-namespace YoutubeCleanupConsole
+namespace YouTubeCleanupTool.DataAccess
 {
     public class YoutubeCleanupToolDesignTimeDbContextFactory : IDesignTimeDbContextFactory<YoutubeCleanupToolDbContext>
     {

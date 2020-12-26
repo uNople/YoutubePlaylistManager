@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace YoutubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain
 {
     [Table("Playlists")]
     public class PlaylistData : IData

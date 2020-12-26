@@ -1,4 +1,4 @@
-﻿namespace YoutubeCleanupTool.Domain
+﻿namespace YouTubeCleanupTool.Domain
 {
     public interface IData
     {

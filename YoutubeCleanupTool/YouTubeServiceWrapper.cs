@@ -1,12 +1,10 @@
-﻿using Google.Apis.YouTube.v3;
-using Google.Apis.YouTube.v3.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using YoutubeCleanupTool.Interfaces;
+using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
+using YouTubeApiWrapper.Interfaces;
 
-namespace YoutubeCleanupTool
+namespace YouTubeApiWrapper
 {
     public class YouTubeServiceWrapper : YouTubeService, IYouTubeServiceWrapper
     {

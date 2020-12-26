@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace YoutubeCleanupTool.Domain.UnitTests
+namespace YouTubeCleanupTool.Domain.UnitTests
 {
     public static class TestExtensions
     {

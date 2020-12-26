@@ -3,11 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeCleanupTool", "YoutubeCleanupTool\YoutubeCleanupTool.csproj", "{C2B84319-11E5-478B-A66E-EC592936A6EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeApiWrapper", "YoutubeCleanupTool\YouTubeApiWrapper.csproj", "{C2B84319-11E5-478B-A66E-EC592936A6EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupToolTests", "YouTubeCleanupToolTests\YouTubeCleanupToolTests.csproj", "{D6091D54-5598-494A-8663-5CBE964742F2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeCleanupConsole", "YoutubeCleanupConsole\YoutubeCleanupConsole.csproj", "{28A7A840-755B-4DD0-B16A-B1B4111F4D67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupConsole", "YoutubeCleanupConsole\YouTubeCleanupConsole.csproj", "{28A7A840-755B-4DD0-B16A-B1B4111F4D67}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Help", "Help", "{78B20DB0-EBCF-4BD5-B452-8F646688D575}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,11 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Help", "Help", "{78B20DB0-E
 		TODO.md = TODO.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeCleanupTool.Domain", "YoutubeCleanupTool.Domain\YoutubeCleanupTool.Domain.csproj", "{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain", "YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj", "{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeCleanupTool.DataAccess", "YoutubeCleanupTool.DataAccess\YoutubeCleanupTool.DataAccess.csproj", "{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.DataAccess", "YoutubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj", "{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoutubeCleanupTool.Domain.UnitTests", "YoutubeCleanupTool.Domain.UnitTests\YoutubeCleanupTool.Domain.UnitTests.csproj", "{351FA735-44D5-4D25-8AFC-3FAF9FBBA24B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain.UnitTests", "YoutubeCleanupTool.Domain.UnitTests\YouTubeCleanupTool.Domain.UnitTests.csproj", "{351FA735-44D5-4D25-8AFC-3FAF9FBBA24B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +29,6 @@ Global
 		{C2B84319-11E5-478B-A66E-EC592936A6EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2B84319-11E5-478B-A66E-EC592936A6EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2B84319-11E5-478B-A66E-EC592936A6EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D6091D54-5598-494A-8663-5CBE964742F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D6091D54-5598-494A-8663-5CBE964742F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D6091D54-5598-494A-8663-5CBE964742F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D6091D54-5598-494A-8663-5CBE964742F2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28A7A840-755B-4DD0-B16A-B1B4111F4D67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{28A7A840-755B-4DD0-B16A-B1B4111F4D67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28A7A840-755B-4DD0-B16A-B1B4111F4D67}.Release|Any CPU.ActiveCfg = Release|Any CPU

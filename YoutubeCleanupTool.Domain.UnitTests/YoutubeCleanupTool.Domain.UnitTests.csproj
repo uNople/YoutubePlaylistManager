@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YoutubeCleanupTool.Domain\YoutubeCleanupTool.Domain.csproj" />
+    <ProjectReference Include="..\YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
   </ItemGroup>
 
 </Project>

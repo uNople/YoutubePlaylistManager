@@ -1,9 +1,6 @@
 ﻿using Autofac;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace YoutubeCleanupConsole
+namespace YouTubeCleanupConsole
 {
     public class YoutubeCleanupConsoleModule : Module
     {

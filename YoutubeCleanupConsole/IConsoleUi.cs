@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace YoutubeCleanupConsole
+namespace YouTubeCleanupConsole
 {
     internal interface IConsoleUi
     {

@@ -1,8 +1,4 @@
-﻿using AutoMapper;
-using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
-using Google.Apis.YouTube.v3.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -10,34 +6,30 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using YoutubeCleanupTool;
-using YoutubeCleanupTool.Domain;
-using YoutubeCleanupTool.Interfaces;
+using YouTubeApiWrapper.Interfaces;
+using YouTubeCleanupTool.Domain;
 
-namespace YoutubeCleanupConsole
+namespace YouTubeCleanupConsole
 {
     public class ConsoleUi : IConsoleUi
     {
         private readonly ConsoleDisplayParams _consoleDisplayParams;
-        private readonly IYouTubeApi _youTubeApi;
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
-        private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
+        private readonly YouTubeServiceCreatorOptions _youTubeServiceCreatorOptions;
         private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
         private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
         private CancellationTokenSource _cancellationTokenSource;
 
         public ConsoleUi(
             [NotNull] ConsoleDisplayParams consoleDisplayParams,
-            [NotNull] IYouTubeApi youTubeApi,
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
-            [NotNull] YoutubeServiceCreatorOptions youtubeServiceCreatorOptions,
+            [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions,
             [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
             [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext)
         {
             _consoleDisplayParams = consoleDisplayParams;
-            _youTubeApi = youTubeApi;
             _credentialManagerWrapper = credentialManagerWrapper;
-            _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions;
+            _youTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
             _getAndCacheYouTubeData = getAndCacheYouTubeData;
             _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
         }
@@ -52,12 +44,12 @@ namespace YoutubeCleanupConsole
 
             var commands = new Dictionary<string, Func<string, CancellationToken, Task>>(StringComparer.InvariantCultureIgnoreCase)
             {
-                { "UpdateApiKey", async (s, c) => await Task.Run(() => _credentialManagerWrapper.PromptForKey()) },
-                { "GetPlaylists", async (s, c) => await _getAndCacheYouTubeData.GetPlaylists(logCallback) },
-                { "GetPlaylistItems", async (s, c) => await _getAndCacheYouTubeData.GetPlaylistItems(logCallback) },
-                { "GetVideos", async (s, c) => await GetVideos(logCallback, false, c) },
-                { "GetAllVideos", async (s, c) => await GetVideos(logCallback, true, c) },
-                { "GetUnicodeVideoTitles", async (s, c) => await _getAndCacheYouTubeData.GetUnicodeVideoTitles((string title) => Console.WriteLine(title)) },
+                { "UpdateApiKey", async (_, c) => await Task.Run(() => _credentialManagerWrapper.PromptForKey(), c) },
+                { "GetPlaylists", async (_, _) => await _getAndCacheYouTubeData.GetPlaylists(logCallback) },
+                { "GetPlaylistItems", async (_, _) => await _getAndCacheYouTubeData.GetPlaylistItems(logCallback) },
+                { "GetVideos", async (_, c) => await GetVideos(logCallback, false, c) },
+                { "GetAllVideos", async (_, c) => await GetVideos(logCallback, true, c) },
+                { "GetUnicodeVideoTitles", async (_, _) => await _getAndCacheYouTubeData.GetUnicodeVideoTitles(Console.WriteLine) },
                 { "Search", async (s, c) => await Search(s, c) },
             };
 
@@ -73,7 +65,7 @@ namespace YoutubeCleanupConsole
 
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                if (commands.TryGetValue(command.Split(' ')[0], out var func))
+                if (command != null && commands.TryGetValue(command.Split(' ')[0], out var func))
                 {
                     try
                     {
@@ -158,7 +150,7 @@ namespace YoutubeCleanupConsole
                     Console.WriteLine();
                     if (cancellationToken.IsCancellationRequested)
                     {
-                        Console.WriteLine("Aborting - cancelation requested");
+                        Console.WriteLine("Aborting - cancellation requested");
                         return;
                     }
                 }
@@ -186,10 +178,10 @@ namespace YoutubeCleanupConsole
         private void CheckClientJsonExists()
         {
             // TODO: Change this to a wrapper or something, so we can set this to exist and things will be nice with tests
-            while (!File.Exists(_youtubeServiceCreatorOptions.ClientSecretPath))
+            while (!File.Exists(_youTubeServiceCreatorOptions.ClientSecretPath))
             {
                 Console.WriteLine("Please download your client secret from google. URL should be: https://console.developers.google.com/?pli=1");
-                Console.WriteLine($"Place client.json in {_youtubeServiceCreatorOptions.ClientSecretPath}");
+                Console.WriteLine($"Place client.json in {_youTubeServiceCreatorOptions.ClientSecretPath}");
                 PromptToContinue();
             }
         }
@@ -206,7 +198,7 @@ namespace YoutubeCleanupConsole
         {
             int commandIndex = 0;
 
-            for (int line = 0; line < _consoleDisplayParams.Lines; line++)
+            for (var line = 0; line < _consoleDisplayParams.Lines; line++)
             {
                 if (!IsCommandLines(line) && !IsBorderLine(line))
                 {
@@ -215,7 +207,7 @@ namespace YoutubeCleanupConsole
                         Console.Write($" >   {commands[commandIndex++]}");
                     }
                 }
-                for (int column = 0; column < _consoleDisplayParams.Columns; column++)
+                for (var column = 0; column < _consoleDisplayParams.Columns; column++)
                 {
                     if (IsCommandLines(line))
                     {

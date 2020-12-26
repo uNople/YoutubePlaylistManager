@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace YoutubeCleanupTool.DataAccess.Migrations
+namespace YouTubeCleanupTool.DataAccess.Migrations
 {
     public partial class UnlinkPlaylistItemfromVideo : Migration
     {

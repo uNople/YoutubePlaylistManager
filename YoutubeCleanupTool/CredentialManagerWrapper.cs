@@ -1,10 +1,8 @@
 ﻿using AdysTech.CredentialManager;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using YoutubeCleanupTool.Interfaces;
+using YouTubeApiWrapper.Interfaces;
 
-namespace YoutubeCleanupTool
+namespace YouTubeApiWrapper
 {
     public class CredentialManagerWrapper : ICredentialManagerWrapper
     {

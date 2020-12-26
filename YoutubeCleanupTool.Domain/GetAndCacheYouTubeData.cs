@@ -41,7 +41,8 @@ namespace YoutubeCleanupTool.Domain
 
         public async Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos)
         {
-            var videosToGet = (await _youTubeCleanupToolDbContext.GetPlaylistItems()).Select(x => x.VideoId).ToList();
+            var playlistItems = await _youTubeCleanupToolDbContext.GetPlaylistItems();
+            var videosToGet = playlistItems.Select(x => x.VideoId).ToList();
             var videosToSkip = getAllVideos ? new List<string>() : (await _youTubeCleanupToolDbContext.GetVideos()).Select(x => x.Id);
             videosToGet = videosToGet.Except(videosToSkip).ToList();
             await foreach (var video in _youTubeApi.GetVideos(videosToGet))

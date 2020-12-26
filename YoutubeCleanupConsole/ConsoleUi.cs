@@ -38,6 +38,10 @@ namespace YoutubeCleanupConsole
 
         public async Task Run()
         {
+            // This is so we can display unicode text
+            // NOTE: If unicode text isn't displaying in the console, use MS Gothic font. It displays the most that I've found so far
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             void logCallback(IData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}");
 
             var commands = new Dictionary<string, Func<Task>>(StringComparer.InvariantCultureIgnoreCase)
@@ -47,6 +51,7 @@ namespace YoutubeCleanupConsole
                 { "GetPlaylistItems", async () => await _getAndCacheYouTubeData.GetPlaylistItems(logCallback) },
                 { "GetVideos", async () => await _getAndCacheYouTubeData.GetVideos(logCallback, false) },
                 { "GetAllVideos", async () => await _getAndCacheYouTubeData.GetVideos(logCallback, true) },
+                { "GetUnicodeVideoTitles", async () => await _getAndCacheYouTubeData.GetUnicodeVideoTitles((string title) => Console.WriteLine(title)) },
             };
 
             PromptForKeyIfNotExists();

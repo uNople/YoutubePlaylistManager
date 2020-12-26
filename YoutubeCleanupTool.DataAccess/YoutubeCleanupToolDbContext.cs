@@ -29,6 +29,7 @@ namespace YoutubeCleanupTool.DataAccess
         public async Task<List<PlaylistData>> GetPlaylists() => await Playlists.ToListAsync();
         public async Task<List<PlaylistItemData>> GetPlaylistItems() => await PlaylistItems.ToListAsync();
         public async Task<List<VideoData>> GetVideos() => await Videos.ToListAsync();
+        public async Task<List<string>> GetVideoTitles() => await Videos.Select(x => x.Title).ToListAsync();
         public async Task<bool> VideoExists(string id) => await Videos.FindAsync(id) != null;
         public async Task<InsertStatus> UpsertPlaylist(PlaylistData data) => await Upsert(Playlists, data);
         public async Task<InsertStatus> UpsertPlaylistItem(PlaylistItemData data) => await Upsert(PlaylistItems, data);

@@ -67,5 +67,17 @@ namespace YoutubeCleanupTool.Domain
             callback(video, result);
             await _youTubeCleanupToolDbContext.SaveChangesAsync();
         }
+
+        public async Task GetUnicodeVideoTitles(Action<string> callback)
+        {
+            var videoTitles = await _youTubeCleanupToolDbContext.GetVideoTitles();
+            foreach (var videoTitle in videoTitles)
+            {
+                if (videoTitle.ToCharArray().Any(x => ((int)x) > 1000))
+                {
+                    callback(videoTitle);
+                }
+            }
+        }
     }
 }

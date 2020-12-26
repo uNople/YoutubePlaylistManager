@@ -20,8 +20,7 @@ namespace YoutubeCleanupTool.Domain
 
         public async Task GetPlaylists(Action<PlaylistData, InsertStatus> callback)
         {
-            var playlists = await _youTubeApi.GetPlaylists();
-            foreach (var playlist in playlists)
+            await foreach (var playlist in _youTubeApi.GetPlaylists())
             {
                 var result = await _youTubeCleanupToolDbContext.UpsertPlaylist(playlist);
                 callback(playlist, result);
@@ -32,8 +31,7 @@ namespace YoutubeCleanupTool.Domain
         public async Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback)
         {
             var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
-            var playlistItems = await _youTubeApi.GetPlaylistItems(playlists);
-            foreach (var playlistItem in playlistItems)
+            await foreach (var playlistItem in _youTubeApi.GetPlaylistItems(playlists))
             {
                 var result = await _youTubeCleanupToolDbContext.UpsertPlaylistItem(playlistItem);
                 callback(playlistItem, result);

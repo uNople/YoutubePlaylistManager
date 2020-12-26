@@ -32,22 +32,25 @@ namespace YoutubeCleanupTool
             _youtubeServiceCreatorOptions = youtubeServiceCreatorOptions;
         }
 
-        public async Task<List<PlaylistData>> GetPlaylists()
+        public async IAsyncEnumerable<PlaylistData> GetPlaylists()
         {
             var playlists = await GetYouYubeWrapper().GetPlaylists();
-            return _mapper.Map<List<PlaylistData>>(playlists);
+            foreach (var playlist in playlists)
+            {
+                yield return _mapper.Map<PlaylistData>(playlist);
+            }    
         }
 
-        public async Task<List<PlaylistItemData>> GetPlaylistItems(List<PlaylistData> playlists)
+        public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(List<PlaylistData> playlists)
         {
-            var playlistItemData = new List<PlaylistItem>();
             foreach (var playlist in playlists)
             {
                 var playlistItems = await GetYouYubeWrapper().GetPlaylistItems(playlist.Id);
-                playlistItemData.AddRange(playlistItems);
+                foreach (var playlistItem in playlistItems)
+                {
+                    yield return _mapper.Map<PlaylistItemData>(playlistItem);
+                }
             }
-
-            return _mapper.Map<List<PlaylistItemData>>(playlistItemData);
         }
 
         public async IAsyncEnumerable<VideoData> GetVideos(List<string> videoIdsToGet)

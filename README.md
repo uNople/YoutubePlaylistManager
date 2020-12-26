@@ -13,9 +13,17 @@ It's also super slow to do anything with playlists, especially when they're mass
 
 # What's currently implemented
 
-A console UI to handle getting playlist/video data and save to a Sqlite DB. Search works. No playlist updating works yet.
+Saving api credentials to the windows credential manager (so it's not in config or anything)
 
-Actual UI to come
+A console UI to handle getting playlist/video data and save to a Sqlite DB
+- Get playlists / playlist items / videos
+- Search
+
+To come:
+- Actual UI (WPF/Blazor/JS of some kind)
+- Playlist updating
+	- No permissions given for this yet
+	- No methods exist for updating playlists
 
 # how to run
 

@@ -24,8 +24,8 @@ namespace YoutubeCleanupTool.Domain
             {
                 var result = await _youTubeCleanupToolDbContext.UpsertPlaylist(playlist);
                 callback(playlist, result);
-                await _youTubeCleanupToolDbContext.SaveChangesAsync();
             }
+            await _youTubeCleanupToolDbContext.SaveChangesAsync();
         }
 
         public async Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback)
@@ -35,8 +35,8 @@ namespace YoutubeCleanupTool.Domain
             {
                 var result = await _youTubeCleanupToolDbContext.UpsertPlaylistItem(playlistItem);
                 callback(playlistItem, result);
-                await _youTubeCleanupToolDbContext.SaveChangesAsync();
             }
+            await _youTubeCleanupToolDbContext.SaveChangesAsync();
         }
 
         public async Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos)

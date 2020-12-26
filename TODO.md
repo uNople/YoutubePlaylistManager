@@ -1,6 +1,4 @@
 Next:
-- Add basic searching (title/description)
-    - Add indexes for searches and things
 - Write tests
 - Ability to cancel as the console is writing (eg, cancel out of getting videos)
 - Refactor YouTubeApi so it uses IAsyncEnumerable

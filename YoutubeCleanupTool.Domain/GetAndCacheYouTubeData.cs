@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace YoutubeCleanupTool.Domain
@@ -39,7 +40,7 @@ namespace YoutubeCleanupTool.Domain
             await _youTubeCleanupToolDbContext.SaveChangesAsync();
         }
 
-        public async Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos)
+        public async Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos, CancellationToken cancellationToken)
         {
             var playlistItems = await _youTubeCleanupToolDbContext.GetPlaylistItems();
             var videosToGet = playlistItems.Select(x => x.VideoId).ToList();
@@ -47,6 +48,12 @@ namespace YoutubeCleanupTool.Domain
             videosToGet = videosToGet.Except(videosToSkip).ToList();
             await foreach (var video in _youTubeApi.GetVideos(videosToGet))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    callback(new VideoData { Title = "CANCELLED", Id = "CANCELLED" }, InsertStatus.Inserted);
+                    return;
+                }
+
                 if (video.IsDeletedFromYouTube)
                 {
                     // We only want to insert this if we haven't already - because we want to preserve any existing data we have

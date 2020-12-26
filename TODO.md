@@ -1,6 +1,4 @@
 Next:
-- Write tests
-- Ability to cancel as the console is writing (eg, cancel out of getting videos)
 - Refactor YouTubeApi so it uses IAsyncEnumerable
 
 After

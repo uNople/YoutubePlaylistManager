@@ -94,25 +94,33 @@ namespace YoutubeCleanupConsole
             var searchBackgroundColor = ConsoleColor.DarkYellow;
             var searchForegroundColor = ConsoleColor.Black;
             var regex = new Regex(searchTerm, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            
+
             foreach (var searchResult in searchResults)
             {
                 Console.Write($"{searchResult.GetType().Name} - ");
 
-                var regexMatch = regex.Match(searchResult.Title);
-                
-                var startIndex = regexMatch.Index;
-                var length = regexMatch.Value.Length;
+                var regexMatch = regex.Matches(searchResult.Title);
+
                 for (int i = 0; i < searchResult.Title.Length; i++)
                 {
-                    if (i >= startIndex && i <= startIndex + length - 1)
+                    bool matchFound = false;
+                    foreach (Match match in regexMatch)
                     {
-                        SetColor(searchBackgroundColor, searchForegroundColor);
+                        var startIndex = match.Index;
+                        var length = match.Value.Length;
+                        if (i >= startIndex && i <= startIndex + length - 1)
+                        {
+                            SetColor(searchBackgroundColor, searchForegroundColor);
+                            matchFound = true;
+                            break;
+                        }
                     }
-                    else
+
+                    if (!matchFound)
                     {
                         SetColor(originalBackgroundColor, originalForegroundColor);
                     }
+
                     Console.Write(searchResult.Title[i]);
                 }
                 SetColor(originalBackgroundColor, originalForegroundColor);
@@ -188,7 +196,7 @@ namespace YoutubeCleanupConsole
 
         private bool IsBorderLine(int line)
         {
-            return line == 0 || 
+            return line == 0 ||
                 // is last line we should draw
                 (line + _consoleDisplayParams.BottomPadding) == _consoleDisplayParams.Lines;
         }

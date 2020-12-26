@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YoutubeCleanupTool;
 using YoutubeCleanupTool.Domain;
@@ -88,7 +89,41 @@ namespace YoutubeCleanupConsole
         {
             Console.WriteLine($"Searching for term {searchTerm}");
             var searchResults = await _youTubeCleanupToolDbContext.FindAll(searchTerm);
-            searchResults.ForEach(x => Console.WriteLine($"{x.GetType().Name} - {x.Title}"));
+            var originalBackgroundColor = Console.BackgroundColor;
+            var originalForegroundColor = Console.ForegroundColor;
+            var searchBackgroundColor = ConsoleColor.DarkYellow;
+            var searchForegroundColor = ConsoleColor.Black;
+            var regex = new Regex(searchTerm, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            
+            foreach (var searchResult in searchResults)
+            {
+                Console.Write($"{searchResult.GetType().Name} - ");
+
+                var regexMatch = regex.Match(searchResult.Title);
+                
+                var startIndex = regexMatch.Index;
+                var length = regexMatch.Value.Length;
+                for (int i = 0; i < searchResult.Title.Length; i++)
+                {
+                    if (i >= startIndex && i <= startIndex + length - 1)
+                    {
+                        SetColor(searchBackgroundColor, searchForegroundColor);
+                    }
+                    else
+                    {
+                        SetColor(originalBackgroundColor, originalForegroundColor);
+                    }
+                    Console.Write(searchResult.Title[i]);
+                }
+                SetColor(originalBackgroundColor, originalForegroundColor);
+                Console.WriteLine();
+            }
+        }
+
+        private static void SetColor(ConsoleColor background, ConsoleColor foreground)
+        {
+            Console.BackgroundColor = background;
+            Console.ForegroundColor = foreground;
         }
 
         private static void PromptToContinue()

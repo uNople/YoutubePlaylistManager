@@ -24,8 +24,8 @@ namespace YoutubeCleanupTool.Domain
             {
                 var result = await _youTubeCleanupToolDbContext.UpsertPlaylist(playlist);
                 callback(playlist, result);
+                await _youTubeCleanupToolDbContext.SaveChangesAsync();
             }
-            await _youTubeCleanupToolDbContext.SaveChangesAsync();
         }
 
         public async Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback)
@@ -35,20 +35,37 @@ namespace YoutubeCleanupTool.Domain
             {
                 var result = await _youTubeCleanupToolDbContext.UpsertPlaylistItem(playlistItem);
                 callback(playlistItem, result);
-            }
-            await _youTubeCleanupToolDbContext.SaveChangesAsync();
-        }
-
-        public async Task GetNewVideos(Action<VideoData, InsertStatus> callback)
-        {
-            var playlistItems = (await _youTubeCleanupToolDbContext.GetPlaylistItems()).Select(x => x.VideoId).ToList();
-            var videos = (await _youTubeCleanupToolDbContext.GetVideos()).Select(x => x.Id);
-            await foreach (var video in _youTubeApi.GetVideos(playlistItems.Except(videos).ToList()))
-            {
-                var result = await _youTubeCleanupToolDbContext.UpsertVideo(video);
-                callback(video, result);
                 await _youTubeCleanupToolDbContext.SaveChangesAsync();
             }
+        }
+
+        public async Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos)
+        {
+            var videosToGet = (await _youTubeCleanupToolDbContext.GetPlaylistItems()).Select(x => x.VideoId).ToList();
+            var videosToSkip = getAllVideos ? new List<string>() : (await _youTubeCleanupToolDbContext.GetVideos()).Select(x => x.Id);
+            videosToGet = videosToGet.Except(videosToSkip).ToList();
+            await foreach (var video in _youTubeApi.GetVideos(videosToGet))
+            {
+                if (video.IsDeletedFromYouTube)
+                {
+                    // We only want to insert this if we haven't already - because we want to preserve any existing data we have
+                    if (!await _youTubeCleanupToolDbContext.VideoExists(video.Id))
+                    {
+                        await UpsertVideo(callback, video);
+                    }
+                }
+                else
+                {
+                    await UpsertVideo(callback, video);
+                }
+            }
+        }
+
+        private async Task UpsertVideo(Action<VideoData, InsertStatus> callback, VideoData video)
+        {
+            var result = await _youTubeCleanupToolDbContext.UpsertVideo(video);
+            callback(video, result);
+            await _youTubeCleanupToolDbContext.SaveChangesAsync();
         }
     }
 }

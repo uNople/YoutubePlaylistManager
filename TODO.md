@@ -2,9 +2,9 @@ Next:
 - Add basic searching (title/description)
     - Add indexes for searches and things
 - Write tests
-- Handle deletion of a video - preserve whatever data we can locally
-- Refactor GetAndCachedata so we're not repeating too much code
 - Handle unicode text
+- Ability to cancel as the console is writing (eg, cancel out of getting videos)
+- Refactor YouTubeApi so it uses IAsyncEnumerable
 
 After
 - Re-architect program - does what I have make sense

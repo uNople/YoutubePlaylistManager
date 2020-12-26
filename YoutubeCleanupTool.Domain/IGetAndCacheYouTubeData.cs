@@ -7,6 +7,6 @@ namespace YoutubeCleanupTool.Domain
     {
         Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback);
         Task GetPlaylists(Action<PlaylistData, InsertStatus> callback);
-        Task GetNewVideos(Action<VideoData, InsertStatus> callback);
+        Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos);
     }
 }

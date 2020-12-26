@@ -22,6 +22,7 @@ namespace YoutubeCleanupTool
         private readonly IMapper _mapper;
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly YoutubeServiceCreatorOptions _youtubeServiceCreatorOptions;
+        private IYouTubeServiceWrapper _youTubeServiceWrapper;
 
         public YouTubeApi([NotNull] IMapper mapper,
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
@@ -59,9 +60,13 @@ namespace YoutubeCleanupTool
             {
                 var video = (await GetYouYubeWrapper().GetVideos(videoId)).FirstOrDefault();
                 if (video == null)
-                    continue;
-
-                yield return _mapper.Map<VideoData>(video);
+                {
+                    yield return new VideoData { Id = videoId, Title = "deleted", IsDeletedFromYouTube = true };
+                }
+                else
+                {
+                    yield return _mapper.Map<VideoData>(video);
+                }
             }
         }
 
@@ -72,6 +77,9 @@ namespace YoutubeCleanupTool
 
         public async Task<IYouTubeServiceWrapper> CreateYouTubeService()
         {
+            if (_youTubeServiceWrapper != null)
+                return _youTubeServiceWrapper;
+
             var apiKey = _credentialManagerWrapper.GetApiKey();
             UserCredential credential;
             using (var stream = new FileStream(_youtubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
@@ -89,14 +97,14 @@ namespace YoutubeCleanupTool
             }
 
             // Create the service.
-            var service = new YouTubeServiceWrapper(new BaseClientService.Initializer()
+            _youTubeServiceWrapper = new YouTubeServiceWrapper(new BaseClientService.Initializer()
             {
                 ApiKey = apiKey,
                 HttpClientInitializer = credential,
                 ApplicationName = "Youtube cleanup tool",
             });
             apiKey = null;
-            return service;
+            return _youTubeServiceWrapper;
         }
     }
 }

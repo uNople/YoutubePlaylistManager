@@ -38,12 +38,15 @@ namespace YoutubeCleanupConsole
 
         public async Task Run()
         {
+            void logCallback(IData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}");
+
             var commands = new Dictionary<string, Func<Task>>(StringComparer.InvariantCultureIgnoreCase)
             {
                 { "UpdateApiKey", async () => await Task.Run(() => _credentialManagerWrapper.PromptForKey()) },
-                { "GetPlaylists", async () => await _getAndCacheYouTubeData.GetPlaylists((PlaylistData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}")) },
-                { "GetPlaylistItems", async () => await _getAndCacheYouTubeData.GetPlaylistItems((PlaylistItemData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}")) },
-                { "GetVideos", async () => await _getAndCacheYouTubeData.GetNewVideos((VideoData data, InsertStatus status) => Console.WriteLine($"{data.Id} - {data.Title} was {status}")) },
+                { "GetPlaylists", async () => await _getAndCacheYouTubeData.GetPlaylists(logCallback) },
+                { "GetPlaylistItems", async () => await _getAndCacheYouTubeData.GetPlaylistItems(logCallback) },
+                { "GetVideos", async () => await _getAndCacheYouTubeData.GetVideos(logCallback, false) },
+                { "GetAllVideos", async () => await _getAndCacheYouTubeData.GetVideos(logCallback, true) },
             };
 
             PromptForKeyIfNotExists();

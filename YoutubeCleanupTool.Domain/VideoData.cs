@@ -6,7 +6,7 @@ using System.Linq;
 namespace YoutubeCleanupTool.Domain
 {
     [Table("Videos")]
-    public class VideoData
+    public class VideoData : IData
     {
         [Key]
         public string Id { get; set; }

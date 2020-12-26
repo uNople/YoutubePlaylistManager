@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace YoutubeCleanupTool.Domain
 {
     [Table("PlaylistItems")]
-    public class PlaylistItemData
+    public class PlaylistItemData : IData
     {
         [Key]
         public string Id { get; set; }

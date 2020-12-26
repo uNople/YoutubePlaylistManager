@@ -25,14 +25,18 @@ namespace YoutubeCleanupTool.DataAccess
         public DbSet<PlaylistItemData> PlaylistItems { get; set; }
         public DbSet<VideoData> Videos { get; set; }
 
+        // These methods exist so that our interface doesn't pull in DbSet, or anything EF core related
         public async Task<List<PlaylistData>> GetPlaylists() => await Playlists.ToListAsync();
         public async Task<List<PlaylistItemData>> GetPlaylistItems() => await PlaylistItems.ToListAsync();
         public async Task<List<VideoData>> GetVideos() => await Videos.ToListAsync();
+        public async Task<InsertStatus> UpsertPlaylist(PlaylistData data) => await Upsert(Playlists, data);
+        public async Task<InsertStatus> UpsertPlaylistItem(PlaylistItemData data) => await Upsert(PlaylistItems, data);
+        public async Task<InsertStatus> UpsertVideo(VideoData data) => await Upsert(Videos, data);
 
-        public async Task<InsertStatus> UpsertPlaylist(PlaylistData data)
+        private async Task<InsertStatus> Upsert<T>(DbSet<T> dbSet, T data) where T : class, IData
         {
             InsertStatus status;
-            var existing = await Playlists.FindAsync(data.Id);
+            var existing = await dbSet.FindAsync(data.Id);
             if (existing != null)
             {
                 status = InsertStatus.Updated;
@@ -41,41 +45,7 @@ namespace YoutubeCleanupTool.DataAccess
             else
             {
                 status = InsertStatus.Inserted;
-                Playlists.Add(data);
-            }
-            return status;
-        }
-
-        public async Task<InsertStatus> UpsertPlaylistItem(PlaylistItemData data)
-        {
-            InsertStatus status;
-            var existing = await PlaylistItems.FindAsync(data.Id);
-            if (existing != null)
-            {
-                status = InsertStatus.Updated;
-                _mapper.Map(data, existing);
-            }
-            else
-            {
-                status = InsertStatus.Inserted;
-                PlaylistItems.Add(data);
-            }
-            return status;
-        }
-
-        public async Task<InsertStatus> UpsertVideo(VideoData data)
-        {
-            InsertStatus status;
-            var existing = await Videos.FindAsync(data.Id);
-            if (existing != null)
-            {
-                status = InsertStatus.Updated;
-                _mapper.Map(data, existing);
-            }
-            else
-            {
-                status = InsertStatus.Inserted;
-                Videos.Add(data);
+                dbSet.Add(data);
             }
             return status;
         }

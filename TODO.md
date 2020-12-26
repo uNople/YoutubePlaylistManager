@@ -3,6 +3,8 @@ Next:
     - Add indexes for searches and things
 - Write tests
 - Handle deletion of a video - preserve whatever data we can locally
+- Refactor GetAndCachedata so we're not repeating too much code
+- Handle unicode text
 
 After
 - Re-architect program - does what I have make sense

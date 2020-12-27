@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.1.0" />
+    <PackageReference Include="PropertyChanged.Fody" Version="3.3.1" />
+    <PackageReference Include="WpfPlus" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YoutubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj" />
+    <ProjectReference Include="..\YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
+    <ProjectReference Include="..\YoutubeCleanupTool\YouTubeApiWrapper.csproj" />
+  </ItemGroup>
+
+</Project>

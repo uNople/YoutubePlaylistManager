@@ -1,5 +1,10 @@
-Next:
-- Create some kind of UI for what I have (Razer/express?)
+Next/Current:
+- Prototype UI in WPF
+
+After:
+- Create more permanent UI in cv++ languages/frameworks
+- Blazor/express
+- [project reunion](https://github.com/microsoft/ProjectReunion)
 
 Future features:
 - Cache thumbnails for playlists and videos (once it's in sqlite)

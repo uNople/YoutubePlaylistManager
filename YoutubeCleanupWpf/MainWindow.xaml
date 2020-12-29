@@ -11,7 +11,7 @@
         Loaded="MainWindow_OnLoaded"
         >
     <Grid>
-        <ListBox Margin="10,45,884,0" Height="803" VerticalAlignment="Top" ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+        <ListBox Margin="10,45,0,0" Height="803" VerticalAlignment="Top" ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" HorizontalAlignment="Left" Width="258">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -19,19 +19,19 @@
                             <Image />
                             <Label Content="{Binding Title}" />
                         </StackPanel>
-                        
+
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
-                <ComboBox HorizontalAlignment="Left" Margin="9,18,0,0" VerticalAlignment="Top" Width="250"/>
-        <ListBox Margin="273,18,576,0" Height="830" VerticalAlignment="Top"/>
+        <ComboBox HorizontalAlignment="Left" Margin="9,18,0,0" VerticalAlignment="Top" Width="250"/>
+        <ListBox Margin="273,18,0,0" Height="830" VerticalAlignment="Top" HorizontalAlignment="Left" Width="303"/>
         <Image HorizontalAlignment="Left" Height="207" Margin="581,18,0,0" VerticalAlignment="Top" Width="289" />
         <Label Content="Image placeholder" HorizontalAlignment="Left" Margin="581,18,0,0" VerticalAlignment="Top" Height="207" Width="289"/>
-        <Label Content="Title" HorizontalAlignment="Left" Margin="875,22,0,0" VerticalAlignment="Top" Height="110" Width="267"/>
-        <Label Content="Description" HorizontalAlignment="Left" Margin="581,230,0,0" Width="561"/>
-        <Label Content="Channel name" HorizontalAlignment="Left" Margin="875,137,0,0" VerticalAlignment="Top" Height="78" Width="267"/>
+        <Label Content="{Binding SelectedVideo.Title, UpdateSourceTrigger=PropertyChanged, FallbackValue=Title of video}" HorizontalAlignment="Left" Margin="875,22,0,0" VerticalAlignment="Top" Height="110" Width="267"/>
+        <Label Content="{Binding SelectedVideo.Description, UpdateSourceTrigger=PropertyChanged, FallbackValue=Description of video}" HorizontalAlignment="Left" Margin="581,230,0,0" Width="561"/>
+        <Label Content="{Binding SelectedVideo.ChannelTitle, UpdateSourceTrigger=PropertyChanged, FallbackValue=Channel name}" HorizontalAlignment="Left" Margin="875,137,0,0" VerticalAlignment="Top" Height="78" Width="267"/>
 
     </Grid>
 </Window>

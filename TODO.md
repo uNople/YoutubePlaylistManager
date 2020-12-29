@@ -1,5 +1,7 @@
 Next/Current:
+- Add thumbnails to database + get smallest thumb for now
 - Prototype UI in WPF
+
 
 After:
 - Create more permanent UI in cv++ languages/frameworks
@@ -17,4 +19,3 @@ Final (countdown) goal
 
 Deferred (probably not really needed)
 - Refactor YouTubeApi so it uses IAsyncEnumerable (refactoring to make slightly more responsive)
-- Handle secret revocation - eg, how do we prompt the client for reauth via google again

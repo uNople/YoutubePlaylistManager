@@ -28,7 +28,7 @@ namespace YoutubeCleanupWpf
         public async Task LoadData()
         {
             var videos = await _youTubeCleanupToolDbContext.GetVideos();
-            foreach (var video in videos.Take(10))
+            foreach (var video in videos.Where(x => x.ChannelTitle != null).Take(10))
             {
                 try
                 {

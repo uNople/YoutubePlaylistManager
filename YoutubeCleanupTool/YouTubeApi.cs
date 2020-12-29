@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Services;
@@ -8,8 +9,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.YouTube.v3.Data;
 using YouTubeApiWrapper.Interfaces;
 using YouTubeCleanupTool;
 using YouTubeCleanupTool.Domain;
@@ -34,7 +38,8 @@ namespace YouTubeApiWrapper
 
         public async IAsyncEnumerable<PlaylistData> GetPlaylists()
         {
-            var playlists = await GetYouYubeWrapper().GetPlaylists();
+            var playlists = await HandleSecretRevocation(async getNewToken => await GetYouTubeWrapper(getNewToken).GetPlaylists());
+            
             foreach (var playlist in playlists)
             {
                 yield return _mapper.Map<PlaylistData>(playlist);
@@ -45,7 +50,8 @@ namespace YouTubeApiWrapper
         {
             foreach (var playlist in playlists)
             {
-                var playlistItems = await GetYouYubeWrapper().GetPlaylistItems(playlist.Id);
+                var playlistItems = await HandleSecretRevocation(async getNewToken => await GetYouTubeWrapper(getNewToken).GetPlaylistItems(playlist.Id));
+                
                 foreach (var playlistItem in playlistItems)
                 {
                     yield return _mapper.Map<PlaylistItemData>(playlistItem);
@@ -57,7 +63,9 @@ namespace YouTubeApiWrapper
         {
             foreach (var videoId in videoIdsToGet)
             {
-                var video = (await GetYouYubeWrapper().GetVideos(videoId)).FirstOrDefault();
+                var video = (await HandleSecretRevocation(async getNewToken
+                    => await GetYouTubeWrapper(getNewToken).GetVideos(videoId))).FirstOrDefault();
+
                 if (video == null)
                 {
                     yield return new VideoData { Id = videoId, Title = "deleted", IsDeletedFromYouTube = true };
@@ -69,14 +77,26 @@ namespace YouTubeApiWrapper
             }
         }
 
-        private IYouTubeServiceWrapper GetYouYubeWrapper()
+        private async Task<T> HandleSecretRevocation<T>(Func<bool, Task<T>> methodWhichCouldResultInNoAuthentication)
         {
-            return CreateYouTubeService().GetAwaiter().GetResult();
+            try
+            {
+                return await methodWhichCouldResultInNoAuthentication(false);
+            }
+            catch (TokenResponseException)
+            {
+                return await methodWhichCouldResultInNoAuthentication(true);
+            }
         }
 
-        public async Task<IYouTubeServiceWrapper> CreateYouTubeService()
+        private IYouTubeServiceWrapper GetYouTubeWrapper(bool getNewToken)
         {
-            if (_youTubeServiceWrapper != null)
+            return CreateYouTubeService(getNewToken).GetAwaiter().GetResult();
+        }
+
+        private async Task<IYouTubeServiceWrapper> CreateYouTubeService(bool getNewToken)
+        {
+            if (_youTubeServiceWrapper != null && !getNewToken)
                 return _youTubeServiceWrapper;
 
             var apiKey = _credentialManagerWrapper.GetApiKey();
@@ -93,6 +113,11 @@ namespace YouTubeApiWrapper
                         }),
                         new LocalServerCodeReceiver());
                 credential = await installedApp.AuthorizeAsync("user", CancellationToken.None);
+            }
+
+            if (getNewToken)
+            {
+                var success = await credential.RefreshTokenAsync(CancellationToken.None);
             }
 
             // Create the service.

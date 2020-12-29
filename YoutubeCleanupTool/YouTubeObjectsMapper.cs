@@ -22,6 +22,9 @@ namespace YouTubeApiWrapper
                 .ForPath(videoData => videoData.ThumbnailUrl, videoData => videoData.MapFrom(video => video.Snippet.Thumbnails.Default__.Url))
                 .ForPath(videoData => videoData.Description, videoData => videoData.MapFrom(video => video.Snippet.Description))
                 .ForPath(videoData => videoData.Title, videoData => videoData.MapFrom(video => video.Snippet.Title))
+                .ForPath(videoData => videoData.ChannelId, videoData => videoData.MapFrom(video => video.Snippet.ChannelId))
+                .ForPath(videoData => videoData.ChannelTitle, videoData => videoData.MapFrom(video => video.Snippet.ChannelTitle))
+
                 .ForPath(videoData => videoData.License, videoData => videoData.MapFrom(video => video.Status.License))
                 .ForPath(videoData => videoData.RecordingDate, videoData => videoData.MapFrom(video => video.RecordingDetails.RecordingDate))
                 .ReverseMap();

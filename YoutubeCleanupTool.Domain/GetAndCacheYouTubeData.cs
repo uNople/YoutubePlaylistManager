@@ -14,16 +14,16 @@ namespace YouTubeCleanupTool.Domain
     {
         private readonly IYouTubeApi _youTubeApi;
         private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientWrapper _httpClientWrapper;
 
         public GetAndCacheYouTubeData([NotNull] IYouTubeApi youTubeApi,
             [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-            [NotNull] HttpClient httpClient
+            [NotNull] IHttpClientWrapper httpClientWrapper
             )
         {
             _youTubeApi = youTubeApi;
             _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
-            _httpClient = httpClient;
+            _httpClientWrapper = httpClientWrapper;
         }
 
         public async Task GetPlaylists(Action<PlaylistData, InsertStatus> callback)
@@ -71,7 +71,7 @@ namespace YouTubeCleanupTool.Domain
                 }
                 else
                 {
-                    video.ThumbnailBytes = await _httpClient.GetByteArrayAsync(video.ThumbnailUrl, cancellationToken);
+                    video.ThumbnailBytes = await _httpClientWrapper.GetByteArrayAsync(video.ThumbnailUrl, cancellationToken);
                     await UpsertVideo(callback, video);
                 }
             }

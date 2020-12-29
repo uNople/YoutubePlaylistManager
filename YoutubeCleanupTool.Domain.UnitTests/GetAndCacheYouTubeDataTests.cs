@@ -4,6 +4,7 @@ using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -28,6 +29,7 @@ namespace YouTubeCleanupTool.Domain.UnitTests
                 GetAndCacheYouTubeData getAndCacheYouTubeData
             )
         {
+            
             var playlistItemData = fixture.CreateMany<PlaylistItemData>(3).ToList();
             youTubeCleanupToolDbContext.GetPlaylistItems().Returns(playlistItemData);
             var videoData = playlistItemData.Take(1).Select(x => new VideoData { Id = x.VideoId }).ToList();

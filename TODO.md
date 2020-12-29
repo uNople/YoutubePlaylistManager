@@ -17,5 +17,8 @@ Final (countdown) goal
 - Ability to cache titles/other info (and not clear them when videos get deleted)
 - With the Ability to differentiate between music and YouTube videos
 
-Deferred (probably not really needed)
+Deferred
 - Refactor YouTubeApi so it uses IAsyncEnumerable (refactoring to make slightly more responsive)
+- Instead of wrapping HttpClient, use HttpClientFactory and create a messagehandler that we can mock out instead
+	https://www.nocture.dk/2013/05/21/csharp-unit-testing-classes-with-httpclient-dependence-using-autofixture/
+	https://stackoverflow.com/questions/54227487/how-to-mock-the-new-httpclientfactory-in-net-core-2-1-using-moq

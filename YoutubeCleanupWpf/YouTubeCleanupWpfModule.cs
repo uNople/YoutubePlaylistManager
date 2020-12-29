@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using AutoMapper.Contrib.Autofac.DependencyInjection;
 
 namespace YoutubeCleanupWpf
 {
@@ -13,6 +14,7 @@ namespace YoutubeCleanupWpf
         {
             builder.RegisterType<MainWindow>();
             builder.RegisterType<MainWindowViewModel>();
+            builder.RegisterAutoMapper(typeof(YouTubeCleanupWpfModule).Assembly);
         }
     }
 }

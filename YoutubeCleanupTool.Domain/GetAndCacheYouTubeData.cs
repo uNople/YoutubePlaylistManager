@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,12 +14,16 @@ namespace YouTubeCleanupTool.Domain
     {
         private readonly IYouTubeApi _youTubeApi;
         private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
+        private readonly HttpClient _httpClient;
 
         public GetAndCacheYouTubeData([NotNull] IYouTubeApi youTubeApi,
-             [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext)
+            [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+            [NotNull] HttpClient httpClient
+            )
         {
             _youTubeApi = youTubeApi;
             _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
+            _httpClient = httpClient;
         }
 
         public async Task GetPlaylists(Action<PlaylistData, InsertStatus> callback)
@@ -64,11 +71,12 @@ namespace YouTubeCleanupTool.Domain
                 }
                 else
                 {
+                    video.ThumbnailBytes = await _httpClient.GetByteArrayAsync(video.ThumbnailUrl, cancellationToken);
                     await UpsertVideo(callback, video);
                 }
             }
         }
-
+        
         private async Task UpsertVideo(Action<VideoData, InsertStatus> callback, VideoData video)
         {
             var result = await _youTubeCleanupToolDbContext.UpsertVideo(video);

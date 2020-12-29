@@ -36,6 +36,7 @@ namespace YouTubeApiWrapper
                 .ForPath(playlistItemData => playlistItemData.PrivacyStatus, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Status.PrivacyStatus))
                 .ForPath(playlistItemData => playlistItemData.AddedToPlaylist, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Snippet.PublishedAt))
                 .ForPath(playlistItemData => playlistItemData.Title, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Snippet.Title))
+                .ForPath(playlistItemData => playlistItemData.PlaylistDataId, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Snippet.PlaylistId))
                 .ReverseMap();
         }
 

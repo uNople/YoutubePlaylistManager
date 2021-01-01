@@ -1,8 +1,11 @@
 Next/Current:
 - Prototype UI in WPF
-  - Get labels wrapping text - do we turn them imto textboxes?
   - Link to channel / video so we can open in YouTube
-  - Dynamic resizing - grid layout / columns
+  - Wire up 'update playlist parts'
+    - Extra permissions for the app in the google dev console
+	- re-grant permissions
+	- Write the api side
+	- Wire it into the UI - do we do it on tick/untick or have a 'save changes' pattern
 
 
 After:
@@ -24,3 +27,5 @@ Deferred
 - Instead of wrapping HttpClient, use HttpClientFactory and create a messagehandler that we can mock out instead
 	https://www.nocture.dk/2013/05/21/csharp-unit-testing-classes-with-httpclient-dependence-using-autofixture/
 	https://stackoverflow.com/questions/54227487/how-to-mock-the-new-httpclientfactory-in-net-core-2-1-using-moq
+- Get EF Logging working in the console somewhere in the wpf app, and the console app
+- Remove recursion in models - do it a more proper way (like just have the IDs, and read from the DB again)

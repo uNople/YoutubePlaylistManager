@@ -14,6 +14,9 @@ namespace YouTubeCleanupWpf
         {
             CreateMap<WpfVideoData, VideoData>()
                 .ReverseMap();
+
+            CreateMap<WpfPlaylistData, PlaylistData>()
+                .ReverseMap();
         }
     }
 }

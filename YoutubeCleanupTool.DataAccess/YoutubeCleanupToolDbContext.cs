@@ -22,34 +22,15 @@ namespace YouTubeCleanupTool.DataAccess
         private DbSet<PlaylistData> Playlists { get; set; }
         private DbSet<PlaylistItemData> PlaylistItems { get; set; }
         private DbSet<VideoData> Videos { get; set; }
-
         // These methods exist so that our interface doesn't pull in DbSet, or anything EF core related
         public async Task<List<PlaylistData>> GetPlaylists() => await Playlists.Include(x => x.PlaylistItems).ToListAsync();
         public async Task<List<PlaylistItemData>> GetPlaylistItems() => await PlaylistItems.ToListAsync();
-        public async Task<List<VideoData>> GetVideos() => await Videos.ToListAsync();
+        public async Task<List<VideoData>> GetVideos() => await Videos.Include(x => x.PlaylistItems).ToListAsync();
         public async Task<List<string>> GetVideoTitles() => await Videos.Select(x => x.Title).ToListAsync();
         public async Task<bool> VideoExists(string id) => await Videos.FindAsync(id) != null;
         public async Task<InsertStatus> UpsertPlaylist(PlaylistData data) => await Upsert(Playlists, data);
         public async Task<InsertStatus> UpsertPlaylistItem(PlaylistItemData data) => await Upsert(PlaylistItems, data);
         public async Task<InsertStatus> UpsertVideo(VideoData data) => await Upsert(Videos, data);
-
-        private async Task<InsertStatus> Upsert<T>(DbSet<T> dbSet, T data) where T : class, IData
-        {
-            InsertStatus status;
-            var existing = await dbSet.FindAsync(data.Id);
-            if (existing != null)
-            {
-                status = InsertStatus.Updated;
-                _mapper.Map(data, existing);
-            }
-            else
-            {
-                status = InsertStatus.Inserted;
-                dbSet.Add(data);
-            }
-            return status;
-        }
-
         public async Task<List<IData>> FindAll(string regex)
         {
             var searchResults = new List<IData>();
@@ -80,5 +61,23 @@ namespace YouTubeCleanupTool.DataAccess
         {
             Database.Migrate();
         }
+
+        private async Task<InsertStatus> Upsert<T>(DbSet<T> dbSet, T data) where T : class, IData
+        {
+            InsertStatus status;
+            var existing = await dbSet.FindAsync(data.Id);
+            if (existing != null)
+            {
+                status = InsertStatus.Updated;
+                _mapper.Map(data, existing);
+            }
+            else
+            {
+                status = InsertStatus.Inserted;
+                dbSet.Add(data);
+            }
+            return status;
+        }
+
     }
 }

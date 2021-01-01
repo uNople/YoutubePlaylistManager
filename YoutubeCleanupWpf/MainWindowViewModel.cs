@@ -21,56 +21,131 @@ namespace YoutubeCleanupWpf
     {
         private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
         private readonly IMapper _mapper;
+
+        public MainWindowViewModel
+        (
+            [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+            [NotNull] IMapper mapper
+        )
+        {
+            _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
+            Videos = new ObservableCollection<VideoData>();
+            AllPlaylists = new List<PlaylistData>();
+            Playlists = new ObservableCollection<WpfPlaylistData>();
+            VideoFilter = new ObservableCollection<VideoFilter>();
+            _mapper = mapper;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<VideoData> Videos { get; set; }
-        public ObservableCollection<PlaylistData> Playlists { get; set; }
-        public WpfVideoData SelectedVideo { get; set; }
+        public ObservableCollection<WpfPlaylistData> Playlists { get; set; }
+        private List<PlaylistData> AllPlaylists { get; set; }
+        private WpfVideoData _selectedVideo;
+        public ObservableCollection<VideoFilter> VideoFilter { get; set; }
 
-        private PlaylistData _selectedPlaylistDataFromComboBox;
-        public PlaylistData SelectedPlaylistFromComboBox
+        public WpfVideoData SelectedVideo
         {
-            get => _selectedPlaylistDataFromComboBox;
+            get => _selectedVideo;
             set
             {
-                _selectedPlaylistDataFromComboBox = value;
+                _selectedVideo = value;
+                SelectedVideoChanged(value);
+            } 
+        }
+
+        private VideoFilter _selectedFilterDataFromComboBox;
+        public VideoFilter SelectedFilterFromComboBox
+        {
+            get => _selectedFilterDataFromComboBox;
+            set
+            {
+                _selectedFilterDataFromComboBox = value;
                 // Might lock the UI if run synchronously - but to be confirmed
                 GetVideosForPlaylist(value).GetAwaiter().GetResult();
             }
         }
-
-        private async Task GetVideosForPlaylist(PlaylistData playlistData)
+        
+        private async Task GetVideosForPlaylist(VideoFilter videoFilter)
         {
             Videos.ClearOnUi();
-            var videoIds = new HashSet<string>(playlistData.PlaylistItems.Select(x => x.VideoId));
-            var videos = (await _youTubeCleanupToolDbContext.GetVideos());
-            var justVideosFromThisPlaylist = videos.Where(x => videoIds.Contains(x.Id));
-            foreach (var video in justVideosFromThisPlaylist)
+            if (videoFilter.FilterType == FilterType.PlaylistTitle)
             {
-                AddVideoToCollection(video);
+                var matchingPlaylist = AllPlaylists.First(x => x.Title == videoFilter.Title);
+                var videoIds = new HashSet<string>(matchingPlaylist.PlaylistItems.Select(x => x.VideoId));
+                var videos = (await _youTubeCleanupToolDbContext.GetVideos());
+                var justVideosFromThisPlaylist = videos.Where(x => videoIds.Contains(x.Id));
+                foreach (var video in justVideosFromThisPlaylist)
+                {
+                    AddVideoToCollection(video);
+                }
+            }
+            else if (videoFilter.FilterType == FilterType.All)
+            {
+                var videos = (await _youTubeCleanupToolDbContext.GetVideos());
+                foreach (var video in videos)
+                {
+                    AddVideoToCollection(video);
+                }
+            }
+            else if (videoFilter.FilterType == FilterType.Uncategorized)
+            {
+                // TODO: get liked videos
+                // check if they have more than one playlist assigned
+                // If so, display them
             }
         }
-
-        public MainWindowViewModel
-            (
-            [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-            [NotNull] IMapper mapper
-            )
+        
+        private void SelectedVideoChanged(WpfVideoData value)
         {
-            _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
-            Videos = new ObservableCollection<VideoData>();
-            Playlists = new ObservableCollection<PlaylistData>();
-            _mapper = mapper;
+            if (value == null)
+            {
+                Playlists.ClearOnUi();
+                return;
+            }
+
+            // Read out the playlists this video is in
+            // Then tick/untick on the playlists object
+            // And update the source the playlists are bound to
+
+            var playlistData = new List<WpfPlaylistData>();
+            var allPlaylists = new List<PlaylistData>(AllPlaylists);
+
+            foreach (var playlistItem in value.PlaylistItems.OrderBy(x => x.Title))
+            {
+                var matchingPlaylist = _mapper.Map<WpfPlaylistData>(allPlaylists.First(x => x.Id == playlistItem.PlaylistDataId));
+                matchingPlaylist.VideoInPlaylist = true;
+                playlistData.Add(matchingPlaylist);
+            }
+
+            playlistData.AddRange(_mapper.Map<List<WpfPlaylistData>>(allPlaylists.Where(x => !playlistData.Any(y => y.Id == x.Id))).OrderBy(x => x.Title));
+
+            Playlists.ClearOnUi();
+            foreach (var playlist in playlistData)
+            {
+                Playlists.AddOnUi(playlist);
+            }
         }
 
         public async Task LoadData()
         {
-            await GetVideos(100);
-
-            var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
-            foreach (var playlist in playlists)
+            try
             {
-                Playlists.AddOnUi(playlist);
+                await GetVideos(100);
+
+                var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
+                AllPlaylists.AddRange(playlists);
+
+                VideoFilter.AddOnUi(new VideoFilter {Title = "All", FilterType = FilterType.All});
+                VideoFilter.AddOnUi(new VideoFilter {Title = "Uncategorized", FilterType = FilterType.Uncategorized});
+                foreach (var playlist in playlists.OrderBy(x => x.Title))
+                {
+                    VideoFilter.AddOnUi(new VideoFilter {Title = playlist.Title, FilterType = FilterType.PlaylistTitle});
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 
@@ -112,7 +187,7 @@ namespace YoutubeCleanupWpf
             return thumbnail;
         }
     }
-    
+
     // TODO: better way?
     public static class CollectionExtensions
     {

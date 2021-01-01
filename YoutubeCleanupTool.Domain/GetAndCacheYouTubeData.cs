@@ -71,12 +71,25 @@ namespace YouTubeCleanupTool.Domain
                 }
                 else
                 {
-                    video.ThumbnailBytes = await _httpClientWrapper.GetByteArrayAsync(video.ThumbnailUrl, cancellationToken);
+                    video.ThumbnailBytes = await GetThumbnail(cancellationToken, video);
                     await UpsertVideo(callback, video);
                 }
             }
         }
-        
+
+        private async Task<byte[]> GetThumbnail(CancellationToken cancellationToken, VideoData video)
+        {
+            try
+            {
+                return await _httpClientWrapper.GetByteArrayAsync(video.ThumbnailUrl, cancellationToken);
+            }
+            catch
+            {
+                // TODO: Log?
+                return new byte[0];
+            }
+        }
+
         private async Task UpsertVideo(Action<VideoData, InsertStatus> callback, VideoData video)
         {
             var result = await _youTubeCleanupToolDbContext.UpsertVideo(video);

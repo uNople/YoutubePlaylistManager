@@ -19,6 +19,7 @@ namespace YouTubeCleanupTool.Domain
         public string PrivacyStatus { get; set; }
         public string AddedToPlaylist { get; set; }
         public string PlaylistDataId { get; set; }
+        public VideoData Video { get; set; }
 
         private DateTime? _videoPublishedAtDate;
         public DateTime? VideoPublishedAtDate

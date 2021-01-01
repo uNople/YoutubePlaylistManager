@@ -25,7 +25,7 @@
         </Grid.RowDefinitions>
 
         <Grid Column="0" Row="0">
-            <ComboBox ItemsSource="{Binding Playlists, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedPlaylistFromComboBox, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="10,10,10,0" >
+            <ComboBox ItemsSource="{Binding VideoFilter, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedFilterFromComboBox, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="10,10,10,10" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -57,7 +57,7 @@
                     <DataTemplate>
                         <Grid>
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox  />
+                                <CheckBox IsChecked="{Binding VideoInPlaylist}" />
                                 <Label Content="{Binding Title}" />
                             </StackPanel>
                         </Grid>

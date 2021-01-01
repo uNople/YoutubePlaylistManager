@@ -2,13 +2,6 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:YoutubeCleanupWpf"
-             xmlns:wpfPlus="clr-namespace:WpfPlus;assembly=WpfPlus"
              Startup="App_OnStartup">
-    <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <wpfPlus:LightTheme /> <!-- TODO: Change to dark theme once I work out how to make text white in it -->
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Application.Resources>
+    <Application.Resources />
 </Application>

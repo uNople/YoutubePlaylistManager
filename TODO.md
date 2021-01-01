@@ -1,6 +1,8 @@
 Next/Current:
-- Add thumbnails to database + get smallest thumb for now
 - Prototype UI in WPF
+  - Get labels wrapping text - do we turn them imto textboxes?
+  - Link to channel / video so we can open in YouTube
+  - Dynamic resizing - grid layout / columns
 
 
 After:

@@ -1,12 +1,10 @@
 Next/Current:
 - Prototype UI in WPF
-  - Link to channel / video so we can open in YouTube
   - Wire up 'update playlist parts'
-    - Extra permissions for the app in the google dev console
-	- re-grant permissions
-	- Write the api side
-	- Wire it into the UI - do we do it on tick/untick or have a 'save changes' pattern
-
+    - Extra permissions for the app in the google dev console <-- do this - cause the api side is working
+	- Wire up 'Remove from playlist' call
+  - Link to channel / video so we can open in YouTube
+ - Wire up FilterType.Uncategorized
 
 After:
 - Create more permanent UI in cv++ languages/frameworks

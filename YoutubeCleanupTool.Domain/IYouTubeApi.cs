@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace YouTubeCleanupTool.Domain
 {
@@ -7,5 +8,6 @@ namespace YouTubeCleanupTool.Domain
         IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(List<PlaylistData> playlists);
         IAsyncEnumerable<PlaylistData> GetPlaylists();
         IAsyncEnumerable<VideoData> GetVideos(List<string> videoIdsToGet);
+        Task AddVideoToPlaylist(string playlistId, string videoId);
     }
 }

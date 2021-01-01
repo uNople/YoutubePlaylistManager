@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AutoMapper;
@@ -25,7 +26,8 @@ namespace YoutubeCleanupWpf
         public MainWindowViewModel
         (
             [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-            [NotNull] IMapper mapper
+            [NotNull] IMapper mapper,
+            [NotNull] IYouTubeApi youTubeApi
         )
         {
             _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
@@ -34,6 +36,16 @@ namespace YoutubeCleanupWpf
             Playlists = new ObservableCollection<WpfPlaylistData>();
             VideoFilter = new ObservableCollection<VideoFilter>();
             _mapper = mapper;
+            CheckedOrUncheckedVideoInPlaylistCommand = new RunMethodCommand(async o => await UpdateVideoInPlaylist(o));
+            _youtubeApi = youTubeApi;
+        }
+
+        private async Task UpdateVideoInPlaylist(WpfPlaylistData wpfPlaylistData)
+        {
+            if (_selectedVideo != null && wpfPlaylistData.VideoInPlaylist)
+            {
+                await _youtubeApi.AddVideoToPlaylist(wpfPlaylistData.Id, _selectedVideo.Id);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -43,6 +55,7 @@ namespace YoutubeCleanupWpf
         private List<PlaylistData> AllPlaylists { get; set; }
         private WpfVideoData _selectedVideo;
         public ObservableCollection<VideoFilter> VideoFilter { get; set; }
+        public ICommand CheckedOrUncheckedVideoInPlaylistCommand { get; set; }
 
         public WpfVideoData SelectedVideo
         {
@@ -55,6 +68,8 @@ namespace YoutubeCleanupWpf
         }
 
         private VideoFilter _selectedFilterDataFromComboBox;
+        private readonly IYouTubeApi _youtubeApi;
+
         public VideoFilter SelectedFilterFromComboBox
         {
             get => _selectedFilterDataFromComboBox;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
@@ -27,6 +28,24 @@ namespace YouTubeApiWrapper
             var playlistItems = PlaylistItems.List("contentDetails,id,snippet,status");
             playlistItems.PlaylistId = playlistId;
             return await HandlePagination<PlaylistItem>(playlistItems);
+        }
+
+        public async Task AddVideoToPlaylist(string playlistId, string videoId)
+        {
+            var playlistItem = new PlaylistItem
+            {
+                Snippet = new PlaylistItemSnippet
+                {
+                    PlaylistId = playlistId,
+                    ResourceId = new ResourceId
+                    {
+                        Kind = "youtube#video",
+                        VideoId = videoId
+                    }
+                }
+            };
+
+            await PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
         }
 
         public async Task<List<Playlist>> GetPlaylists()

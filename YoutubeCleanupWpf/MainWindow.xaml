@@ -9,6 +9,7 @@
         Title="YouTube Cleanup" Height="864" Width="1152"
         Loaded="MainWindow_OnLoaded"
         WindowStartupLocation="Manual"
+        x:Name="Ui"
         >
     <Window.Resources>
         <youTubeCleanupWpf:NullabilityToVisibilityConverter x:Key="NullabilityToVisibilityConverter" />
@@ -57,7 +58,7 @@
                     <DataTemplate>
                         <Grid>
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding VideoInPlaylist}" />
+                                <CheckBox IsChecked="{Binding VideoInPlaylist}" Command="{Binding ElementName=Ui, Path=DataContext.CheckedOrUncheckedVideoInPlaylistCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
                                 <Label Content="{Binding Title}" />
                             </StackPanel>
                         </Grid>

@@ -44,6 +44,7 @@ namespace YouTubeCleanupTool.Domain
                 var result = await _youTubeCleanupToolDbContext.UpsertPlaylistItem(playlistItem);
                 callback(playlistItem, result);
             }
+
             await _youTubeCleanupToolDbContext.SaveChangesAsync();
         }
 

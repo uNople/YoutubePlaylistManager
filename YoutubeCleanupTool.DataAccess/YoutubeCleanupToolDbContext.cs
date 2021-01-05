@@ -78,6 +78,5 @@ namespace YouTubeCleanupTool.DataAccess
             }
             return status;
         }
-
     }
 }

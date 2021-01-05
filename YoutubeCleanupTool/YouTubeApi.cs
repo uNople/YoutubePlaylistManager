@@ -111,6 +111,8 @@ namespace YouTubeApiWrapper
             if (_youTubeServiceWrapper != null && !getNewToken)
                 return _youTubeServiceWrapper;
 
+            // TODO: if requesting new scopes, delete %appdata%\_youTubeServiceCreatorOptions.FileDataStoreName\.* - this is where the refresh/accesstoken/scopes are stored
+
             var apiKey = _credentialManagerWrapper.GetApiKey();
             UserCredential credential;
             using (var stream = new FileStream(_youTubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
@@ -120,7 +122,8 @@ namespace YouTubeApiWrapper
                         new GoogleAuthorizationCodeFlow.Initializer
                         {
                             ClientSecrets = GoogleClientSecrets.Load(stream).Secrets,
-                            Scopes = new List<string> { YouTubeService.Scope.YoutubeReadonly },
+                            // Console app should only need ReadOnly. the UI needs write access
+                            Scopes = new List<string> { YouTubeService.Scope.YoutubeReadonly, YouTubeService.Scope.Youtube },
                             DataStore = new FileDataStore(_youTubeServiceCreatorOptions.FileDataStoreName)
                         }),
                         new LocalServerCodeReceiver());

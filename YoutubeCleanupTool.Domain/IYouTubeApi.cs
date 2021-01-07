@@ -9,5 +9,6 @@ namespace YouTubeCleanupTool.Domain
         IAsyncEnumerable<PlaylistData> GetPlaylists();
         IAsyncEnumerable<VideoData> GetVideos(List<string> videoIdsToGet);
         Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId);
+        Task RemoveVideoFromPlaylist(string playlistItemId);
     }
 }

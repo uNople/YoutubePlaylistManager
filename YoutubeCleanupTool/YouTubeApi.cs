@@ -86,6 +86,15 @@ namespace YouTubeApiWrapper
             });
         }
 
+        public async Task RemoveVideoFromPlaylist(string playlistItemId)
+        {
+            await HandleSecretRevocation(async getNewToken =>
+            {
+                await GetYouTubeWrapper(getNewToken).RemoveVideoFromPlaylist(playlistItemId);
+                return Task.CompletedTask;
+            });
+        }
+
         private async Task<T> HandleSecretRevocation<T>(Func<bool, Task<T>> methodWhichCouldResultInNoAuthentication)
         {
             try

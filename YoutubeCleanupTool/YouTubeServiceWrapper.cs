@@ -30,24 +30,6 @@ namespace YouTubeApiWrapper
             return await HandlePagination<PlaylistItem>(playlistItems);
         }
 
-        public async Task<PlaylistItem> AddVideoToPlaylist(string playlistId, string videoId)
-        {
-            var playlistItem = new PlaylistItem
-            {
-                Snippet = new PlaylistItemSnippet
-                {
-                    PlaylistId = playlistId,
-                    ResourceId = new ResourceId
-                    {
-                        Kind = "youtube#video",
-                        VideoId = videoId
-                    }
-                }
-            };
-
-            return await PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
-        }
-
         public async Task<List<Playlist>> GetPlaylists()
         {
             // auditDetails requires youtubepartner-channel-audit scope
@@ -66,6 +48,29 @@ namespace YouTubeApiWrapper
             result.AddRange(await HandlePagination<Playlist>(playlistRequest));
 
             return result;
+        }
+        
+        public async Task<PlaylistItem> AddVideoToPlaylist(string playlistId, string videoId)
+        {
+            var playlistItem = new PlaylistItem
+            {
+                Snippet = new PlaylistItemSnippet
+                {
+                    PlaylistId = playlistId,
+                    ResourceId = new ResourceId
+                    {
+                        Kind = "youtube#video",
+                        VideoId = videoId
+                    }
+                }
+            };
+
+            return await PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
+        }
+
+        public async Task RemoveVideoFromPlaylist(string playlistItemId)
+        {
+            await PlaylistItems.Delete(playlistItemId).ExecuteAsync();
         }
 
         private static async Task<List<TResult>> HandlePagination<TResult>(dynamic request)

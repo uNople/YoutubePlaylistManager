@@ -117,5 +117,13 @@ namespace YouTubeCleanupTool.Domain
             await _youTubeCleanupToolDbContext.SaveChangesAsync();
             return playlistItem;
         }
+
+        public async Task RemoveVideoFromPlaylist(string playlistId, string videoId)
+        {
+            var playlistItem = await _youTubeCleanupToolDbContext.GetPlaylistItem(playlistId, videoId);
+            await _youTubeApi.RemoveVideoFromPlaylist(playlistItem.Id);
+            _youTubeCleanupToolDbContext.RemovePlaylistItem(playlistItem);
+            await _youTubeCleanupToolDbContext.SaveChangesAsync();
+        }
     }
 }

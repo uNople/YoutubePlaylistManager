@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YouTubeCleanupTool.Domain;
@@ -56,6 +57,13 @@ namespace YouTubeCleanupTool.DataAccess
 
             return searchResults;
         }
+
+        public async Task<PlaylistItemData> GetPlaylistItem(string playlistId, string videoId)
+        {
+            return await PlaylistItems.FirstOrDefaultAsync(x => x.PlaylistDataId == playlistId && x.VideoId == videoId);
+        }
+
+        public void RemovePlaylistItem(PlaylistItemData playlistItem) => PlaylistItems.Remove(playlistItem);
 
         public void Migrate()
         {

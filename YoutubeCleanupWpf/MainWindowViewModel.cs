@@ -58,7 +58,15 @@ namespace YoutubeCleanupWpf
                 }
                 else
                 {
-                    // If we just unticked a playlist, we want to remove it from the selected video
+                    // If we just unticked a playlist, we want to remove the video from it
+                    await _getAndCacheYouTubeData.RemoveVideoFromPlaylist(wpfPlaylistData.Id, _selectedVideo.Id);
+                    if (_videosToPlaylistMap.TryGetValue(_selectedVideo.Id, out var playlists))
+                    {
+                        if (playlists.Contains(wpfPlaylistData.Id))
+                        {
+                            playlists.Remove(wpfPlaylistData.Id);
+                        }
+                    }
                 }
             }
         }

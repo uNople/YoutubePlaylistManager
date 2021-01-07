@@ -17,5 +17,7 @@ namespace YouTubeCleanupTool.Domain
         Task<bool> VideoExists(string id);
         Task<List<string>> GetVideoTitles();
         Task<List<IData>> FindAll(string regex);
+        Task<PlaylistItemData> GetPlaylistItem(string playlistId, string videoId);
+        void RemovePlaylistItem(PlaylistItemData playlistItem);
     }
 }

@@ -121,6 +121,9 @@ namespace YouTubeCleanupTool.Domain
         public async Task RemoveVideoFromPlaylist(string playlistId, string videoId)
         {
             var playlistItem = await _youTubeCleanupToolDbContext.GetPlaylistItem(playlistId, videoId);
+            if (playlistItem == null)
+                return;
+
             await _youTubeApi.RemoveVideoFromPlaylist(playlistItem.Id);
             _youTubeCleanupToolDbContext.RemovePlaylistItem(playlistItem);
             await _youTubeCleanupToolDbContext.SaveChangesAsync();

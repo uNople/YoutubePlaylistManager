@@ -1,8 +1,8 @@
 Next/Current:
 - Prototype UI in WPF
-  - Wire up 'Remove from playlist' call
-  - Link to channel / video / playlist so we can open in YouTube
+  - Make it more obvious that you can double-click in a bunch of places to open on YouTube
   - Wire up FilterType.Uncategorized (all videos that are only in the Liked videos playlist)
+  - Dark mode / prettify
 
 After:
 - Create more permanent UI in cv++ languages/frameworks

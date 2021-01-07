@@ -8,13 +8,15 @@ using System.Windows.Input;
 
 namespace YouTubeCleanupWpf
 {
-    public class RunMethodCommand : ICommand
+    public class RunMethodCommand<T> : ICommand
     {
-        private readonly Func<WpfPlaylistData, Task> _action;
+        private readonly Func<T, Task> _action;
+        private readonly Action<Exception> _errorCallback;
 
-        public RunMethodCommand([NotNull]Func<WpfPlaylistData, Task> action)
+        public RunMethodCommand([NotNull]Func<T, Task> action, [NotNull] Action<Exception> errorCallback)
         {
             _action = action;
+            _errorCallback = errorCallback;
         }
         public bool CanExecute(object? parameter)
         {
@@ -23,9 +25,16 @@ namespace YouTubeCleanupWpf
 
         public async void Execute(object? parameter)
         {
-            if (parameter != null && parameter is WpfPlaylistData data)
+            if (parameter is T data)
             {
-                await _action(data);
+                try
+                {
+                    await _action(data);
+                }
+                catch (Exception ex)
+                {
+                    _errorCallback(ex);
+                }
             }
         }
 

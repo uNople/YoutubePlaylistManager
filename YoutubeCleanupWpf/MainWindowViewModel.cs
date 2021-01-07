@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
@@ -22,6 +23,9 @@ namespace YoutubeCleanupWpf
     {
         private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
         private readonly IMapper _mapper;
+        public ICommand OpenVideoCommand { get; set; }
+        public ICommand OpenPlaylistCommand { get; set; }
+        public ICommand OpenChannelCommand { get; set; }
 
         public MainWindowViewModel
         (
@@ -37,7 +41,43 @@ namespace YoutubeCleanupWpf
             VideoFilter = new ObservableCollection<VideoFilter>();
             _mapper = mapper;
             _getAndCacheYouTubeData = getAndCacheYouTubeData;
-            CheckedOrUncheckedVideoInPlaylistCommand = new RunMethodCommand(async o => await UpdateVideoInPlaylist(o));
+            CheckedOrUncheckedVideoInPlaylistCommand = new RunMethodCommand<WpfPlaylistData>(async o => await UpdateVideoInPlaylist(o), ShowError);
+            OpenPlaylistCommand = new RunMethodCommand<PlaylistData>(OpenPlaylist, ShowError);
+            OpenChannelCommand = new RunMethodCommand<VideoData>(OpenChannel, ShowError);
+            OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, ShowError);
+        }
+
+        private async Task OpenChannel(VideoData videoData)
+        {
+            OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}");
+        }
+
+        private async Task OpenPlaylist(PlaylistData playlistData)
+        {
+            OpenLink($"https://www.youtube.com/playlist?list={playlistData.Id}");
+        }
+
+        private static void OpenLink(string url)
+        {
+            // Why aren't we just using process.start? This is why: https://github.com/dotnet/runtime/issues/17938
+            var proc = new Process()
+            {
+                StartInfo = new ProcessStartInfo(url)
+                {
+                    UseShellExecute = true,
+                }
+            };
+            proc.Start();
+        }
+
+        private static void ShowError(Exception ex)
+        {
+            MessageBox.Show(ex.ToString());
+        }
+
+        private async Task OpenVideo(VideoData videoData)
+        {
+            OpenLink($"https://www.youtube.com/watch?v={videoData.Id}");
         }
 
         private async Task UpdateVideoInPlaylist(WpfPlaylistData wpfPlaylistData)

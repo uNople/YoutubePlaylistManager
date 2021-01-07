@@ -39,7 +39,7 @@
             </ComboBox>
         </Grid>
         <Grid Column="0" Row="1">
-            <ListBox ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+            <ListBox ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ToolTip="Double-click to open video in your browser">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -56,7 +56,7 @@
             </ListBox>
         </Grid>
         <Grid Column="1" Row="1" Margin="10,0,0,0">
-            <ListBox ItemsSource="{Binding Playlists, UpdateSourceTrigger=PropertyChanged}">
+            <ListBox ItemsSource="{Binding Playlists, UpdateSourceTrigger=PropertyChanged}" ToolTip="Double-click to open playlist in your browser">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -76,7 +76,7 @@
             <Image Source="{Binding SelectedVideo.Thumbnail, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Width="302" Height="224" VerticalAlignment="Top" />
             <TextBox Text="{Binding SelectedVideo.Title, UpdateSourceTrigger=PropertyChanged, FallbackValue=Title of video}" Margin="307,0,0,0" TextWrapping="WrapWithOverflow" Height="191" VerticalAlignment="Top" />
             <TextBox Text="{Binding SelectedVideo.Description, UpdateSourceTrigger=PropertyChanged, FallbackValue=Description of video}" Margin="0,230,0,0" TextWrapping="WrapWithOverflow"/>
-            <TextBox Text="{Binding SelectedVideo.ChannelTitle, UpdateSourceTrigger=PropertyChanged, FallbackValue=Channel name}" Margin="307,196,0,0" VerticalAlignment="Top" Height="29" TextWrapping="WrapWithOverflow" >
+            <TextBox Text="{Binding SelectedVideo.ChannelTitle, UpdateSourceTrigger=PropertyChanged, FallbackValue=Channel name}" Margin="307,196,0,0" VerticalAlignment="Top" Height="29" TextWrapping="WrapWithOverflow" ToolTip="Double-click to open the channel in your browser" >
                 <TextBox.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.OpenChannelCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding SelectedVideo}" />
                 </TextBox.InputBindings>

@@ -21,12 +21,6 @@ namespace YoutubeCleanupWpf
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
-        private readonly IMapper _mapper;
-        public ICommand OpenVideoCommand { get; set; }
-        public ICommand OpenPlaylistCommand { get; set; }
-        public ICommand OpenChannelCommand { get; set; }
-
         public MainWindowViewModel
         (
             [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
@@ -47,6 +41,46 @@ namespace YoutubeCleanupWpf
             OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, ShowError);
         }
 
+        private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
+        private readonly IMapper _mapper;
+        public ICommand OpenVideoCommand { get; set; }
+        public ICommand OpenPlaylistCommand { get; set; }
+        public ICommand OpenChannelCommand { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public ObservableCollection<VideoData> Videos { get; set; }
+        public ObservableCollection<WpfPlaylistData> Playlists { get; set; }
+        private List<PlaylistData> AllPlaylists { get; set; }
+        private WpfVideoData _selectedVideo;
+        public ObservableCollection<VideoFilter> VideoFilter { get; set; }
+        public ICommand CheckedOrUncheckedVideoInPlaylistCommand { get; set; }
+
+        public WpfVideoData SelectedVideo
+        {
+            get => _selectedVideo;
+            set
+            {
+                _selectedVideo = value;
+                SelectedVideoChanged(value);
+            }
+        }
+
+        private VideoFilter _selectedFilterDataFromComboBox;
+        private Dictionary<string, List<string>> _videosToPlaylistMap = new Dictionary<string, List<string>>();
+        private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
+        
+        public VideoFilter SelectedFilterFromComboBox
+        {
+            get => _selectedFilterDataFromComboBox;
+            set
+            {
+                _selectedFilterDataFromComboBox = value;
+                // Might lock the UI if run synchronously - but to be confirmed
+                GetVideosForPlaylist(value).GetAwaiter().GetResult();
+            }
+        }
+        
         private async Task OpenChannel(VideoData videoData)
         {
             OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}");
@@ -111,52 +145,16 @@ namespace YoutubeCleanupWpf
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public ObservableCollection<VideoData> Videos { get; set; }
-        public ObservableCollection<WpfPlaylistData> Playlists { get; set; }
-        private List<PlaylistData> AllPlaylists { get; set; }
-        private WpfVideoData _selectedVideo;
-        public ObservableCollection<VideoFilter> VideoFilter { get; set; }
-        public ICommand CheckedOrUncheckedVideoInPlaylistCommand { get; set; }
-
-        public WpfVideoData SelectedVideo
-        {
-            get => _selectedVideo;
-            set
-            {
-                _selectedVideo = value;
-                SelectedVideoChanged(value);
-            } 
-        }
-
-        private VideoFilter _selectedFilterDataFromComboBox;
-        private Dictionary<string, List<string>> _videosToPlaylistMap = new Dictionary<string, List<string>>();
-        private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
-
-        public VideoFilter SelectedFilterFromComboBox
-        {
-            get => _selectedFilterDataFromComboBox;
-            set
-            {
-                _selectedFilterDataFromComboBox = value;
-                // Might lock the UI if run synchronously - but to be confirmed
-                GetVideosForPlaylist(value).GetAwaiter().GetResult();
-            }
-        }
-        
         private async Task GetVideosForPlaylist(VideoFilter videoFilter)
         {
             Videos.ClearOnUi();
             if (videoFilter.FilterType == FilterType.PlaylistTitle)
             {
                 var matchingPlaylist = AllPlaylists.First(x => x.Title == videoFilter.Title);
-                var videoIds = new HashSet<string>(matchingPlaylist.PlaylistItems.Select(x => x.VideoId));
                 var videos = (await _youTubeCleanupToolDbContext.GetVideos());
-                var justVideosFromThisPlaylist = videos.Where(x => videoIds.Contains(x.Id));
-                foreach (var video in justVideosFromThisPlaylist)
+                foreach (var videoId in matchingPlaylist.PlaylistItems.OrderBy(x => x.Position).Select(x => x.VideoId))
                 {
-                    AddVideoToCollection(video);
+                    AddVideoToCollection(videos.FirstOrDefault(x => x.Id == videoId));
                 }
             }
             else if (videoFilter.FilterType == FilterType.All)

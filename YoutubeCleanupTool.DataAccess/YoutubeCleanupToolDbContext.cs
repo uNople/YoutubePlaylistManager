@@ -24,8 +24,8 @@ namespace YouTubeCleanupTool.DataAccess
         private DbSet<PlaylistItemData> PlaylistItems { get; set; }
         private DbSet<VideoData> Videos { get; set; }
         // These methods exist so that our interface doesn't pull in DbSet, or anything EF core related
-        public async Task<List<PlaylistData>> GetPlaylists() => await Playlists.Include(x => x.PlaylistItems).ToListAsync();
-        public async Task<List<PlaylistItemData>> GetPlaylistItems() => await PlaylistItems.ToListAsync();
+        public async Task<List<PlaylistData>> GetPlaylists() => await Playlists.Include(x => x.PlaylistItems).OrderBy(x => x.Title).ToListAsync();
+        public async Task<List<PlaylistItemData>> GetPlaylistItems() => await PlaylistItems.OrderBy(x => x.Id).ThenBy(x => x.Position).ToListAsync();
         public async Task<List<VideoData>> GetVideos() => await Videos.ToListAsync();
         public async Task<List<string>> GetVideoTitles() => await Videos.Select(x => x.Title).ToListAsync();
         public async Task<bool> VideoExists(string id) => await Videos.FindAsync(id) != null;

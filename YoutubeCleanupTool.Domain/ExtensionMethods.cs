@@ -22,5 +22,10 @@ namespace YouTubeCleanupTool.Domain
         {
             return str.ToUpper().EndsWith(secondString.ToUpper());
         }
+
+        public static bool EqualsCi(this string str, string secondString)
+        {
+            return string.Equals(str, secondString, StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 }

@@ -64,6 +64,28 @@ namespace YouTubeCleanupTool.DataAccess
         }
 
         public void RemovePlaylistItem(PlaylistItemData playlistItem) => PlaylistItems.Remove(playlistItem);
+        public async Task<List<VideoData>> GetUncategorizedVideos(List<string> playlistTitles)
+        {
+            var playlists = (await Playlists
+                .Where(x => playlistTitles.Contains(x.Title))
+                .ToListAsync())
+                .Select(x => x.Id)
+                .ToList();
+
+            var videosOnlyInOnePlaylist = new HashSet<string>(
+                PlaylistItems
+                    .AsEnumerable()
+                    .GroupBy(x => x.VideoId)
+                    .Where(x => x.Count() <= 1)
+                    .Select(x => new { VideoId = x.Key, PlaylistId = x.First().PlaylistDataId })
+                    .Where(x => playlists.Any(y => x.PlaylistId == y))
+                    .Select(x => x.VideoId)
+            );
+            
+            return await Videos.Where(x => videosOnlyInOnePlaylist.Contains(x.Id))
+                .OrderBy(x => x.Title)
+                .ToListAsync();
+        }
 
         public void Migrate()
         {

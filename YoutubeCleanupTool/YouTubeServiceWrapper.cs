@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
@@ -40,16 +41,20 @@ namespace YouTubeApiWrapper
             playlistRequest.Mine = true;
             var result = await HandlePagination<Playlist>(playlistRequest);
 
-            // force-get LL and LM playlists
+            // force-get hardcoded playlist names (liked, liked music, Could be others. Watch later [WL] can't be gotten through the api)
             playlistRequest = Playlists.List("contentDetails,id,snippet,status");
-            playlistRequest.Id = "LL";
-            result.AddRange(await HandlePagination<Playlist>(playlistRequest));
-            playlistRequest.Id = "LM";
-            result.AddRange(await HandlePagination<Playlist>(playlistRequest));
+            result.AddRange(await GetAnotherPlaylist(playlistRequest, "LL"));
+            result.AddRange(await GetAnotherPlaylist(playlistRequest, "LM"));
 
             return result;
         }
-        
+
+        private static async Task<List<Playlist>> GetAnotherPlaylist(PlaylistsResource.ListRequest playlistRequest, string playlistName)
+        {
+            playlistRequest.Id = playlistName;
+            return await HandlePagination<Playlist>(playlistRequest);
+        }
+
         public async Task<PlaylistItem> AddVideoToPlaylist(string playlistId, string videoId)
         {
             var playlistItem = new PlaylistItem

@@ -1,8 +1,7 @@
 Next/Current:
 - Prototype UI in WPF
-  - Make it more obvious that you can double-click in a bunch of places to open on YouTube
-  - Wire up FilterType.Uncategorized (all videos that are only in the Liked videos playlist)
   - Dark mode / prettify
+  - Search (videos/playlists)
 
 After:
 - Create more permanent UI in cv++ languages/frameworks

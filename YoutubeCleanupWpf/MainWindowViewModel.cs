@@ -167,9 +167,13 @@ namespace YoutubeCleanupWpf
             }
             else if (videoFilter.FilterType == FilterType.Uncategorized)
             {
-                // TODO: get liked videos
-                // check if they have more than one playlist assigned
-                // If so, display them
+                // TODO: Create some way of indicating a playlist is a "dumping ground" playlist - meaning videos only in that should be uncategorized
+                var playlistsThatMeanUncategorized = new List<string> {"Liked videos", "!WatchLater"};
+                var videos = (await _youTubeCleanupToolDbContext.GetUncategorizedVideos(playlistsThatMeanUncategorized));
+                foreach (var video in videos)
+                {
+                    AddVideoToCollection(video);
+                }
             }
         }
         

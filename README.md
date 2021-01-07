@@ -9,25 +9,25 @@ I'm actively developing this on my stream - [come check it out](https://www.twit
 
 # Why ???
 
-Because I only want my liked videos in my liked videos playlist. If I wanted music there, I would have liked it on YouTube myself
+It's super slow to do anything with playlists, especially when they're massive like mine - so a local tool is way quicker
 
-It's also super slow to do anything with playlists, especially when they're massive like mine - so a local tool is way quicker
+I also wanted a good way of finding out if a 'video' was actually music, so I could separate my youtube likes with the youtube music likes. Unfortunately there's no good way of telling
 
 # What's currently implemented
-
-Saving api credentials to the windows credential manager (so it's not in config or anything)
 
 A console UI to handle getting playlist/video data and save to a Sqlite DB
 - Get playlists / playlist items / videos
 - Search
 
-To come:
-- Actual UI (WPF/Blazor/JS of some kind)
-- Playlist updating
-	- No permissions given for this yet
-	- No methods exist for updating playlists
+A WPF UI to handle adding/removing videos to/from playlists
+- This uses the DB the console app generates
+- Has thumbnails etc to show data of what you're editing
 
-# how to run
+To come:
+- UI improvements
+- Web version
+
+# How to run
 
 First, you need a api key, and a oauth key.
 [Follow the instructions here](https://developers.google.com/identity/protocols/oauth2/openid-connect)
@@ -40,6 +40,10 @@ Go to Credential manager in windows (Control Panel -> User Accounts -> Credentia
 2. Download the JSON for your oauth, and put it in the place that's read in
 
 # Dev notes
+
+- Some paths are hardcoded for now
+  - the DB path the WPF app looks for
+  - client_secret.json needs to be in c:\temp
 
 ## How to add migrations
 
@@ -54,6 +58,8 @@ Go to Credential manager in windows (Control Panel -> User Accounts -> Credentia
 - Youtube somehow knows how to hide "music" ones
 - The Like playlists aren't returned at all (which is why in code I get the LL and LM playlists by name)
   - Liked playlist for YouTube is LL. Liked for YouTube music is LM
+  - Watch later is another hard coded playlist. Code for that is WL
+    - Unfortunately, The YouTube data api depreciated this in v3, sometime in 2016 [ref](https://stackoverflow.com/questions/44777670/how-to-list-watch-later-list-in-apiv3)
 - We can get thumbnails for the playlists. Some playlists don't have thumbnails (eg, one or more videos got deleted)
 - There seems to to be no way of differentiating between music and video
 - Uploaded music migrated from google play is all private - and not accesible on YouTube - even though the playlist is on YouTube

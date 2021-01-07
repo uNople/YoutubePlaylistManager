@@ -8,6 +8,6 @@ namespace YouTubeCleanupTool.Domain
         IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(List<PlaylistData> playlists);
         IAsyncEnumerable<PlaylistData> GetPlaylists();
         IAsyncEnumerable<VideoData> GetVideos(List<string> videoIdsToGet);
-        Task AddVideoToPlaylist(string playlistId, string videoId);
+        Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId);
     }
 }

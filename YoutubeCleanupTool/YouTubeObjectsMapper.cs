@@ -29,7 +29,7 @@ namespace YouTubeApiWrapper
                 .ReverseMap();
 
             CreateMap<PlaylistItem, PlaylistItemData>()
-                .ForPath(playlistItemData => playlistItemData.VideoId, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.ContentDetails.VideoId))
+                .ForPath(playlistItemData => playlistItemData.VideoId, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Snippet.ResourceId.VideoId))
                 .ForPath(playlistItemData => playlistItemData.VideoPublishedAt, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.ContentDetails.VideoPublishedAt))
                 .ForPath(playlistItemData => playlistItemData.Position, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Snippet.Position))
                 .ForPath(playlistItemData => playlistItemData.ThumbnailUrl, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Snippet.Thumbnails.Default__.Url))

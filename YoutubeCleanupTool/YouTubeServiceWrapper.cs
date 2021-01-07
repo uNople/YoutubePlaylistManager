@@ -30,7 +30,7 @@ namespace YouTubeApiWrapper
             return await HandlePagination<PlaylistItem>(playlistItems);
         }
 
-        public async Task AddVideoToPlaylist(string playlistId, string videoId)
+        public async Task<PlaylistItem> AddVideoToPlaylist(string playlistId, string videoId)
         {
             var playlistItem = new PlaylistItem
             {
@@ -45,7 +45,7 @@ namespace YouTubeApiWrapper
                 }
             };
 
-            await PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
+            return await PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
         }
 
         public async Task<List<Playlist>> GetPlaylists()

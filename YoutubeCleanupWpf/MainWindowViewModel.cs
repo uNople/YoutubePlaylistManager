@@ -27,7 +27,7 @@ namespace YoutubeCleanupWpf
         (
             [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
             [NotNull] IMapper mapper,
-            [NotNull] IYouTubeApi youTubeApi
+            [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData
         )
         {
             _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
@@ -36,15 +36,30 @@ namespace YoutubeCleanupWpf
             Playlists = new ObservableCollection<WpfPlaylistData>();
             VideoFilter = new ObservableCollection<VideoFilter>();
             _mapper = mapper;
+            _getAndCacheYouTubeData = getAndCacheYouTubeData;
             CheckedOrUncheckedVideoInPlaylistCommand = new RunMethodCommand(async o => await UpdateVideoInPlaylist(o));
-            _youtubeApi = youTubeApi;
         }
 
         private async Task UpdateVideoInPlaylist(WpfPlaylistData wpfPlaylistData)
         {
-            if (_selectedVideo != null && wpfPlaylistData.VideoInPlaylist)
+            if (_selectedVideo != null)
             {
-                await _youtubeApi.AddVideoToPlaylist(wpfPlaylistData.Id, _selectedVideo.Id);
+                // The playlist has just been ticked, so we want to add the video into this playlist
+                if (wpfPlaylistData.VideoInPlaylist)
+                {
+                    var playlistItem = await _getAndCacheYouTubeData.AddVideoToPlaylist(wpfPlaylistData.Id, _selectedVideo.Id);
+                    if (_videosToPlaylistMap.TryGetValue(_selectedVideo.Id, out var playlists))
+                    {
+                        if (!playlists.Contains(playlistItem.PlaylistDataId))
+                        {
+                            playlists.Add(playlistItem.PlaylistDataId);
+                        }
+                    }
+                }
+                else
+                {
+                    // If we just unticked a playlist, we want to remove it from the selected video
+                }
             }
         }
 
@@ -68,7 +83,8 @@ namespace YoutubeCleanupWpf
         }
 
         private VideoFilter _selectedFilterDataFromComboBox;
-        private readonly IYouTubeApi _youtubeApi;
+        private Dictionary<string, List<string>> _videosToPlaylistMap = new Dictionary<string, List<string>>();
+        private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
 
         public VideoFilter SelectedFilterFromComboBox
         {
@@ -111,9 +127,9 @@ namespace YoutubeCleanupWpf
             }
         }
         
-        private void SelectedVideoChanged(WpfVideoData value)
+        private void SelectedVideoChanged(WpfVideoData video)
         {
-            if (value == null)
+            if (video == null)
             {
                 Playlists.ClearOnUi();
                 return;
@@ -126,11 +142,14 @@ namespace YoutubeCleanupWpf
             var playlistData = new List<WpfPlaylistData>();
             var allPlaylists = new List<PlaylistData>(AllPlaylists);
 
-            foreach (var playlistItem in value.PlaylistItems.OrderBy(x => x.Title))
+            if (_videosToPlaylistMap.TryGetValue(video.Id, out var playlistItems))
             {
-                var matchingPlaylist = _mapper.Map<WpfPlaylistData>(allPlaylists.First(x => x.Id == playlistItem.PlaylistDataId));
-                matchingPlaylist.VideoInPlaylist = true;
-                playlistData.Add(matchingPlaylist);
+                foreach (var playlistItem in playlistItems)
+                {
+                    var matchingPlaylist = _mapper.Map<WpfPlaylistData>(allPlaylists.First(x => x.Id == playlistItem));
+                    matchingPlaylist.VideoInPlaylist = true;
+                    playlistData.Add(matchingPlaylist);
+                }
             }
 
             playlistData.AddRange(_mapper.Map<List<WpfPlaylistData>>(allPlaylists.Where(x => !playlistData.Any(y => y.Id == x.Id))).OrderBy(x => x.Title));
@@ -149,6 +168,13 @@ namespace YoutubeCleanupWpf
                 await GetVideos(100);
 
                 var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
+                var playlistItems = await _youTubeCleanupToolDbContext.GetPlaylistItems();
+                _videosToPlaylistMap = playlistItems
+                    .Where(x => x.VideoId != null)
+                    .GroupBy(x => x.VideoId)
+                    .ToDictionary(x => x.Key, x => x.Select(y => y.PlaylistDataId).ToList());
+                    
+
                 AllPlaylists.AddRange(playlists);
 
                 VideoFilter.AddOnUi(new VideoFilter {Title = "All", FilterType = FilterType.All});

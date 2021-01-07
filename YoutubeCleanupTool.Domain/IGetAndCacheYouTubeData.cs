@@ -10,5 +10,6 @@ namespace YouTubeCleanupTool.Domain
         Task GetPlaylists(Action<PlaylistData, InsertStatus> callback);
         Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos, CancellationToken c);
         Task GetUnicodeVideoTitles(Action<string> callback);
+        Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId);
     }
 }

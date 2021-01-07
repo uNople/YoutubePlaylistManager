@@ -9,6 +9,6 @@ namespace YouTubeApiWrapper.Interfaces
         Task<List<PlaylistItem>> GetPlaylistItems(string playlistId);
         Task<List<Video>> GetVideos(string id);
         Task<List<Playlist>> GetPlaylists();
-        Task AddVideoToPlaylist(string playlistId, string videoId);
+        Task<PlaylistItem> AddVideoToPlaylist(string playlistId, string videoId);
     }
 }

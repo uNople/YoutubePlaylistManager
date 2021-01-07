@@ -109,5 +109,13 @@ namespace YouTubeCleanupTool.Domain
                 }
             }
         }
+
+        public async Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId)
+        {
+            var playlistItem = await _youTubeApi.AddVideoToPlaylist(playlistId, videoId);
+            await _youTubeCleanupToolDbContext.UpsertPlaylistItem(playlistItem);
+            await _youTubeCleanupToolDbContext.SaveChangesAsync();
+            return playlistItem;
+        }
     }
 }

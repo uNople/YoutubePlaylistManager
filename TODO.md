@@ -1,10 +1,8 @@
 Next/Current:
 - Prototype UI in WPF
-  - Wire up 'update playlist parts'
-    - Extra permissions for the app in the google dev console <-- do this - cause the api side is working
-	- Wire up 'Remove from playlist' call
-  - Link to channel / video so we can open in YouTube
- - Wire up FilterType.Uncategorized
+  - Wire up 'Remove from playlist' call
+  - Link to channel / video / playlist so we can open in YouTube
+  - Wire up FilterType.Uncategorized (all videos that are only in the Liked videos playlist)
 
 After:
 - Create more permanent UI in cv++ languages/frameworks
@@ -12,7 +10,7 @@ After:
 - [project reunion](https://github.com/microsoft/ProjectReunion)
 
 Future features:
-- Cache thumbnails for playlists and videos (once it's in sqlite)
+- Cache all resolutions of the thumbnails for playlists and videos (once it's in sqlite)
 - build some kind of auto-categorizer (put liked videos in specific playlist if they match things)
 
 Final (countdown) goal

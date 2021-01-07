@@ -77,16 +77,13 @@ namespace YouTubeApiWrapper
             }
         }
 
-        public async Task AddVideoToPlaylist(string playlistId, string videoId)
+        public async Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId)
         {
-            try
+            return await HandleSecretRevocation(async getNewToken =>
             {
-                await GetYouTubeWrapper(false).AddVideoToPlaylist(playlistId, videoId);
-            }
-            catch (Exception ex)
-            {
-
-            }
+                var playlistItem = await GetYouTubeWrapper(getNewToken).AddVideoToPlaylist(playlistId, videoId);
+                return _mapper.Map<PlaylistItemData>(playlistItem);
+            });
         }
 
         private async Task<T> HandleSecretRevocation<T>(Func<bool, Task<T>> methodWhichCouldResultInNoAuthentication)

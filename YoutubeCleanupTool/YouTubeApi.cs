@@ -9,13 +9,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2.Responses;
-using Google.Apis.YouTube.v3.Data;
 using YouTubeApiWrapper.Interfaces;
-using YouTubeCleanupTool;
 using YouTubeCleanupTool.Domain;
 
 namespace YouTubeApiWrapper

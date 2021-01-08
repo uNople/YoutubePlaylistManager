@@ -4,10 +4,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -213,30 +211,23 @@ namespace YoutubeCleanupWpf
 
         public async Task LoadData()
         {
-            try
+            await GetVideos(100);
+
+            var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
+            var playlistItems = await _youTubeCleanupToolDbContext.GetPlaylistItems();
+            _videosToPlaylistMap = playlistItems
+                .Where(x => x.VideoId != null)
+                .GroupBy(x => x.VideoId)
+                .ToDictionary(x => x.Key, x => x.Select(y => y.PlaylistDataId).ToList());
+                
+
+            AllPlaylists.AddRange(playlists);
+
+            VideoFilter.AddOnUi(new VideoFilter {Title = "All", FilterType = FilterType.All});
+            VideoFilter.AddOnUi(new VideoFilter {Title = "Uncategorized", FilterType = FilterType.Uncategorized});
+            foreach (var playlist in playlists.OrderBy(x => x.Title))
             {
-                await GetVideos(100);
-
-                var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
-                var playlistItems = await _youTubeCleanupToolDbContext.GetPlaylistItems();
-                _videosToPlaylistMap = playlistItems
-                    .Where(x => x.VideoId != null)
-                    .GroupBy(x => x.VideoId)
-                    .ToDictionary(x => x.Key, x => x.Select(y => y.PlaylistDataId).ToList());
-                    
-
-                AllPlaylists.AddRange(playlists);
-
-                VideoFilter.AddOnUi(new VideoFilter {Title = "All", FilterType = FilterType.All});
-                VideoFilter.AddOnUi(new VideoFilter {Title = "Uncategorized", FilterType = FilterType.Uncategorized});
-                foreach (var playlist in playlists.OrderBy(x => x.Title))
-                {
-                    VideoFilter.AddOnUi(new VideoFilter {Title = playlist.Title, FilterType = FilterType.PlaylistTitle});
-                }
-            }
-            catch (Exception ex)
-            {
-
+                VideoFilter.AddOnUi(new VideoFilter {Title = playlist.Title, FilterType = FilterType.PlaylistTitle});
             }
         }
 
@@ -276,21 +267,6 @@ namespace YoutubeCleanupWpf
             // Freeze so we can apparently move this between threads
             thumbnail.Freeze();
             return thumbnail;
-        }
-    }
-
-    // TODO: better way?
-    public static class CollectionExtensions
-    {
-        public static void AddOnUi<T>(this ICollection<T> collection, T item)
-        {
-            Action<T> addMethod = collection.Add;
-            Application.Current.Dispatcher.BeginInvoke(addMethod, item);
-        }
-
-        public static void ClearOnUi<T>(this ICollection<T> collection)
-        {
-            Application.Current.Dispatcher.BeginInvoke(collection.Clear);
         }
     }
 }

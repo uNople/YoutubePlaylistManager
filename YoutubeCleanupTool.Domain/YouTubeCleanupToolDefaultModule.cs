@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Autofac;
+﻿using Autofac;
 
 namespace YouTubeCleanupTool.Domain
 {

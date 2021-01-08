@@ -3,6 +3,16 @@ Next/Current:
   - Dark mode / prettify
   - Search (videos/playlists)
 
+
+Tidy-ups:
+WPF:
+- Somewhere to set options in the WPF app (eg, path to DB, what monitor to start on, what theme)
+- Ability to do the things the console app can do
+
+Console app:
+- Ability to set the path to client_secret.json
+- Ability to set the DB path
+
 After:
 - Create more permanent UI in cv++ languages/frameworks
 - Blazor/express
@@ -10,6 +20,7 @@ After:
 
 Future features:
 - Cache all resolutions of the thumbnails for playlists and videos (once it's in sqlite)
+  - Also store resolution of the thumbnail so we can calculate aspect ratio etc correctly
 - build some kind of auto-categorizer (put liked videos in specific playlist if they match things)
 
 Final (countdown) goal

@@ -39,44 +39,55 @@
             </ComboBox>
         </Grid>
         <Grid Column="0" Row="1">
-            <ListBox ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ToolTip="Double-click to open video in your browser">
+            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ToolTip="Double-click to open video in your browser">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="70" />
+                            </Grid.RowDefinitions>
                             <Grid.InputBindings>
                                 <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.OpenVideoCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
                             </Grid.InputBindings>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="{Binding Thumbnail}" Width="100" Height="100" />
-                                <Label Content="{Binding Title}" />
-                            </StackPanel>
+                            <Image Margin="0,5,0,5" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Source="{Binding Thumbnail}" Width="100" Height="97" />
+                            <TextBlock Grid.Row="0" Padding="10, 0, 0, 0" Grid.Column="1" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" Text="{Binding Title}" />
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
         <Grid Column="1" Row="1" Margin="10,0,0,0">
-            <ListBox ItemsSource="{Binding Playlists, UpdateSourceTrigger=PropertyChanged}" ToolTip="Double-click to open playlist in your browser">
+            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Playlists, UpdateSourceTrigger=PropertyChanged}" ToolTip="Double-click to open playlist in your browser">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="18" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="18" />
+                            </Grid.RowDefinitions>
                             <Grid.InputBindings>
                                 <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.OpenPlaylistCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
                             </Grid.InputBindings>
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding VideoInPlaylist}" Command="{Binding ElementName=Ui, Path=DataContext.CheckedOrUncheckedVideoInPlaylistCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
-                                <Label Content="{Binding Title}" />
-                            </StackPanel>
+                            <CheckBox VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" IsChecked="{Binding VideoInPlaylist}" Command="{Binding ElementName=Ui, Path=DataContext.CheckedOrUncheckedVideoInPlaylistCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
+                            <Label VerticalAlignment="Center" Padding="2,0,0,0" Margin="0" Grid.Column="1" Grid.Row="0" Content="{Binding Title}" />
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
         <Grid Column="2" Row="1" Visibility="{Binding SelectedVideo, Converter={StaticResource NullabilityToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}">
-            <Image Source="{Binding SelectedVideo.Thumbnail, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Width="302" Height="224" VerticalAlignment="Top" />
-            <TextBox Text="{Binding SelectedVideo.Title, UpdateSourceTrigger=PropertyChanged, FallbackValue=Title of video}" Margin="307,0,0,0" TextWrapping="WrapWithOverflow" Height="191" VerticalAlignment="Top" />
-            <TextBox Text="{Binding SelectedVideo.Description, UpdateSourceTrigger=PropertyChanged, FallbackValue=Description of video}" Margin="0,230,0,0" TextWrapping="WrapWithOverflow"/>
-            <TextBox Text="{Binding SelectedVideo.ChannelTitle, UpdateSourceTrigger=PropertyChanged, FallbackValue=Channel name}" Margin="307,196,0,0" VerticalAlignment="Top" Height="29" TextWrapping="WrapWithOverflow" ToolTip="Double-click to open the channel in your browser" >
+            <Image Source="{Binding SelectedVideo.Thumbnail, UpdateSourceTrigger=PropertyChanged}" Height="324" VerticalAlignment="Top" Margin="0,0,0,0" HorizontalAlignment="Left" />
+            <Label Background="DarkGray" Opacity=".5" FontSize="30" FontWeight="Bold"  Content="" Margin="0,273,0,0" Height="52" VerticalAlignment="Top" />
+            <Label FontSize="30" FontWeight="Bold"  Content="{Binding SelectedVideo.Title, UpdateSourceTrigger=PropertyChanged, FallbackValue=Title of video}" Margin="0,273,0,0" Height="52" VerticalAlignment="Top" />
+            <TextBox Text="{Binding SelectedVideo.Description, UpdateSourceTrigger=PropertyChanged, FallbackValue=Description of video}" Margin="0,364,0,0" TextWrapping="WrapWithOverflow"/>
+            <TextBox Text="{Binding SelectedVideo.ChannelTitle, UpdateSourceTrigger=PropertyChanged, FallbackValue=Channel name}" Margin="0,330,0,0" VerticalAlignment="Top" Height="29" TextWrapping="WrapWithOverflow" ToolTip="Double-click to open the channel in your browser" >
                 <TextBox.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.OpenChannelCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding SelectedVideo}" />
                 </TextBox.InputBindings>

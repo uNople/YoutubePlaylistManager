@@ -40,8 +40,10 @@ namespace YoutubeCleanupWpf
             OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, ShowError);
             SearchCommand = new RunMethodWithoutParameterCommand(Search, ShowError);
             _searchTypeDelayDeferTimer = new DeferTimer(async () => await SearchForVideos(SearchText), ShowError);
+            _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), ShowError);
         }
-        
+
+        private readonly DeferTimer _selectedFilterDataFromComboBoxDeferTimer;
         private readonly DeferTimer _searchTypeDelayDeferTimer;
         private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
         private readonly IMapper _mapper;
@@ -80,8 +82,10 @@ namespace YoutubeCleanupWpf
             set
             {
                 _selectedFilterDataFromComboBox = value;
-                // Might lock the UI if run synchronously - but to be confirmed
-                GetVideosForPlaylist(value).GetAwaiter().GetResult();
+                // This is here so when we select the videos we run that async. the async part happens in the DeferTimer
+                // Prior to this, we had it run synchronously, and it froze the UI whenever we selected another filter
+                // with a lot of videos
+                _selectedFilterDataFromComboBoxDeferTimer.DeferByMilliseconds(2);
             }
         }
 

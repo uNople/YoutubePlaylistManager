@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Accessibility;
 using AutoMapper;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf;
@@ -37,22 +38,30 @@ namespace YoutubeCleanupWpf
             OpenPlaylistCommand = new RunMethodCommand<PlaylistData>(OpenPlaylist, ShowError);
             OpenChannelCommand = new RunMethodCommand<VideoData>(OpenChannel, ShowError);
             OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, ShowError);
+            SearchCommand = new RunMethodWithoutParameterCommand(Search, ShowError);
+            _searchTypeDelayDeferTimer = new DeferTimer(async () => await SearchForVideos(SearchText), ShowError);
         }
-
+        
+        private readonly DeferTimer _searchTypeDelayDeferTimer;
         private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
         private readonly IMapper _mapper;
+        private Dictionary<string, List<string>> _videosToPlaylistMap = new Dictionary<string, List<string>>();
+        private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
+        private VideoFilter _preservedFilter;
+        private List<PlaylistData> AllPlaylists { get; set; }
+        private WpfVideoData _selectedVideo;
+
+        public event PropertyChangedEventHandler PropertyChanged;
         public ICommand OpenVideoCommand { get; set; }
         public ICommand OpenPlaylistCommand { get; set; }
         public ICommand OpenChannelCommand { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
+        public ICommand SearchCommand { get; set; }
+        public ICommand CheckedOrUncheckedVideoInPlaylistCommand { get; set; }
         public ObservableCollection<VideoData> Videos { get; set; }
         public ObservableCollection<WpfPlaylistData> Playlists { get; set; }
-        private List<PlaylistData> AllPlaylists { get; set; }
-        private WpfVideoData _selectedVideo;
         public ObservableCollection<VideoFilter> VideoFilter { get; set; }
-        public ICommand CheckedOrUncheckedVideoInPlaylistCommand { get; set; }
+        public string SearchResultCount { get; set; }
+        public bool SearchActive { get; set; }
 
         public WpfVideoData SelectedVideo
         {
@@ -65,9 +74,6 @@ namespace YoutubeCleanupWpf
         }
 
         private VideoFilter _selectedFilterDataFromComboBox;
-        private Dictionary<string, List<string>> _videosToPlaylistMap = new Dictionary<string, List<string>>();
-        private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
-        
         public VideoFilter SelectedFilterFromComboBox
         {
             get => _selectedFilterDataFromComboBox;
@@ -78,16 +84,45 @@ namespace YoutubeCleanupWpf
                 GetVideosForPlaylist(value).GetAwaiter().GetResult();
             }
         }
-        
-        private async Task OpenChannel(VideoData videoData)
-        {
-            OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}");
-        }
 
-        private async Task OpenPlaylist(PlaylistData playlistData)
+        private string _searchText;
+        public string SearchText
         {
-            OpenLink($"https://www.youtube.com/playlist?list={playlistData.Id}");
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                if (SearchActive)
+                    _searchTypeDelayDeferTimer.DeferByMilliseconds(200);
+            }
         }
+        
+        public async Task LoadData()
+        {
+            await GetVideos(100);
+
+            var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
+            var playlistItems = await _youTubeCleanupToolDbContext.GetPlaylistItems();
+            _videosToPlaylistMap = playlistItems
+                .Where(x => x.VideoId != null)
+                .GroupBy(x => x.VideoId)
+                .ToDictionary(x => x.Key, x => x.Select(y => y.PlaylistDataId).ToList());
+
+
+            AllPlaylists.AddRange(playlists);
+
+            VideoFilter.AddOnUi(new VideoFilter { Title = "All", FilterType = FilterType.All });
+            VideoFilter.AddOnUi(new VideoFilter { Title = "Uncategorized", FilterType = FilterType.Uncategorized });
+            foreach (var playlist in playlists.OrderBy(x => x.Title))
+            {
+                VideoFilter.AddOnUi(new VideoFilter { Title = playlist.Title, FilterType = FilterType.PlaylistTitle });
+            }
+        }
+        
+        private async Task OpenChannel(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}"));
+        private async Task OpenPlaylist(PlaylistData playlistData) => await Task.Run(() => OpenLink($"https://www.youtube.com/playlist?list={playlistData.Id}"));
+        private static void ShowError(Exception ex) => MessageBox.Show(ex.ToString());
+        private async Task OpenVideo(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/watch?v={videoData.Id}"));
 
         private static void OpenLink(string url)
         {
@@ -101,15 +136,42 @@ namespace YoutubeCleanupWpf
             };
             proc.Start();
         }
-
-        private static void ShowError(Exception ex)
+        
+        private async Task SearchForVideos(string searchText)
         {
-            MessageBox.Show(ex.ToString());
+            Videos.ClearOnUi();
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                SearchResultCount = "";
+                return;
+            }
+
+            var videos = (await _youTubeCleanupToolDbContext.GetVideos());
+            var videosFound = videos.Where(x => x.Title.ContainsCi(searchText)).OrderBy(x => x.Title).ToList();
+            SearchResultCount = $"{videosFound.Count} videos found";
+            foreach (var video in videosFound)
+            {
+                AddVideoToCollection(video);
+            }
         }
 
-        private async Task OpenVideo(VideoData videoData)
+        private async Task Search()
         {
-            OpenLink($"https://www.youtube.com/watch?v={videoData.Id}");
+            SearchActive = !SearchActive;
+            if (!SearchActive)
+            {
+                SelectedFilterFromComboBox = _preservedFilter;
+                if (SelectedFilterFromComboBox == null)
+                {
+                    await GetVideos(100);
+                }
+            }
+            else
+            {
+                _preservedFilter = _selectedFilterDataFromComboBox?.Clone();
+                await SearchForVideos(SearchText);
+            }
         }
 
         private async Task UpdateVideoInPlaylist(WpfPlaylistData wpfPlaylistData)
@@ -206,28 +268,6 @@ namespace YoutubeCleanupWpf
             foreach (var playlist in playlistData)
             {
                 Playlists.AddOnUi(playlist);
-            }
-        }
-
-        public async Task LoadData()
-        {
-            await GetVideos(100);
-
-            var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
-            var playlistItems = await _youTubeCleanupToolDbContext.GetPlaylistItems();
-            _videosToPlaylistMap = playlistItems
-                .Where(x => x.VideoId != null)
-                .GroupBy(x => x.VideoId)
-                .ToDictionary(x => x.Key, x => x.Select(y => y.PlaylistDataId).ToList());
-                
-
-            AllPlaylists.AddRange(playlists);
-
-            VideoFilter.AddOnUi(new VideoFilter {Title = "All", FilterType = FilterType.All});
-            VideoFilter.AddOnUi(new VideoFilter {Title = "Uncategorized", FilterType = FilterType.Uncategorized});
-            foreach (var playlist in playlists.OrderBy(x => x.Title))
-            {
-                VideoFilter.AddOnUi(new VideoFilter {Title = playlist.Title, FilterType = FilterType.PlaylistTitle});
             }
         }
 

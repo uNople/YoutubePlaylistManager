@@ -15,17 +15,25 @@ namespace YouTubeCleanupTool.Domain
 
         public static bool StartsWithCi(this string str, string secondString)
         {
-            return str.ToUpper().StartsWith(secondString.ToUpper());
+            if (secondString == null) return false;
+            return str?.StartsWith(secondString, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
 
         public static bool EndsWithCi(this string str, string secondString)
         {
-            return str.ToUpper().EndsWith(secondString.ToUpper());
+            if (secondString == null) return false;
+            return str?.EndsWith(secondString, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
 
         public static bool EqualsCi(this string str, string secondString)
         {
             return string.Equals(str, secondString, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public static bool ContainsCi(this string str, string secondString)
+        {
+            if (secondString == null) return false;
+            return str?.Contains(secondString, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
     }
 }

@@ -1,8 +1,6 @@
 Next/Current:
 - Prototype UI in WPF
   - Dark mode / prettify
-  - Search (videos/playlists)
-
 
 Tidy-ups:
 WPF:
@@ -22,6 +20,7 @@ Future features:
 - Cache all resolutions of the thumbnails for playlists and videos (once it's in sqlite)
   - Also store resolution of the thumbnail so we can calculate aspect ratio etc correctly
 - build some kind of auto-categorizer (put liked videos in specific playlist if they match things)
+- regex search
 
 Final (countdown) goal
 - Some kind of tool to manage my YouTube videos / playlists / likes quicker than on the website

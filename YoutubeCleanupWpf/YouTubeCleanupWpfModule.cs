@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using YouTubeCleanupWpf;
 
 namespace YoutubeCleanupWpf
 {
@@ -10,6 +11,8 @@ namespace YoutubeCleanupWpf
             builder.RegisterType<MainWindow>();
             builder.RegisterType<MainWindowViewModel>();
             builder.RegisterAutoMapper(typeof(YouTubeCleanupWpfModule).Assembly);
+            builder.RegisterType<UpdateDataViewModel>().SingleInstance();
+            builder.RegisterType<UpdateDataWindow>().SingleInstance();
         }
     }
 }

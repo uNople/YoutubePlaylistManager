@@ -5,7 +5,7 @@ using System.Windows.Threading;
 
 namespace YoutubeCleanupWpf
 {
-    public static class CollectionExtensions
+    public static class WpfExtensions
     {
         public static void AddOnUi<T>(this ICollection<T> collection, T item)
         {
@@ -16,6 +16,13 @@ namespace YoutubeCleanupWpf
         public static void ClearOnUi<T>(this ICollection<T> collection)
         {
             Application.Current.Dispatcher.BeginInvoke(collection.Clear);
+        }
+
+        public static void RunOnUiThread(this Action action)
+        {
+            Application.Current.Dispatcher.Invoke(
+                DispatcherPriority.Normal,
+                action);
         }
     }
 }

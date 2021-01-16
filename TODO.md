@@ -5,11 +5,16 @@ Next/Current:
 Tidy-ups:
 WPF:
 - Somewhere to set options in the WPF app (eg, path to DB, what monitor to start on, what theme)
-- Ability to do the things the console app can do
+- Show dialogs on same screen as running app
+- Improve performance of log updating the UI (ui freezes when updates are happening and we have a lot of messages)
+- Create some icons (top-left as well as taskbar etc)
 
 Console app:
 - Ability to set the path to client_secret.json
 - Ability to set the DB path
+
+General stuff:
+- Pass in cancellation token everywhere
 
 After:
 - Create more permanent UI in cv++ languages/frameworks

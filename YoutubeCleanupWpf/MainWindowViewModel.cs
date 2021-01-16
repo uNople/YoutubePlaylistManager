@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -24,7 +25,9 @@ namespace YoutubeCleanupWpf
         (
             [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
             [NotNull] IMapper mapper,
-            [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData
+            [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
+            [NotNull] UpdateDataViewModel updateDataViewModel, 
+            [NotNull] UpdateDataWindow updateDataWindow
         )
         {
             _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
@@ -39,8 +42,12 @@ namespace YoutubeCleanupWpf
             OpenChannelCommand = new RunMethodCommand<VideoData>(OpenChannel, ShowError);
             OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, ShowError);
             SearchCommand = new RunMethodWithoutParameterCommand(Search, ShowError);
+            RefreshDataCommand = new RunMethodWithoutParameterCommand(UpdateData, ShowError);
+            UpdateSettingsCommand = new RunMethodWithoutParameterCommand(UpdateSettings, ShowError);
             _searchTypeDelayDeferTimer = new DeferTimer(async () => await SearchForVideos(SearchText), ShowError);
             _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), ShowError);
+            _updateDataViewModel = updateDataViewModel;
+            _updateDataWindow = updateDataWindow;
         }
 
         private readonly DeferTimer _selectedFilterDataFromComboBoxDeferTimer;
@@ -50,6 +57,8 @@ namespace YoutubeCleanupWpf
         private Dictionary<string, List<string>> _videosToPlaylistMap = new Dictionary<string, List<string>>();
         private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
         private VideoFilter _preservedFilter;
+        private UpdateDataViewModel _updateDataViewModel;
+        private UpdateDataWindow _updateDataWindow;
         private List<PlaylistData> AllPlaylists { get; set; }
         private WpfVideoData _selectedVideo;
 
@@ -59,11 +68,14 @@ namespace YoutubeCleanupWpf
         public ICommand OpenChannelCommand { get; set; }
         public ICommand SearchCommand { get; set; }
         public ICommand CheckedOrUncheckedVideoInPlaylistCommand { get; set; }
+        public ICommand RefreshDataCommand { get; set; }
+        public ICommand UpdateSettingsCommand { get; set; }
         public ObservableCollection<VideoData> Videos { get; set; }
         public ObservableCollection<WpfPlaylistData> Playlists { get; set; }
         public ObservableCollection<VideoFilter> VideoFilter { get; set; }
         public string SearchResultCount { get; set; }
         public bool SearchActive { get; set; }
+        public bool UpdateHappening { get; set; }
 
         public WpfVideoData SelectedVideo
         {
@@ -90,6 +102,7 @@ namespace YoutubeCleanupWpf
         }
 
         private string _searchText;
+
         public string SearchText
         {
             get => _searchText;
@@ -101,6 +114,34 @@ namespace YoutubeCleanupWpf
             }
         }
         
+        private async Task UpdateData()
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            _updateDataWindow.Show();
+            _updateDataViewModel.CancellationTokenSource = cancellationTokenSource;
+            _updateDataViewModel.MainWindowViewModel = this;
+
+
+            void Callback(IData data, InsertStatus status)
+            {
+                _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}");
+            }
+
+            _updateDataViewModel.PrependText("Updating playlists");
+            await _getAndCacheYouTubeData.GetPlaylists(Callback);
+            _updateDataViewModel.PrependText("Updating playlist items");
+            await _getAndCacheYouTubeData.GetPlaylistItems(Callback);
+            _updateDataViewModel.PrependText("Updating videos");
+            await _getAndCacheYouTubeData.GetVideos(Callback, false, cancellationTokenSource.Token);
+            _updateDataViewModel.PrependText("Completed! - You can close the window now.");
+        }
+        
+        private async Task UpdateSettings()
+        {
+            throw new Exception();
+        }
+
         public async Task LoadData()
         {
             await GetVideos(100);
@@ -287,13 +328,11 @@ namespace YoutubeCleanupWpf
         private void AddVideoToCollection(VideoData video)
         {
             WpfVideoData videoData = _mapper.Map<WpfVideoData>(video);
-            Application.Current.Dispatcher.Invoke(
-                DispatcherPriority.Normal,
-                new Action(() =>
-                {
-                    var image = CreateBitmapImageFromByteArray(videoData);
-                    videoData.Thumbnail = image;
-                }));
+            new Action(() =>
+            {
+                var image = CreateBitmapImageFromByteArray(videoData);
+                videoData.Thumbnail = image;
+            }).RunOnUiThread();
 
             Videos.AddOnUi(videoData);
         }

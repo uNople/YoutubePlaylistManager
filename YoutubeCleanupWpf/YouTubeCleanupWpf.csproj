@@ -9,10 +9,13 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.1.0" />
+    <PackageReference Include="Autofac.Configuration" Version="6.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="PropertyChanged.Fody" Version="3.3.1" />
   </ItemGroup>
 
@@ -20,6 +23,12 @@
     <ProjectReference Include="..\YoutubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj" />
     <ProjectReference Include="..\YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
     <ProjectReference Include="..\YoutubeCleanupTool\YouTubeApiWrapper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

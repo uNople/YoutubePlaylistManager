@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Accessibility;
 using AutoMapper;
+using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf;
 
@@ -23,14 +24,14 @@ namespace YoutubeCleanupWpf
     {
         public MainWindowViewModel
         (
-            [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+            [NotNull] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
             [NotNull] IMapper mapper,
             [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
             [NotNull] UpdateDataViewModel updateDataViewModel, 
             [NotNull] UpdateDataWindow updateDataWindow
         )
         {
-            _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
+            _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
             Videos = new ObservableCollection<VideoData>();
             AllPlaylists = new List<PlaylistData>();
             Playlists = new ObservableCollection<WpfPlaylistData>();
@@ -52,7 +53,7 @@ namespace YoutubeCleanupWpf
 
         private readonly DeferTimer _selectedFilterDataFromComboBoxDeferTimer;
         private readonly DeferTimer _searchTypeDelayDeferTimer;
-        private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
+        private readonly IYouTubeCleanupToolDbContextFactory _youTubeCleanupToolDbContextFactory;
         private readonly IMapper _mapper;
         private Dictionary<string, List<string>> _videosToPlaylistMap = new Dictionary<string, List<string>>();
         private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
@@ -146,8 +147,8 @@ namespace YoutubeCleanupWpf
         {
             await GetVideos(100);
 
-            var playlists = await _youTubeCleanupToolDbContext.GetPlaylists();
-            var playlistItems = await _youTubeCleanupToolDbContext.GetPlaylistItems();
+            var playlists = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists();
+            var playlistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems();
             _videosToPlaylistMap = playlistItems
                 .Where(x => x.VideoId != null)
                 .GroupBy(x => x.VideoId)
@@ -192,7 +193,7 @@ namespace YoutubeCleanupWpf
                 return;
             }
 
-            var videos = (await _youTubeCleanupToolDbContext.GetVideos());
+            var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
             var videosFound = videos.Where(x => x.Title.ContainsCi(searchText)).OrderBy(x => x.Title).ToList();
             SearchResultCount = $"{videosFound.Count} videos found";
             foreach (var video in videosFound)
@@ -256,7 +257,7 @@ namespace YoutubeCleanupWpf
             if (videoFilter.FilterType == FilterType.PlaylistTitle)
             {
                 var matchingPlaylist = AllPlaylists.First(x => x.Title == videoFilter.Title);
-                var videos = (await _youTubeCleanupToolDbContext.GetVideos());
+                var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
                 foreach (var videoId in matchingPlaylist.PlaylistItems.OrderBy(x => x.Position).Select(x => x.VideoId))
                 {
                     AddVideoToCollection(videos.FirstOrDefault(x => x.Id == videoId));
@@ -264,7 +265,7 @@ namespace YoutubeCleanupWpf
             }
             else if (videoFilter.FilterType == FilterType.All)
             {
-                var videos = (await _youTubeCleanupToolDbContext.GetVideos());
+                var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
                 foreach (var video in videos)
                 {
                     AddVideoToCollection(video);
@@ -274,7 +275,7 @@ namespace YoutubeCleanupWpf
             {
                 // TODO: Create some way of indicating a playlist is a "dumping ground" playlist - meaning videos only in that should be uncategorized
                 var playlistsThatMeanUncategorized = new List<string> {"Liked videos", "!WatchLater"};
-                var videos = (await _youTubeCleanupToolDbContext.GetUncategorizedVideos(playlistsThatMeanUncategorized));
+                var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetUncategorizedVideos(playlistsThatMeanUncategorized));
                 foreach (var video in videos)
                 {
                     AddVideoToCollection(video);
@@ -318,7 +319,7 @@ namespace YoutubeCleanupWpf
 
         private async Task GetVideos(int limit)
         {
-            var videos = await _youTubeCleanupToolDbContext.GetVideos();
+            var videos = await _youTubeCleanupToolDbContextFactory.Create().GetVideos();
             foreach (var video in videos.Take(limit))
             {
                 AddVideoToCollection(video);

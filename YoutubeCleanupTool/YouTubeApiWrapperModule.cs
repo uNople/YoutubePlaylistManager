@@ -12,10 +12,10 @@ namespace YouTubeApiWrapper
             builder.RegisterType<CredentialManagerWrapper>().As<ICredentialManagerWrapper>();
             builder.RegisterInstance(new YouTubeServiceCreatorOptions
             {
-                // TODO: Move to app settings
+                DatabasePath = "Application.db",
                 ClientSecretPath = @"C:\temp\client_secret.json",
                 FileDataStoreName = "Youtube.Api.Storage",
-            });
+            }).SingleInstance();
             builder.RegisterAutoMapper(typeof(YouTubeApiWrapperModule).Assembly);
             builder.RegisterType<YouTubeApi>().As<IYouTubeApi>();
         }

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using YouTubeCleanupTool.DataAccess;
 
 namespace YouTubeCleanupTool.Domain.UnitTests
 {
@@ -23,12 +24,14 @@ namespace YouTubeCleanupTool.Domain.UnitTests
         [Theory, AutoNSubstituteData]
         public async Task When_only_getting_videos_that_dont_already_exist_Then_YouTube_api_is_not_called_to_get_the_data(
                 [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+                [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
                 [Frozen] IYouTubeApi youTubeApi,
                 [Frozen] IFixture fixture,
                 GetAndCacheYouTubeData getAndCacheYouTubeData
             )
         {
-            
+            // TODO: add customization so we don't need to do this everywhere we have a DbContext and ContextFactory
+            youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             var playlistItemData = fixture.CreateMany<PlaylistItemData>(3).ToList();
             youTubeCleanupToolDbContext.GetPlaylistItems().Returns(playlistItemData);
             var videoData = playlistItemData.Take(1).Select(x => new VideoData { Id = x.VideoId }).ToList();
@@ -55,11 +58,13 @@ namespace YouTubeCleanupTool.Domain.UnitTests
         [Theory, AutoNSubstituteData]
         public async Task When_getting_all_videos_Then_YouTube_api_is_called_to_get_the_data_for_everything(
                 [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+                [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
                 [Frozen] IYouTubeApi youTubeApi,
                 [Frozen] IFixture fixture,
                 GetAndCacheYouTubeData getAndCacheYouTubeData
             )
         {
+            youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             var playlistItemData = fixture.CreateMany<PlaylistItemData>(3).ToList();
             youTubeCleanupToolDbContext.GetPlaylistItems().Returns(playlistItemData);
             var videoData = playlistItemData.Take(1).Select(x => new VideoData { Id = x.VideoId }).ToList();
@@ -85,10 +90,12 @@ namespace YouTubeCleanupTool.Domain.UnitTests
         [Theory, AutoNSubstituteData]
         public async Task When_getting_playlists_from_YouTube_api_Then_they_are_saved_to_the_database(
                 [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+                [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
                 [Frozen] IYouTubeApi youTubeApi,
                 List<PlaylistData> playlistData,
                 GetAndCacheYouTubeData getAndCacheYouTubeData)
         {
+            youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             youTubeApi.GetPlaylists().Returns(playlistData.ToAsyncEnumerable());
 
             var callback = new Action<PlaylistData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
@@ -105,10 +112,12 @@ namespace YouTubeCleanupTool.Domain.UnitTests
         [Theory, AutoNSubstituteData]
         public async Task When_getting_playlistItems_from_YouTube_api_Then_they_are_saved_to_the_database(
                 [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+                [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
                 [Frozen] IYouTubeApi youTubeApi,
                 List<PlaylistItemData> playlistItemData,
                 GetAndCacheYouTubeData getAndCacheYouTubeData)
         {
+            youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             youTubeApi.GetPlaylistItems(Arg.Any<List<PlaylistData>>()).Returns(playlistItemData.ToAsyncEnumerable());
 
             var callback = new Action<PlaylistItemData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));

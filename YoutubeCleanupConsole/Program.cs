@@ -16,15 +16,11 @@ namespace YouTubeCleanupConsole
             builder.RegisterModule<YouTubeApiWrapperModule>();
             builder.RegisterModule<YoutubeCleanupConsoleModule>();
             builder.RegisterModule<YouTubeCleanupToolDefaultModule>();
-
-            var dbContextBuilder = new DbContextOptionsBuilder<YoutubeCleanupToolDbContext>();
-            dbContextBuilder.UseSqlite("Data Source=Application.db");
-            builder.RegisterInstance(dbContextBuilder.Options).As<DbContextOptions>();
-            builder.RegisterType<YoutubeCleanupToolDbContext>().As<IYouTubeCleanupToolDbContext>();
+            builder.RegisterModule<YouTubeCleanupToolDataModule>();
             var container = builder.Build();
             try
             {
-                container.Resolve<IYouTubeCleanupToolDbContext>().Migrate();
+                container.Resolve<IYouTubeCleanupToolDbContextFactory>().Create().Migrate();
                 await container.Resolve<IConsoleUi>().Run();
             }
             catch (Exception ex)

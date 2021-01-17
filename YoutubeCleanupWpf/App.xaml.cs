@@ -2,9 +2,12 @@
 using System;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using YouTubeApiWrapper;
 using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
+using Autofac.Configuration;
+using YouTubeCleanupWpf;
 
 namespace YoutubeCleanupWpf
 {
@@ -19,15 +22,12 @@ namespace YoutubeCleanupWpf
             builder.RegisterModule<YouTubeApiWrapperModule>();
             builder.RegisterModule<YouTubeCleanupToolDefaultModule>();
             builder.RegisterModule<YouTubeCleanupWpfModule>();
-
-            var dbContextBuilder = new DbContextOptionsBuilder<YoutubeCleanupToolDbContext>();
-            dbContextBuilder.UseSqlite(@"Data Source=D:\uNople\Programming\YoutubeCleanupTool\YoutubeCleanupConsole\bin\Debug\net5.0\Application.db");
-            builder.RegisterInstance(dbContextBuilder.Options).As<DbContextOptions>();
-            builder.RegisterType<YoutubeCleanupToolDbContext>().As<IYouTubeCleanupToolDbContext>();
+            builder.RegisterModule<YouTubeCleanupToolDataModule>();
             var container = builder.Build();
             try
             {
-                container.Resolve<IYouTubeCleanupToolDbContext>().Migrate();
+                container.Resolve<IYouTubeCleanupToolDbContextFactory>().Create().Migrate();
+                container.Resolve<WpfSettings>(); // just so the ctor gets called and the settings get loaded
                 container.Resolve<MainWindow>().Show();
             }
             catch (Exception ex)

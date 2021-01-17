@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using YouTubeApiWrapper.Interfaces;
+using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
 
 namespace YouTubeCleanupConsole
@@ -17,7 +18,7 @@ namespace YouTubeCleanupConsole
         private readonly ICredentialManagerWrapper _credentialManagerWrapper;
         private readonly YouTubeServiceCreatorOptions _youTubeServiceCreatorOptions;
         private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
-        private readonly IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
+        private readonly IYouTubeCleanupToolDbContextFactory _youTubeCleanupToolDbContextFactory;
         private CancellationTokenSource _cancellationTokenSource;
 
         public ConsoleUi(
@@ -25,13 +26,13 @@ namespace YouTubeCleanupConsole
             [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
             [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions,
             [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
-            [NotNull] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext)
+            [NotNull] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory)
         {
             _consoleDisplayParams = consoleDisplayParams;
             _credentialManagerWrapper = credentialManagerWrapper;
             _youTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
             _getAndCacheYouTubeData = getAndCacheYouTubeData;
-            _youTubeCleanupToolDbContext = youTubeCleanupToolDbContext;
+            _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
         }
 
         public async Task Run()
@@ -111,7 +112,7 @@ namespace YouTubeCleanupConsole
             try
             {
                 Console.WriteLine($"Searching for term {searchTerm}");
-                var searchResults = await _youTubeCleanupToolDbContext.FindAll(searchTerm);
+                var searchResults = await _youTubeCleanupToolDbContextFactory.Create().FindAll(searchTerm);
                 var originalBackgroundColor = Console.BackgroundColor;
                 var originalForegroundColor = Console.ForegroundColor;
                 var searchBackgroundColor = ConsoleColor.DarkYellow;

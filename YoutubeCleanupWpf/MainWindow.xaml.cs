@@ -20,8 +20,14 @@ namespace YoutubeCleanupWpf
             _mainWindowViewModel = mainWindowViewModel;
             _wpfSettings = wpfSettings;
             DataContext = _mainWindowViewModel;
-            this.StartOnSelectedWindow(wpfSettings);
+            this.StartOnSelectedWindow(_wpfSettings);
             InitializeComponent();
+        }
+        
+        public new void Show()
+        {
+            this.StartOnSelectedWindow(_wpfSettings);
+            base.Show();
         }
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)

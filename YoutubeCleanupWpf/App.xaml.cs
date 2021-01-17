@@ -26,8 +26,10 @@ namespace YoutubeCleanupWpf
             var container = builder.Build();
             try
             {
-                container.Resolve<IYouTubeCleanupToolDbContextFactory>().Create().Migrate();
+                // TODO: this seems flaky - if we don't initialize WpfSettings first, then the default DB settings don't get changed
+                // We probably actually need to call .Migrate when calling Create()?
                 container.Resolve<WpfSettings>(); // just so the ctor gets called and the settings get loaded
+                container.Resolve<IYouTubeCleanupToolDbContextFactory>().Create().Migrate();
                 container.Resolve<MainWindow>().Show();
             }
             catch (Exception ex)

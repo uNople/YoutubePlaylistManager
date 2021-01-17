@@ -4,11 +4,15 @@ Next/Current:
 
 Tidy-ups:
 WPF:
-- Somewhere to set options in the WPF app (eg, path to DB, what monitor to start on, what theme)
-- Show dialogs on same screen as running app
 - Improve performance of log updating the UI (ui freezes when updates are happening and we have a lot of messages)
 - Create some icons (top-left as well as taskbar etc)
 - App doesn't close any more
+
+Fixing the new user experience:
+- Dialogs for entering secrets, populating paths etc
+- When getting playlists for the first time, they aren't updated in the UI (either in the combobox or when selecting a video)
+- Videos aren't populated in the UI when you have nothing unless you select All
+
 
 Console app:
 - Ability to set the path to client_secret.json

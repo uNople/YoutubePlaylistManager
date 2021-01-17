@@ -23,12 +23,19 @@ namespace YouTubeCleanupWpf
     {
         private UpdateDataViewModel _updateDataViewModel;
 
-        public UpdateDataWindow([NotNull] UpdateDataViewModel updateDataViewModel)
+        public UpdateDataWindow([NotNull] UpdateDataViewModel updateDataViewModel, [NotNull] WpfSettings wpfSettings)
         {
             _updateDataViewModel = updateDataViewModel;
             _updateDataViewModel.ParentWindow = this;
             DataContext = _updateDataViewModel;
+            this.StartOnSelectedWindow(wpfSettings);
             InitializeComponent();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
         }
     }
 }

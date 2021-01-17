@@ -8,6 +8,7 @@ WPF:
 - Show dialogs on same screen as running app
 - Improve performance of log updating the UI (ui freezes when updates are happening and we have a lot of messages)
 - Create some icons (top-left as well as taskbar etc)
+- App doesn't close any more
 
 Console app:
 - Ability to set the path to client_secret.json

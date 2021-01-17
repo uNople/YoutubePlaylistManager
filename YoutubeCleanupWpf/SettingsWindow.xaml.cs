@@ -22,11 +22,18 @@ namespace YouTubeCleanupWpf
     {
         private readonly SettingsWindowViewModel _settingsWindowViewModel;
 
-        public SettingsWindow([NotNull] SettingsWindowViewModel settingsWindowViewModel)
+        public SettingsWindow([NotNull] SettingsWindowViewModel settingsWindowViewModel, [NotNull] WpfSettings wpfSettings)
         {
             _settingsWindowViewModel = settingsWindowViewModel;
             DataContext = _settingsWindowViewModel;
+            this.StartOnSelectedWindow(wpfSettings);
             InitializeComponent();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
         }
     }
 }

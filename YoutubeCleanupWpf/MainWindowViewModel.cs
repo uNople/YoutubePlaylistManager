@@ -28,7 +28,9 @@ namespace YoutubeCleanupWpf
             [NotNull] IMapper mapper,
             [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
             [NotNull] UpdateDataViewModel updateDataViewModel, 
-            [NotNull] UpdateDataWindow updateDataWindow
+            [NotNull] UpdateDataWindow updateDataWindow,
+            [NotNull] SettingsWindow settingsWindow,
+            [NotNull] SettingsWindowViewModel settingsWindowViewModel
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -49,6 +51,8 @@ namespace YoutubeCleanupWpf
             _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), ShowError);
             _updateDataViewModel = updateDataViewModel;
             _updateDataWindow = updateDataWindow;
+            _settingsWindow = settingsWindow;
+            _settingsWindowViewModel = settingsWindowViewModel;
         }
 
         private readonly DeferTimer _selectedFilterDataFromComboBoxDeferTimer;
@@ -62,6 +66,8 @@ namespace YoutubeCleanupWpf
         private UpdateDataWindow _updateDataWindow;
         private List<PlaylistData> AllPlaylists { get; set; }
         private WpfVideoData _selectedVideo;
+        private SettingsWindow _settingsWindow;
+        private SettingsWindowViewModel _settingsWindowViewModel;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public ICommand OpenVideoCommand { get; set; }
@@ -77,6 +83,7 @@ namespace YoutubeCleanupWpf
         public string SearchResultCount { get; set; }
         public bool SearchActive { get; set; }
         public bool UpdateHappening { get; set; }
+
 
         public WpfVideoData SelectedVideo
         {
@@ -103,7 +110,6 @@ namespace YoutubeCleanupWpf
         }
 
         private string _searchText;
-
         public string SearchText
         {
             get => _searchText;
@@ -140,7 +146,7 @@ namespace YoutubeCleanupWpf
         
         private async Task UpdateSettings()
         {
-            throw new Exception();
+            _settingsWindow.Show();
         }
 
         public async Task LoadData()

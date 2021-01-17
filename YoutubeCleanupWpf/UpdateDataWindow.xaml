@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YouTubeCleanupWpf"
         mc:Ignorable="d"
-        Title="Progress report for refreshing data from YouTube" Height="450" Width="800">
+        Title="Progress report for refreshing data from YouTube" Height="450" Width="800" Closing="Window_Closing">
     <Grid>
         <TextBox Margin="10,10,10,45" Text="{Binding LogText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" IsReadOnly="false" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True"/>
         <Button Content="Close" Command="{Binding CloseCommand, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,10" HorizontalAlignment="Right" Width="33" Height="20" VerticalAlignment="Bottom"/>

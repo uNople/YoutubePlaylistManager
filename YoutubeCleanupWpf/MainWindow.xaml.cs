@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using YouTubeCleanupWpf;
 
 namespace YoutubeCleanupWpf
 {
@@ -12,29 +13,20 @@ namespace YoutubeCleanupWpf
     public partial class MainWindow : Window
     {
         private readonly MainWindowViewModel _mainWindowViewModel;
-        public MainWindow([NotNull]MainWindowViewModel mainWindowViewModel)
+        private readonly WpfSettings _wpfSettings;
+
+        public MainWindow([NotNull]MainWindowViewModel mainWindowViewModel, [NotNull] WpfSettings wpfSettings)
         {
             _mainWindowViewModel = mainWindowViewModel;
+            _wpfSettings = wpfSettings;
             DataContext = _mainWindowViewModel;
-            StartOnNonPrimaryScreen();
+            this.StartOnSelectedWindow(wpfSettings);
             InitializeComponent();
         }
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             Task.Run(async () => await _mainWindowViewModel.LoadData());
-        }
-
-        private void StartOnNonPrimaryScreen()
-        {
-            // TODO: Save the screen we want to start on
-            var screens = Screen.AllScreens;
-            if (screens.Length > 1)
-            {
-                var secondaryScreen = screens.FirstOrDefault(x => !x.Primary);
-                Top = secondaryScreen.Bounds.Top + 100;
-                Left = secondaryScreen.Bounds.Left + 100;
-            }
         }
     }
 }

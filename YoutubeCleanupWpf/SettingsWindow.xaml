@@ -5,17 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YouTubeCleanupWpf"
         mc:Ignorable="d"
-        Title="Settings" Height="450" Width="800">
+        Title="Settings" Height="450" Width="800" Closing="Window_Closing">
     <Grid>
         <Label Content="DB path" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="135"/>
-        <TextBox HorizontalAlignment="Left" Margin="10,36,0,0" Text="{Binding DbPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="291"/>
+        <TextBox HorizontalAlignment="Left" Margin="10,36,0,0" Text="{Binding WpfSettings.DatabasePath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" TextWrapping="NoWrap" VerticalAlignment="Top" Width="291"/>
         <Button Content="..." Command="{Binding SelectDbPathCommand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="306,36,0,0" VerticalAlignment="Top" Height="18"/>
         <Label Content="Monitor to run on" HorizontalAlignment="Left" Margin="10,108,0,0" VerticalAlignment="Top" Width="135"/>
-        <ComboBox ItemsSource="{Binding Monitors, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedMonitor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" Width="308"/>
+        <ComboBox ItemsSource="{Binding WpfSettings.Monitors, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding WpfSettings.SelectedMonitor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" Width="308"/>
         <Label Content="Theme" HorizontalAlignment="Left" Margin="10,161,0,0" VerticalAlignment="Top" Width="135"/>
-        <ComboBox ItemsSource="{Binding Themes, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="10,187,0,0" VerticalAlignment="Top" Width="308"/>
+        <ComboBox ItemsSource="{Binding WpfSettings.Themes, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding WpfSettings.SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="10,187,0,0" VerticalAlignment="Top" Width="308"/>
         <Label Content="Client secret path" HorizontalAlignment="Left" Margin="10,59,0,0" VerticalAlignment="Top" Width="135"/>
-        <TextBox HorizontalAlignment="Left" Margin="10,85,0,0" Text="{Binding ClientSecretPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Top" Width="291"/>
+        <TextBox HorizontalAlignment="Left" Margin="10,85,0,0" Text="{Binding WpfSettings.ClientSecretPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="NoWrap" VerticalAlignment="Top" Width="291"/>
         <Button Content="..." Command="{Binding SelectClientSecretPathCommand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="306,85,0,0" VerticalAlignment="Top" Height="18"/>
     </Grid>
 </Window>

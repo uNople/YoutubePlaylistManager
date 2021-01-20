@@ -30,7 +30,8 @@ namespace YoutubeCleanupWpf
                 // We probably actually need to call .Migrate when calling Create()?
                 container.Resolve<WpfSettings>(); // just so the ctor gets called and the settings get loaded
                 container.Resolve<IYouTubeCleanupToolDbContextFactory>().Create().Migrate();
-                container.Resolve<MainWindow>().Show();
+                MainWindow = container.Resolve<MainWindow>();
+                MainWindow.Show();
             }
             catch (Exception ex)
             {

@@ -34,7 +34,7 @@
                     <DataTemplate>
                         <Grid>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Title}" />
+                                <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
                             </StackPanel>
                         </Grid>
                     </DataTemplate>

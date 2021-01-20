@@ -1,6 +1,4 @@
 Next/Current:
-- Prototype UI in WPF
-  - Dark mode / prettify
 
 Tidy-ups:
 WPF:
@@ -11,7 +9,6 @@ Fixing the new user experience:
 - Dialogs for entering secrets, populating paths etc
 - When getting playlists for the first time, they aren't updated in the UI (either in the combobox or when selecting a video)
 - Videos aren't populated in the UI when you have nothing unless you select All
-
 
 Console app:
 - Ability to set the path to client_secret.json

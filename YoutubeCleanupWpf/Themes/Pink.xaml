@@ -12,4 +12,6 @@
     <Color x:Key="RightScrollbarGradient">MistyRose</Color>
     <Color x:Key="ScrollBarPressedColor">Fuchsia</Color>
     <Color x:Key="ScrollBarArrowColor">Magenta</Color>
+    <Color x:Key="ComboboxBackground">Pink</Color>
+    <Color x:Key="ControlMediumColor">MistyRose</Color>
 </ResourceDictionary>

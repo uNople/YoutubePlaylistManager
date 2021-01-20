@@ -12,4 +12,6 @@
     <Color x:Key="RightScrollbarGradient">#FF444444</Color>
     <Color x:Key="ScrollBarPressedColor">#FFAAAAAA</Color>
     <Color x:Key="ScrollBarArrowColor">WhiteSmoke</Color>
+    <Color x:Key="ComboboxBackground">Black</Color>
+    <Color x:Key="ControlMediumColor">Gray</Color>
 </ResourceDictionary>

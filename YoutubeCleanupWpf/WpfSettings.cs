@@ -6,11 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
 using AutoMapper.Configuration;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
+using YoutubeCleanupWpf;
+using Screen = System.Windows.Forms.Screen;
 
 namespace YouTubeCleanupWpf
 {
@@ -30,7 +32,6 @@ namespace YouTubeCleanupWpf
         
         [JsonIgnore]
         public Screen CurrentScreen { get; set; }
-        private static void ShowError(Exception ex) => MessageBox.Show(ex.ToString());
         private DeferTimer _saveSettingsDeferTimer;
 
         public WpfSettings(YouTubeServiceCreatorOptions youTubeServiceCreatorOptions)
@@ -43,10 +44,10 @@ namespace YouTubeCleanupWpf
             ScreenCollection = Screen.AllScreens.ToList();
             Monitors = new ObservableCollection<string>(ScreenCollection.Select(x => x.DeviceName));
             SetCurrentScreen(SelectedMonitor);
-            Themes = new ObservableCollection<string>(new[] {"Dark", "Light"});
+            Themes = new ObservableCollection<string>(new[] {"DarkMode", "Pink", "NoTheme"});
             YouTubeServiceCreatorOptions.DatabasePath = DatabasePath;
             YouTubeServiceCreatorOptions.ClientSecretPath = ClientSecretPath;
-            _saveSettingsDeferTimer = new DeferTimer(SaveSetting, ShowError);
+            _saveSettingsDeferTimer = new DeferTimer(SaveSetting, MainWindowViewModel.ShowError);
         }
 
         private async Task SaveSetting()
@@ -101,7 +102,25 @@ namespace YouTubeCleanupWpf
             {
                 _selectedTheme = value;
                 _saveSettingsDeferTimer?.DeferByMilliseconds(5000);
-                // TODO: Update the theme across all windows - event?
+                LoadTheme(value);
+            }
+        }
+
+        private void LoadTheme(string themeName)
+        {
+            if (string.IsNullOrWhiteSpace(themeName))
+                return;
+
+            var uri = new Uri($"Themes/{themeName}.xaml", UriKind.RelativeOrAbsolute);
+            try
+            {
+                Application.Current.Resources.MergedDictionaries.Clear();
+                Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Resources.MergedDictionaries.Clear();
+                MainWindowViewModel.ShowError(ex);
             }
         }
 

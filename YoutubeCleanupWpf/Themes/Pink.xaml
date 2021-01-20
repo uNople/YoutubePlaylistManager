@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:YouTubeCleanupWpf.Themes">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="BaseTheme.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    
+    <Color x:Key="GridBackground">Pink</Color>
+    <Color x:Key="TextColor">Black</Color>
+    <Color x:Key="ScrollBarBackground">LightGray</Color>
+    <Color x:Key="LeftScrollbarGradient">Plum</Color>
+    <Color x:Key="RightScrollbarGradient">MistyRose</Color>
+    <Color x:Key="ScrollBarPressedColor">Fuchsia</Color>
+    <Color x:Key="ScrollBarArrowColor">Magenta</Color>
+</ResourceDictionary>

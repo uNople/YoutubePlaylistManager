@@ -173,7 +173,7 @@ namespace YoutubeCleanupWpf
         
         private async Task OpenChannel(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}"));
         private async Task OpenPlaylist(PlaylistData playlistData) => await Task.Run(() => OpenLink($"https://www.youtube.com/playlist?list={playlistData.Id}"));
-        private static void ShowError(Exception ex) => MessageBox.Show(ex.ToString());
+        public static void ShowError(Exception ex) => MessageBox.Show(ex.ToString());
         private async Task OpenVideo(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/watch?v={videoData.Id}"));
 
         private static void OpenLink(string url)

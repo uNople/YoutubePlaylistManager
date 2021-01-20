@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
+using YoutubeCleanupWpf;
 
 namespace YouTubeCleanupWpf
 {
@@ -19,14 +20,12 @@ namespace YouTubeCleanupWpf
         public WpfSettings WpfSettings { get; set; }
         public ICommand SelectDbPathCommand { get; set; }
         public ICommand SelectClientSecretPathCommand { get; set; }
-        private static void ShowError(Exception ex) => MessageBox.Show(ex.ToString());
-        
 
         public SettingsWindowViewModel([NotNull] WpfSettings wpfSettings)
         {
             WpfSettings = wpfSettings;
-            SelectDbPathCommand = new RunMethodWithoutParameterCommand(SelectDbPath, ShowError);
-            SelectClientSecretPathCommand = new RunMethodWithoutParameterCommand(SelectClientSecret, ShowError);
+            SelectDbPathCommand = new RunMethodWithoutParameterCommand(SelectDbPath, MainWindowViewModel.ShowError);
+            SelectClientSecretPathCommand = new RunMethodWithoutParameterCommand(SelectClientSecret, MainWindowViewModel.ShowError);
         }
 
         private async Task SelectClientSecret()

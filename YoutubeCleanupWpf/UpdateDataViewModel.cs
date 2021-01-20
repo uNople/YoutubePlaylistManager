@@ -23,7 +23,7 @@ namespace YouTubeCleanupWpf
 
         public UpdateDataViewModel()
         {
-            CloseCommand = new RunMethodWithoutParameterCommand(Hide, ShowError);
+            CloseCommand = new RunMethodWithoutParameterCommand(Hide, MainWindowViewModel.ShowError);
         }
         
         public void PrependText(string message)
@@ -39,7 +39,5 @@ namespace YouTubeCleanupWpf
             await Task.Run(() => new Action(() => ParentWindow.Hide()).RunOnUiThread());
             MainWindowViewModel.UpdateHappening = false;
         }
-        
-        private static void ShowError(Exception ex) => MessageBox.Show(ex.ToString());
     }
 }

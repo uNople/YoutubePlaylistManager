@@ -150,8 +150,6 @@ namespace YouTubeCleanupWpf.ViewModels
 
         public async Task LoadData()
         {
-            await GetVideos(100);
-
             var playlists = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists();
             var playlistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems();
             _videosToPlaylistMap = playlistItems
@@ -161,6 +159,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
 
             AllPlaylists.AddRange(playlists);
+            AllPlaylists.OrderBy(x => x.Title).ForEach(x => Playlists.AddOnUi(_mapper.Map<WpfPlaylistData>(x)));
 
             VideoFilter.AddOnUi(new VideoFilter { Title = "All", FilterType = FilterType.All });
             VideoFilter.AddOnUi(new VideoFilter { Title = "Uncategorized", FilterType = FilterType.Uncategorized });
@@ -168,6 +167,8 @@ namespace YouTubeCleanupWpf.ViewModels
             {
                 VideoFilter.AddOnUi(new VideoFilter { Title = playlist.Title, FilterType = FilterType.PlaylistTitle });
             }
+            
+            await GetVideos(100);
         }
         
         private async Task OpenChannel(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}"));
@@ -292,36 +293,33 @@ namespace YouTubeCleanupWpf.ViewModels
         {
             if (video == null)
             {
-                Playlists.ClearOnUi();
+                foreach (var playlistItem in Playlists)
+                {
+                    if (playlistItem.VideoInPlaylist)
+                    {
+                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = false);
+                    }
+                }
                 return;
             }
-
-            // Read out the playlists this video is in
-            // Then tick/untick on the playlists object
-            // And update the source the playlists are bound to
-
-            var playlistData = new List<WpfPlaylistData>();
-            var allPlaylists = new List<PlaylistData>(AllPlaylists);
-
+            
             if (_videosToPlaylistMap.TryGetValue(video.Id, out var playlistItems))
             {
-                foreach (var playlistItem in playlistItems)
+                var playlistItemsHashSet = new HashSet<string>(playlistItems);
+                foreach (var playlistItem in Playlists)
                 {
-                    var matchingPlaylist = _mapper.Map<WpfPlaylistData>(allPlaylists.First(x => x.Id == playlistItem));
-                    matchingPlaylist.VideoInPlaylist = true;
-                    playlistData.Add(matchingPlaylist);
+                    if (playlistItemsHashSet.Contains(playlistItem.Id) && !playlistItem.VideoInPlaylist)
+                    {
+                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = true);
+                    }
+                    else if (playlistItem.VideoInPlaylist)
+                    {
+                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = false);
+                    }
                 }
             }
-
-            playlistData.AddRange(_mapper.Map<List<WpfPlaylistData>>(allPlaylists.Where(x => !playlistData.Any(y => y.Id == x.Id))).OrderBy(x => x.Title));
-
-            Playlists.ClearOnUi();
-            foreach (var playlist in playlistData)
-            {
-                Playlists.AddOnUi(playlist);
-            }
         }
-
+        
         private async Task GetVideos(int limit)
         {
             var videos = await _youTubeCleanupToolDbContextFactory.Create().GetVideos();

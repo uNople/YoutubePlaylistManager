@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,15 +17,32 @@ namespace YouTubeCleanupWpf.ViewModels
         public UpdateDataWindow ParentWindow { get; set; }
         public CancellationTokenSource CancellationTokenSource { get; internal set; }
         public MainWindowViewModel MainWindowViewModel { get; set; }
+        private ConcurrentQueue<string> PendingLogs { get; } = new ConcurrentQueue<string>();
+        private readonly Timer _renderLogsToUi;
 
         public UpdateDataViewModel()
         {
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, MainWindowViewModel.ShowError);
+            _renderLogsToUi = new Timer(DequeueLogs, null, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(200));
         }
-        
+
+        private void DequeueLogs(object? state)
+        {
+            var logMessage = "";
+            while (PendingLogs.TryDequeue(out var message))
+            {
+                logMessage = string.IsNullOrWhiteSpace(logMessage) ? message : $"{message}{Environment.NewLine}{logMessage}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(logMessage))
+            {
+                new Action(() => LogText = $"{logMessage}{Environment.NewLine}{LogText}").RunOnUiThread();
+            }
+        }
+
         public void PrependText(string message)
         {
-            new Action(() => LogText = $"{message}{Environment.NewLine}{LogText}").RunOnUiThread();
+            PendingLogs.Enqueue(message);
         }
 
         private async Task Hide()

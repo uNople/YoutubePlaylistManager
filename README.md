@@ -47,15 +47,15 @@ Go to Credential manager in windows (Control Panel -> User Accounts -> Credentia
 
 ## How to add migrations
 
-1. Make your change in YoutubeCleanupTool.Domain
+1. Make your change in YouTubeCleanupTool.Domain
 2. Go to package manager console in vs
-3. Change project to YoutubeCleanupTool.DataAccess
+3. Change project to YouTubeCleanupTool.DataAccess
 4. `Add-Migration MigrationName`
 
 ## General notes
 
 - The "playlists" returned from YouTube are a mix of YouTube and YouTube music / imported google play music
-- Youtube somehow knows how to hide "music" ones
+- YouTube somehow knows how to hide "music" ones
 - The Like playlists aren't returned at all (which is why in code I get the LL and LM playlists by name)
   - Liked playlist for YouTube is LL. Liked for YouTube music is LM
   - Watch later is another hard coded playlist. Code for that is WL

@@ -4,6 +4,8 @@ Tidy-ups:
 WPF:
 - Improve performance of log updating the UI (ui freezes when updates are happening and we have a lot of messages)
 - Create some icons (top-left as well as taskbar etc)
+- Add the 'Create API key credential' part
+  - Look into secret storage with .net core
 
 Fixing the new user experience:
 - Dialogs for entering secrets, populating paths etc

@@ -3,15 +3,15 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace YouTubeCleanupTool.DataAccess
 {
-    public class YoutubeCleanupToolDesignTimeDbContextFactory : IDesignTimeDbContextFactory<YoutubeCleanupToolDbContext>
+    public class YouTubeCleanupToolDesignTimeDbContextFactory : IDesignTimeDbContextFactory<YouTubeCleanupToolDbContext>
     {
-        public YoutubeCleanupToolDbContext CreateDbContext(string[] args)
+        public YouTubeCleanupToolDbContext CreateDbContext(string[] args)
         {
-            var builder = new DbContextOptionsBuilder<YoutubeCleanupToolDbContext>();
+            var builder = new DbContextOptionsBuilder<YouTubeCleanupToolDbContext>();
 
             builder.UseSqlite();
 
-            return new YoutubeCleanupToolDbContext(builder.Options, null);
+            return new YouTubeCleanupToolDbContext(builder.Options, null);
         }
     }
 }

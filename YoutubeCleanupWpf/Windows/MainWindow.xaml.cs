@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
-using YouTubeCleanupWpf;
+using YouTubeCleanupWpf.ViewModels;
 
-namespace YoutubeCleanupWpf
+namespace YouTubeCleanupWpf.Windows
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

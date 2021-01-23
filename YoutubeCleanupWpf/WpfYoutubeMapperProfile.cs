@@ -3,9 +3,9 @@ using YouTubeCleanupTool.Domain;
 
 namespace YouTubeCleanupWpf
 {
-    public class WpfYoutubeMapperProfile : Profile
+    public class WpfYouTubeMapperProfile : Profile
     {
-        public WpfYoutubeMapperProfile()
+        public WpfYouTubeMapperProfile()
         {
             CreateMap<WpfVideoData, VideoData>()
                 .ReverseMap();

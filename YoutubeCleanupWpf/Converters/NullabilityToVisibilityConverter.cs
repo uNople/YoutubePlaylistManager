@@ -1,24 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf.Converters
 {
-    public class InverseBooleanToVisibilityConverter : IValueConverter
+    public class NullabilityToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var convertedValue = false;
-            if (value is bool data)
+            if (value is WpfVideoData data)
             {
-                convertedValue = data;
+                if (data.IsDeletedFromYouTube)
+                    return Visibility.Hidden;
+                return Visibility.Visible;
             }
-            return convertedValue ? Visibility.Collapsed : Visibility.Visible;
+            return Visibility.Hidden;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

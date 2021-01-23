@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace YoutubeCleanupWpf
+namespace YouTubeCleanupWpf
 {
     public static class WpfExtensions
     {

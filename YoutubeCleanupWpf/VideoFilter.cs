@@ -1,4 +1,4 @@
-﻿namespace YoutubeCleanupWpf
+﻿namespace YouTubeCleanupWpf
 {
     public class VideoFilter
     {

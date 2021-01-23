@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Autofac;
-using Microsoft.EntityFrameworkCore;
 using YouTubeApiWrapper;
 using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
@@ -14,7 +13,7 @@ namespace YouTubeCleanupConsole
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule<YouTubeApiWrapperModule>();
-            builder.RegisterModule<YoutubeCleanupConsoleModule>();
+            builder.RegisterModule<YouTubeCleanupConsoleModule>();
             builder.RegisterModule<YouTubeCleanupToolDefaultModule>();
             builder.RegisterModule<YouTubeCleanupToolDataModule>();
             var container = builder.Build();

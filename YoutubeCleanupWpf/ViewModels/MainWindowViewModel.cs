@@ -11,14 +11,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
-using Accessibility;
 using AutoMapper;
 using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
-using YouTubeCleanupWpf;
+using YouTubeCleanupWpf.Converters;
+using YouTubeCleanupWpf.Windows;
 
-namespace YoutubeCleanupWpf
+namespace YouTubeCleanupWpf.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {

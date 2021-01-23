@@ -4,21 +4,19 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using AutoMapper.Configuration;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
-using YoutubeCleanupWpf;
+using YouTubeCleanupWpf.ViewModels;
 using Screen = System.Windows.Forms.Screen;
 
 namespace YouTubeCleanupWpf
 {
     public class WpfSettings : INotifyPropertyChanged
     {
-        private IConfigurationRoot _configuration;
+        private const int SaveDelayMs = 500;
         [JsonIgnore]
         public YouTubeServiceCreatorOptions YouTubeServiceCreatorOptions { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -64,7 +62,7 @@ namespace YouTubeCleanupWpf
                 _databasePath = value;
                 if (YouTubeServiceCreatorOptions != null)
                     YouTubeServiceCreatorOptions.DatabasePath = value;
-                _saveSettingsDeferTimer?.DeferByMilliseconds(5000);
+                _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
             }
         }
 
@@ -77,7 +75,7 @@ namespace YouTubeCleanupWpf
                 _clientSecretPath = value;
                 if (YouTubeServiceCreatorOptions != null)
                     YouTubeServiceCreatorOptions.ClientSecretPath = value;
-                _saveSettingsDeferTimer?.DeferByMilliseconds(5000);
+                _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
             }
         }
 
@@ -89,7 +87,7 @@ namespace YouTubeCleanupWpf
             {
                 _selectedMonitor = value;
                 SetCurrentScreen(value);
-                _saveSettingsDeferTimer?.DeferByMilliseconds(5000);
+                _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
             }
         }
 
@@ -101,7 +99,7 @@ namespace YouTubeCleanupWpf
             set
             {
                 _selectedTheme = value;
-                _saveSettingsDeferTimer?.DeferByMilliseconds(5000);
+                _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
                 LoadTheme(value);
             }
         }

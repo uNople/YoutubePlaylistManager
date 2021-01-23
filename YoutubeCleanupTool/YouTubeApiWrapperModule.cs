@@ -14,7 +14,7 @@ namespace YouTubeApiWrapper
             {
                 DatabasePath = "Application.db",
                 ClientSecretPath = @"C:\temp\client_secret.json",
-                FileDataStoreName = "Youtube.Api.Storage",
+                FileDataStoreName = "YouTube.Api.Storage",
             }).SingleInstance();
             builder.RegisterAutoMapper(typeof(YouTubeApiWrapperModule).Assembly);
             builder.RegisterType<YouTubeApi>().As<IYouTubeApi>();

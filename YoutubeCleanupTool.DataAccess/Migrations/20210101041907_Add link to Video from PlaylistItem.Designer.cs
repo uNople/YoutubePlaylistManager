@@ -8,7 +8,7 @@ using YouTubeCleanupTool.DataAccess;
 
 namespace YouTubeCleanupTool.DataAccess.Migrations
 {
-    [DbContext(typeof(YoutubeCleanupToolDbContext))]
+    [DbContext(typeof(YouTubeCleanupToolDbContext))]
     [Migration("20210101041907_Add link to Video from PlaylistItem")]
     partial class AddlinktoVideofromPlaylistItem
     {

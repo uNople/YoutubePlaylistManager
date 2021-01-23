@@ -2,7 +2,7 @@
 
 namespace YouTubeCleanupConsole
 {
-    public class YoutubeCleanupConsoleModule : Module
+    public class YouTubeCleanupConsoleModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {

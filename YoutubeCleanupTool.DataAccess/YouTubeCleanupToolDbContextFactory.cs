@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using YouTubeCleanupTool.Domain;
@@ -28,9 +23,9 @@ namespace YouTubeCleanupTool.DataAccess
             if (_youTubeCleanupToolDbContext != null)
                 return _youTubeCleanupToolDbContext;
 
-            var dbContextBuilder = new DbContextOptionsBuilder<YoutubeCleanupToolDbContext>();
+            var dbContextBuilder = new DbContextOptionsBuilder<YouTubeCleanupToolDbContext>();
             dbContextBuilder.UseSqlite(@$"Data Source={_youTubeServiceCreatorOptions.DatabasePath}");
-            _youTubeCleanupToolDbContext = new YoutubeCleanupToolDbContext(dbContextBuilder.Options, _mapper);
+            _youTubeCleanupToolDbContext = new YouTubeCleanupToolDbContext(dbContextBuilder.Options, _mapper);
 
             return _youTubeCleanupToolDbContext;
         }

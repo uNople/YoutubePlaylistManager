@@ -143,7 +143,7 @@ namespace YouTubeApiWrapper
             {
                 ApiKey = apiKey,
                 HttpClientInitializer = credential,
-                ApplicationName = "Youtube cleanup tool",
+                ApplicationName = "YouTube cleanup tool",
             });
             apiKey = null;
             return _youTubeServiceWrapper;

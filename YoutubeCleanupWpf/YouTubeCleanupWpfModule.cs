@@ -1,15 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Windows;
-using System.Windows.Media;
+﻿using System.IO;
 using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
-using YouTubeCleanupWpf;
+using YouTubeCleanupWpf.ViewModels;
+using YouTubeCleanupWpf.Windows;
 
-namespace YoutubeCleanupWpf
+namespace YouTubeCleanupWpf
 {
     public class YouTubeCleanupWpfModule : Module
     {

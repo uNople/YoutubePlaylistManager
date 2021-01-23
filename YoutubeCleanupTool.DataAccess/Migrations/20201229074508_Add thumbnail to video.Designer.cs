@@ -8,7 +8,7 @@ using YouTubeCleanupTool.DataAccess;
 
 namespace YouTubeCleanupTool.DataAccess.Migrations
 {
-    [DbContext(typeof(YoutubeCleanupToolDbContext))]
+    [DbContext(typeof(YouTubeCleanupToolDbContext))]
     [Migration("20201229074508_Add thumbnail to video")]
     partial class Addthumbnailtovideo
     {

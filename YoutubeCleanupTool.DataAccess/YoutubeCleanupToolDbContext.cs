@@ -9,11 +9,11 @@ using YouTubeCleanupTool.Domain;
 
 namespace YouTubeCleanupTool.DataAccess
 {
-    public class YoutubeCleanupToolDbContext : DbContext, IYouTubeCleanupToolDbContext
+    public class YouTubeCleanupToolDbContext : DbContext, IYouTubeCleanupToolDbContext
     {
         private readonly IMapper _mapper;
 
-        public YoutubeCleanupToolDbContext([NotNull] DbContextOptions options,
+        public YouTubeCleanupToolDbContext([NotNull] DbContextOptions options,
             IMapper mapper) : base(options)
         {
             _mapper = mapper;

@@ -1,15 +1,12 @@
-﻿using Autofac;
-using System;
+﻿using System;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Autofac;
 using YouTubeApiWrapper;
 using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
-using Autofac.Configuration;
-using YouTubeCleanupWpf;
+using YouTubeCleanupWpf.Windows;
 
-namespace YoutubeCleanupWpf
+namespace YouTubeCleanupWpf
 {
     /// <summary>
     /// Interaction logic for App.xaml

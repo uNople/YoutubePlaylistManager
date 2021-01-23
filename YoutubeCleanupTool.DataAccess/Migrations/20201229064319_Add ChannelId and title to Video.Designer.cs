@@ -8,7 +8,7 @@ using YouTubeCleanupTool.DataAccess;
 
 namespace YouTubeCleanupTool.DataAccess.Migrations
 {
-    [DbContext(typeof(YoutubeCleanupToolDbContext))]
+    [DbContext(typeof(YouTubeCleanupToolDbContext))]
     [Migration("20201229064319_Add ChannelId and title to Video")]
     partial class AddChannelIdandtitletoVideo
     {

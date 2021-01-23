@@ -8,7 +8,7 @@ using YouTubeCleanupTool.DataAccess;
 
 namespace YouTubeCleanupTool.DataAccess.Migrations
 {
-    [DbContext(typeof(YoutubeCleanupToolDbContext))]
+    [DbContext(typeof(YouTubeCleanupToolDbContext))]
     [Migration("20201223222610_Rename playlistdata columns")]
     partial class Renameplaylistdatacolumns
     {
@@ -18,7 +18,7 @@ namespace YouTubeCleanupTool.DataAccess.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.1");
 
-            modelBuilder.Entity("YoutubeCleanupTool.Domain.Category", b =>
+            modelBuilder.Entity("YouTubeCleanupTool.Domain.Category", b =>
                 {
                     b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
@@ -37,7 +37,7 @@ namespace YouTubeCleanupTool.DataAccess.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("YoutubeCleanupTool.Domain.PlaylistData", b =>
+            modelBuilder.Entity("YouTubeCleanupTool.Domain.PlaylistData", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -59,7 +59,7 @@ namespace YouTubeCleanupTool.DataAccess.Migrations
                     b.ToTable("Playlists");
                 });
 
-            modelBuilder.Entity("YoutubeCleanupTool.Domain.PlaylistItemData", b =>
+            modelBuilder.Entity("YouTubeCleanupTool.Domain.PlaylistItemData", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -103,7 +103,7 @@ namespace YouTubeCleanupTool.DataAccess.Migrations
                     b.ToTable("PlaylistItems");
                 });
 
-            modelBuilder.Entity("YoutubeCleanupTool.Domain.VideoData", b =>
+            modelBuilder.Entity("YouTubeCleanupTool.Domain.VideoData", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -131,32 +131,32 @@ namespace YouTubeCleanupTool.DataAccess.Migrations
                     b.ToTable("Videos");
                 });
 
-            modelBuilder.Entity("YoutubeCleanupTool.Domain.Category", b =>
+            modelBuilder.Entity("YouTubeCleanupTool.Domain.Category", b =>
                 {
-                    b.HasOne("YoutubeCleanupTool.Domain.VideoData", null)
+                    b.HasOne("YouTubeCleanupTool.Domain.VideoData", null)
                         .WithMany("Categories")
                         .HasForeignKey("VideoDataId");
                 });
 
-            modelBuilder.Entity("YoutubeCleanupTool.Domain.PlaylistItemData", b =>
+            modelBuilder.Entity("YouTubeCleanupTool.Domain.PlaylistItemData", b =>
                 {
-                    b.HasOne("YoutubeCleanupTool.Domain.PlaylistData", null)
+                    b.HasOne("YouTubeCleanupTool.Domain.PlaylistData", null)
                         .WithMany("PlaylistItems")
                         .HasForeignKey("PlaylistDataId");
 
-                    b.HasOne("YoutubeCleanupTool.Domain.VideoData", "Video")
+                    b.HasOne("YouTubeCleanupTool.Domain.VideoData", "Video")
                         .WithMany()
                         .HasForeignKey("VideoId");
 
                     b.Navigation("Video");
                 });
 
-            modelBuilder.Entity("YoutubeCleanupTool.Domain.PlaylistData", b =>
+            modelBuilder.Entity("YouTubeCleanupTool.Domain.PlaylistData", b =>
                 {
                     b.Navigation("PlaylistItems");
                 });
 
-            modelBuilder.Entity("YoutubeCleanupTool.Domain.VideoData", b =>
+            modelBuilder.Entity("YouTubeCleanupTool.Domain.VideoData", b =>
                 {
                     b.Navigation("Categories");
                 });

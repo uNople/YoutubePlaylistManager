@@ -8,7 +8,7 @@ using YouTubeCleanupTool.DataAccess;
 
 namespace YouTubeCleanupTool.DataAccess.Migrations
 {
-    [DbContext(typeof(YoutubeCleanupToolDbContext))]
+    [DbContext(typeof(YouTubeCleanupToolDbContext))]
     [Migration("20210105043856_Fix up foreign key issue between PlaylistData and VideoData")]
     partial class FixupforeignkeyissuebetweenPlaylistDataandVideoData
     {

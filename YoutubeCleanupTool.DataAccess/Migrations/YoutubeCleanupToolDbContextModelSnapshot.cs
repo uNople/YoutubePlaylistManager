@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace YouTubeCleanupTool.DataAccess.Migrations
 {
-    [DbContext(typeof(YoutubeCleanupToolDbContext))]
-    partial class YoutubeCleanupToolDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(YouTubeCleanupToolDbContext))]
+    partial class YouTubeCleanupToolDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

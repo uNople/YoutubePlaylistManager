@@ -6,7 +6,12 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <UserSecretsId>61d9295c-1565-4cb4-9027-d2fc8f548972</UserSecretsId>
+    <ApplicationIcon>icon_2I6_icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="icon_2I6_icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.1.0" />
@@ -26,6 +31,10 @@
     <ProjectReference Include="..\YouTubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj" />
     <ProjectReference Include="..\YouTubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
     <ProjectReference Include="..\YouTubeCleanupTool\YouTubeApiWrapper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="icon_2I6_icon.ico" />
   </ItemGroup>
 
   <ItemGroup>

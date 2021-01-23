@@ -10,7 +10,7 @@
         Title="YouTube Cleanup" Height="864" Width="1152"
         Loaded="MainWindow_OnLoaded"
         WindowStartupLocation="Manual"
-        x:Name="Ui"
+        x:Name="Ui" Icon="/icon_2I6_icon.ico"
         >
     <Window.Resources>
         <converters:NullabilityToVisibilityConverter x:Key="NullabilityToVisibilityConverter" />

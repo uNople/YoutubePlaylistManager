@@ -2,7 +2,6 @@ Next/Current:
 
 Tidy-ups:
 WPF:
-- Create some icons (top-left as well as taskbar etc)
 - Add the 'Create API key credential' part
 
 Bugs:

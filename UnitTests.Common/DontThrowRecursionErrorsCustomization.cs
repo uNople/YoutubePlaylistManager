@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using AutoFixture;
 
-namespace YouTubeCleanupTool.Domain.UnitTests
+namespace UnitTests.Common
 {
     public class DontThrowRecursionErrorsCustomization : ICustomization
     {

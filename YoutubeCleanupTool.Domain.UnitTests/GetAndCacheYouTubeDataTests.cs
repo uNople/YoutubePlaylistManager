@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using UnitTests.Common;
 using Xunit;
 using Xunit.Abstractions;
 using YouTubeCleanupTool.DataAccess;
@@ -41,7 +42,7 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             var videos = fixture.CreateMany<VideoData>(2).ToList();
             videos.ForEach(x => x.IsDeletedFromYouTube = false);
 
-            youTubeApi.GetVideos(Arg.Any<List<string>>()).Returns(videos.ToAsyncEnumerable());
+            youTubeApi.GetVideos(Arg.Any<List<string>>()).Returns(TestExtensions.ToAsyncEnumerable(videos));
 
             var callback = new Action<VideoData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
 
@@ -74,7 +75,7 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             var videos = fixture.CreateMany<VideoData>(3).ToList();
             videos.ForEach(x => x.IsDeletedFromYouTube = false);
 
-            youTubeApi.GetVideos(Arg.Any<List<string>>()).Returns(videos.ToAsyncEnumerable());
+            youTubeApi.GetVideos(Arg.Any<List<string>>()).Returns(TestExtensions.ToAsyncEnumerable(videos));
 
             var callback = new Action<VideoData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
 
@@ -96,7 +97,7 @@ namespace YouTubeCleanupTool.Domain.UnitTests
                 GetAndCacheYouTubeData getAndCacheYouTubeData)
         {
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
-            youTubeApi.GetPlaylists().Returns(playlistData.ToAsyncEnumerable());
+            youTubeApi.GetPlaylists().Returns(TestExtensions.ToAsyncEnumerable(playlistData));
 
             var callback = new Action<PlaylistData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
 
@@ -118,7 +119,7 @@ namespace YouTubeCleanupTool.Domain.UnitTests
                 GetAndCacheYouTubeData getAndCacheYouTubeData)
         {
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
-            youTubeApi.GetPlaylistItems(Arg.Any<List<PlaylistData>>()).Returns(playlistItemData.ToAsyncEnumerable());
+            youTubeApi.GetPlaylistItems(Arg.Any<List<PlaylistData>>()).Returns(TestExtensions.ToAsyncEnumerable(playlistItemData));
 
             var callback = new Action<PlaylistItemData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
 

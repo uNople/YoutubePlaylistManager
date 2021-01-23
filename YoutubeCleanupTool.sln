@@ -19,6 +19,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain.U
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupWpf", "YoutubeCleanupWpf\YouTubeCleanupWpf.csproj", "{1F01C4B1-68CA-4752-B73F-3E0ED9A63876}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTubeCleanupWpf.UnitTests", "YouTubeCleanupWpfTests\YouTubeCleanupWpf.UnitTests.csproj", "{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{36D9F9BA-A7CE-4F8A-A392-2072796B978B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests.Common", "UnitTests.Common\UnitTests.Common.csproj", "{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,9 +51,22 @@ Global
 		{1F01C4B1-68CA-4752-B73F-3E0ED9A63876}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F01C4B1-68CA-4752-B73F-3E0ED9A63876}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F01C4B1-68CA-4752-B73F-3E0ED9A63876}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{351FA735-44D5-4D25-8AFC-3FAF9FBBA24B} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
+		{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
+		{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11625CAC-0363-41BE-AF45-4A47703EE566}

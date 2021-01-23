@@ -7,7 +7,7 @@ namespace YouTubeCleanupWpf.Windows
     /// <summary>
     /// Interaction logic for UpdateDataWindow.xaml
     /// </summary>
-    public partial class UpdateDataWindow : Window
+    public partial class UpdateDataWindow : Window, IUpdateDataWindow
     {
         private readonly UpdateDataViewModel _updateDataViewModel;
         private readonly WpfSettings _wpfSettings;
@@ -33,5 +33,10 @@ namespace YouTubeCleanupWpf.Windows
             e.Cancel = true;
             Hide();
         }
+    }
+
+    public interface IUpdateDataWindow
+    {
+        void Show();
     }
 }

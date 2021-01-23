@@ -15,11 +15,15 @@ namespace YouTubeCleanupWpf
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<MainWindow>();
-            builder.RegisterType<UpdateDataWindow>();
-            builder.RegisterType<SettingsWindow>();
+            builder.RegisterType<UpdateDataWindow>().As<IUpdateDataWindow>();
+            builder.RegisterType<SettingsWindow>().As<ISettingsWindow>();
             builder.RegisterType<MainWindowViewModel>().SingleInstance();
-            builder.RegisterType<UpdateDataViewModel>().SingleInstance();
+            builder.RegisterType<UpdateDataViewModel>()
+                .As<IUpdateDataViewModel>()
+                .As<UpdateDataViewModel>()
+                .SingleInstance();
             builder.RegisterType<SettingsWindowViewModel>().SingleInstance();
+            builder.RegisterType<WindowService>().As<IWindowService>();
             builder.RegisterAutoMapper(typeof(YouTubeCleanupWpfModule).Assembly);
 
             builder.Register(x =>

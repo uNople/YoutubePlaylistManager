@@ -1,15 +1,30 @@
-﻿using Autofac;
+﻿using System.Diagnostics.CodeAnalysis;
+using Autofac;
+using YouTubeCleanupWpf.Windows;
 
 namespace YouTubeCleanupWpf
 {
-    public class WindowService
+    public class WindowService : IWindowService
     {
-        private readonly IContainer _container;
+        private readonly ISettingsWindow _settingsWindow;
+        private readonly IUpdateDataWindow _updateDataWindow;
 
-        public WindowService(IContainer container)
+        public WindowService([NotNull] ISettingsWindow settingsWindow,
+            [NotNull] IUpdateDataWindow updateDataWindow)
         {
-            _container = container;
+            _settingsWindow = settingsWindow;
+            _updateDataWindow = updateDataWindow;
         }
 
+
+        public void ShowSettingsWindow()
+        {
+            _settingsWindow.Show();
+        }
+
+        public void ShowUpdateDataWindow()
+        {
+            _updateDataWindow.Show();
+        }
     }
 }

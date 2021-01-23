@@ -9,13 +9,13 @@ using YouTubeCleanupWpf.Windows;
 
 namespace YouTubeCleanupWpf.ViewModels
 {
-    public class UpdateDataViewModel : INotifyPropertyChanged
+    public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public string LogText { get; set; }
         public ICommand CloseCommand { get; set; }
         public UpdateDataWindow ParentWindow { get; set; }
-        public CancellationTokenSource CancellationTokenSource { get; internal set; }
+        public CancellationTokenSource CancellationTokenSource { get; set; }
         public MainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> PendingLogs { get; } = new ConcurrentQueue<string>();
         private readonly Timer _renderLogsToUi;
@@ -53,5 +53,12 @@ namespace YouTubeCleanupWpf.ViewModels
             await Task.Run(() => new Action(() => ParentWindow.Hide()).RunOnUiThread());
             MainWindowViewModel.UpdateHappening = false;
         }
+    }
+
+    public interface IUpdateDataViewModel
+    {
+        CancellationTokenSource CancellationTokenSource { get; set; }
+        MainWindowViewModel MainWindowViewModel { get; set; }
+        void PrependText(string message);
     }
 }

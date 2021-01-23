@@ -7,7 +7,7 @@ namespace YouTubeCleanupWpf.Windows
     /// <summary>
     /// Interaction logic for SettingsWindow.xaml
     /// </summary>
-    public partial class SettingsWindow : Window
+    public partial class SettingsWindow : Window, ISettingsWindow
     {
         private readonly SettingsWindowViewModel _settingsWindowViewModel;
         private readonly WpfSettings _wpfSettings;
@@ -32,5 +32,10 @@ namespace YouTubeCleanupWpf.Windows
             e.Cancel = true;
             Hide();
         }
+    }
+
+    public interface ISettingsWindow
+    {
+        void Show();
     }
 }

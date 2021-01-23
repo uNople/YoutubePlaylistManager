@@ -4,10 +4,6 @@ Tidy-ups:
 WPF:
 - Create some icons (top-left as well as taskbar etc)
 - Add the 'Create API key credential' part
-  - Look into secret storage with .net core
-- Delete the console app
-- Delete associated readme
-- Update readme with features
 
 Bugs:
 - Type in a, then type in SDF before it tells you how many results there were from the search
@@ -15,9 +11,10 @@ Bugs:
 - The first time ticking/unticking a video from a playlist it's slow. After that it's fine
   Probably becasue the DI hasn't initialized the google stuff yet. Maybe it's a good idea to call something on a background thread to initialize it?
 - Closing is still soul-crushingly slow (~3s)
+- Refreshing the token freezes the UI on update
 
 Fixing the new user experience:
-- Dialogs for entering secrets, populating paths etc
+- Dialog for entering api key + client secret path
 - When getting playlists for the first time, they aren't updated in the UI (either in the combobox or when selecting a video)
 - Videos aren't populated in the UI when you have nothing unless you select All
 
@@ -45,5 +42,5 @@ Deferred
 - Instead of wrapping HttpClient, use HttpClientFactory and create a messagehandler that we can mock out instead
 	https://www.nocture.dk/2013/05/21/csharp-unit-testing-classes-with-httpclient-dependence-using-autofixture/
 	https://stackoverflow.com/questions/54227487/how-to-mock-the-new-httpclientfactory-in-net-core-2-1-using-moq
-- Get EF Logging working in the console somewhere in the wpf app, and the console app
+- Get EF Logging working in the console somewhere in the wpf app
 - Remove recursion in models - do it a more proper way (like just have the IDs, and read from the DB again)

@@ -20,16 +20,16 @@ namespace YouTubeApiWrapper
     public class YouTubeApi : IYouTubeApi
     {
         private readonly IMapper _mapper;
-        private readonly ICredentialManagerWrapper _credentialManagerWrapper;
+        private readonly IAppSettings _appSettings;
         private readonly YouTubeServiceCreatorOptions _youTubeServiceCreatorOptions;
         private IYouTubeServiceWrapper _youTubeServiceWrapper;
 
         public YouTubeApi([NotNull] IMapper mapper,
-            [NotNull] ICredentialManagerWrapper credentialManagerWrapper,
+            [NotNull] IAppSettings appSettings,
             [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions)
         {
             _mapper = mapper;
-            _credentialManagerWrapper = credentialManagerWrapper;
+            _appSettings = appSettings;
             _youTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
         }
 
@@ -115,8 +115,6 @@ namespace YouTubeApiWrapper
                 return _youTubeServiceWrapper;
 
             // TODO: if requesting new scopes, delete %appdata%\_youTubeServiceCreatorOptions.FileDataStoreName\.* - this is where the refresh/accesstoken/scopes are stored
-
-            var apiKey = _credentialManagerWrapper.GetApiKey();
             UserCredential credential;
             using (var stream = new FileStream(_youTubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
             {
@@ -141,11 +139,10 @@ namespace YouTubeApiWrapper
             // Create the service.
             _youTubeServiceWrapper = new YouTubeServiceWrapper(new BaseClientService.Initializer()
             {
-                ApiKey = apiKey,
+                ApiKey = _appSettings.ApiKey,
                 HttpClientInitializer = credential,
                 ApplicationName = "YouTube cleanup tool",
             });
-            apiKey = null;
             return _youTubeServiceWrapper;
         }
     }

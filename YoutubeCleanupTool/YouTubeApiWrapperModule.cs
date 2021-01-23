@@ -9,7 +9,6 @@ namespace YouTubeApiWrapper
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<CredentialManagerWrapper>().As<ICredentialManagerWrapper>();
             builder.RegisterInstance(new YouTubeServiceCreatorOptions
             {
                 DatabasePath = "Application.db",

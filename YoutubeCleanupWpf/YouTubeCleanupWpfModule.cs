@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
@@ -37,6 +39,16 @@ namespace YouTubeCleanupWpf
                 })
                 .OnActivating(x => x.Instance.InitializeSettings())
                 .SingleInstance();
+
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .AddUserSecrets<App>()
+                .Build();
+            
+            var section = config.GetSection(nameof(AppSettings));
+            var appSettingsConfig = section.Get<AppSettings>();
+            builder.RegisterInstance(appSettingsConfig).As<IAppSettings>().SingleInstance();
         }
     }
 }

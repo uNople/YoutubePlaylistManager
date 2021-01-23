@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
+using YouTubeApiWrapper.Interfaces;
 using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.Converters;
@@ -28,8 +29,7 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
             [NotNull] UpdateDataViewModel updateDataViewModel, 
             [NotNull] UpdateDataWindow updateDataWindow,
-            [NotNull] SettingsWindow settingsWindow,
-            [NotNull] SettingsWindowViewModel settingsWindowViewModel
+            [NotNull] SettingsWindow settingsWindow
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -51,7 +51,6 @@ namespace YouTubeCleanupWpf.ViewModels
             _updateDataViewModel = updateDataViewModel;
             _updateDataWindow = updateDataWindow;
             _settingsWindow = settingsWindow;
-            _settingsWindowViewModel = settingsWindowViewModel;
         }
 
         private readonly DeferTimer _selectedFilterDataFromComboBoxDeferTimer;
@@ -61,12 +60,11 @@ namespace YouTubeCleanupWpf.ViewModels
         private Dictionary<string, List<string>> _videosToPlaylistMap = new Dictionary<string, List<string>>();
         private readonly IGetAndCacheYouTubeData _getAndCacheYouTubeData;
         private VideoFilter _preservedFilter;
-        private UpdateDataViewModel _updateDataViewModel;
-        private UpdateDataWindow _updateDataWindow;
+        private readonly UpdateDataViewModel _updateDataViewModel;
+        private readonly UpdateDataWindow _updateDataWindow;
         private List<PlaylistData> AllPlaylists { get; set; }
         private WpfVideoData _selectedVideo;
-        private SettingsWindow _settingsWindow;
-        private SettingsWindowViewModel _settingsWindowViewModel;
+        private readonly SettingsWindow _settingsWindow;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public ICommand OpenVideoCommand { get; set; }
@@ -109,6 +107,7 @@ namespace YouTubeCleanupWpf.ViewModels
         }
 
         private string _searchText;
+
         public string SearchText
         {
             get => _searchText;
@@ -119,7 +118,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     _searchTypeDelayDeferTimer.DeferByMilliseconds(200);
             }
         }
-        
+
         private async Task UpdateData()
         {
             var cancellationTokenSource = new CancellationTokenSource();
@@ -176,7 +175,7 @@ namespace YouTubeCleanupWpf.ViewModels
         public static void ShowError(Exception ex) => MessageBox.Show(ex.ToString());
         private async Task OpenVideo(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/watch?v={videoData.Id}"));
 
-        private static void OpenLink(string url)
+        public static void OpenLink(string url)
         {
             // Why aren't we just using process.start? This is why: https://github.com/dotnet/runtime/issues/17938
             var proc = new Process()

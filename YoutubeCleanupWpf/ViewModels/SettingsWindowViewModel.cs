@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Win32;
+using YouTubeApiWrapper.Interfaces;
 using YouTubeCleanupWpf.Converters;
 
 namespace YouTubeCleanupWpf.ViewModels
@@ -14,12 +15,28 @@ namespace YouTubeCleanupWpf.ViewModels
         public WpfSettings WpfSettings { get; set; }
         public ICommand SelectDbPathCommand { get; set; }
         public ICommand SelectClientSecretPathCommand { get; set; }
+        public ICommand UpdateApiKeyCommand { get; set; }
+        public ICommand OpenDeveloperConsoleCommand { get; set; }
+
 
         public SettingsWindowViewModel([NotNull] WpfSettings wpfSettings)
         {
             WpfSettings = wpfSettings;
             SelectDbPathCommand = new RunMethodWithoutParameterCommand(SelectDbPath, MainWindowViewModel.ShowError);
             SelectClientSecretPathCommand = new RunMethodWithoutParameterCommand(SelectClientSecret, MainWindowViewModel.ShowError);
+            UpdateApiKeyCommand = new RunMethodWithoutParameterCommand(UpdateApiKey, MainWindowViewModel.ShowError);
+            OpenDeveloperConsoleCommand = new RunMethodWithoutParameterCommand(OpenDeveloperConsole, MainWindowViewModel.ShowError);
+
+        }
+        
+        private async Task OpenDeveloperConsole()
+        {
+            MainWindowViewModel.OpenLink("https://console.developers.google.com/?pli=1");
+        }
+        
+        private async Task UpdateApiKey()
+        {
+            // TODO: prompt to add secret somehow
         }
 
         private async Task SelectClientSecret()

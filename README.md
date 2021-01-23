@@ -15,13 +15,9 @@ I also wanted a good way of finding out if a 'video' was actually music, so I co
 
 # What's currently implemented
 
-A console UI to handle getting playlist/video data and save to a Sqlite DB
-- Get playlists / playlist items / videos
-- Search
-
 A WPF UI to handle adding/removing videos to/from playlists
-- This uses the DB the console app generates
 - Has thumbnails etc to show data of what you're editing
+- Has dark mode + pink mode
 
 To come:
 - UI improvements
@@ -41,9 +37,10 @@ Go to Credential manager in windows (Control Panel -> User Accounts -> Credentia
 
 # Dev notes
 
-- Some paths are hardcoded for now
-  - the DB path the WPF app looks for
-  - client_secret.json needs to be in c:\temp
+Run the following from the YouTubeCleanupWpf folder to set the api key
+
+`dotnet user-secrets set "AppSettings:ApiKey" "yourgoogleapikeyhere"`
+
 
 ## How to add migrations
 

@@ -26,18 +26,12 @@ namespace YouTubeCleanupWpf.UnitTests
         }
 
         [Theory, AutoNSubstituteData]
-        public async Task When_data_exists_in_playlists_and_update_happens_Then_new_data_is_inserted_in_the_right_place(
+        public async Task When_new_playlist_created_on_YouTube_and_refresh_happens_Then_playlist_inserted_into_ui_in_the_correct_location(
             [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
             [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-            [Frozen] IMapper mapper,
-            [NoAutoProperties]MainWindowViewModel mainWindowViewModel,
-            IFixture fixture
+            [NoAutoProperties]MainWindowViewModel mainWindowViewModel
             )
         {
-            // kinda redonk - can I just wire up automapper in the test projects?
-            mapper.Map<WpfPlaylistData>(Arg.Any<PlaylistData>())
-                .Returns(x => new WpfPlaylistData() {Id = x.ArgAt<PlaylistData>(0).Id, Title = x.ArgAt<PlaylistData>(0).Title});
-
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             var playlistData = new List<PlaylistData>()
             {
@@ -70,7 +64,52 @@ namespace YouTubeCleanupWpf.UnitTests
                 new() { Id = "2", Title = "c"}
             });
         }
+        
+        [Theory, AutoNSubstituteData]
+        public async Task When_playlist_deleted_from_YouTube_and_refresh_happens_Then_playlist_removed_from_ui(
+            [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+            [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
+            [NoAutoProperties]MainWindowViewModel mainWindowViewModel
+        )
+        {
+            youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
+            var playlistData = new List<PlaylistData>()
+            {
+                new() { Id = "2", Title = "c"},
+                new() { Id = "1", Title = "a"},
+            };
+            var playlistDataTwo = new List<PlaylistData>()
+            {
+                new() { Id = "2", Title = "c"},
+            };
+            
+            youTubeCleanupToolDbContext.GetPlaylists().Returns(playlistData, playlistDataTwo);
 
-        public async Task When_data_exists_in_playlists_and_update_happens_Then_deleted_data_is_removed() {}
+            await mainWindowViewModel.LoadData();
+            mainWindowViewModel.Playlists.Should().BeEquivalentTo(new List<WpfPlaylistData>
+            {
+                new() { Id = "1", Title = "a"},
+                new() { Id = "2", Title = "c"}
+            });
+
+            await mainWindowViewModel.LoadData();
+            mainWindowViewModel.Playlists.Should().BeEquivalentTo(new List<WpfPlaylistData>
+            {
+                new() { Id = "2", Title = "c"}
+            });
+        }
+        
+        [Theory, AutoNSubstituteData]
+        public async Task When_video_added_to_playlist_on_YouTube_and_refresh_happens_Then_video_inserted_into_ui_in_the_correct_location()
+        {
+
+        }
+        
+        [Theory, AutoNSubstituteData]
+        public async Task When_video_removed_from_playlist_on_YouTube_and_refresh_happens_Then_video_removed_from_ui()
+        {
+
+        }
+
     }
 }

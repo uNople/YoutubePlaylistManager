@@ -2,6 +2,11 @@ Next/Current:
 
 Tidy-ups:
 WPF:
+- Finish up the 'Update UI when we do stuff on YouTube' work
+  - Add playlist (done)
+  - Remove playlist (done - potential bug)
+  - Add a video to the playlist we're looking at
+  - Remove a video from the playlist we're looking at
 - Add the 'Create API key credential' part
 
 Bugs:
@@ -10,7 +15,8 @@ Bugs:
 - The first time ticking/unticking a video from a playlist it's slow. After that it's fine
   Probably becasue the DI hasn't initialized the google stuff yet. Maybe it's a good idea to call something on a background thread to initialize it?
 - Closing is still soul-crushingly slow (~3s)
-- Refreshing the token freezes the UI on update
+- Refreshing the token freezes the UI on update, you have to close the app to resolve
+- When deleting a playlist from google and pressing refresh in the UI, the top playlist got duplicated (didn't try to reproduce)
 
 Fixing the new user experience:
 - Dialog for entering api key + client secret path

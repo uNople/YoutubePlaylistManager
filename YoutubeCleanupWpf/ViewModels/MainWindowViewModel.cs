@@ -168,14 +168,30 @@ namespace YouTubeCleanupWpf.ViewModels
             else
             {
                 var comparer = new PlaylistDataSorter();
-                foreach (var playlist in playlists)
+                
+                var mappedPlaylists = _mapper.Map<List<WpfPlaylistData>>(playlists);
+                foreach (var playlist in mappedPlaylists)
                 {
-                    var wpfPlaylistData = _mapper.Map<WpfPlaylistData>(playlist);
-                    var compareResult = Playlists.ToList().BinarySearch(wpfPlaylistData, comparer);
+                    var compareResult = Playlists.ToList().BinarySearch(playlist, comparer);
                     if (compareResult < 0)
                     {
-                        Playlists.Insert(~compareResult, wpfPlaylistData);
+                        // InsertOnUi?
+                        Playlists.Insert(~compareResult, playlist);
                     }
+                }
+
+                var playlistsToRemove = new List<WpfPlaylistData>();
+                foreach (var playlist in Playlists)
+                {
+                    if (!mappedPlaylists.Any(x => x.Id == playlist.Id))
+                    {
+                        playlistsToRemove.Add(playlist);
+                    }
+                }
+                
+                foreach (var removeThis in playlistsToRemove)
+                {
+                    Playlists.Remove(removeThis);
                 }
             }
 

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.YouTube.v3.Data;
 using YouTubeApiWrapper.Interfaces;
 using YouTubeCleanupTool.Domain;
 
@@ -43,12 +44,26 @@ namespace YouTubeApiWrapper
             }
         }
 
-        public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(List<PlaylistData> playlists)
+        public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(List<PlaylistData> playlists, Func<string, Task> playlistGotDeleted)
         {
             foreach (var playlist in playlists)
             {
-                var playlistItems = await HandleSecretRevocation(async getNewToken => await GetYouTubeWrapper(getNewToken).GetPlaylistItems(playlist.Id));
-                
+                List<PlaylistItem> playlistItems = null;
+                try
+                {
+                    playlistItems = await HandleSecretRevocation(async getNewToken => await GetYouTubeWrapper(getNewToken).GetPlaylistItems(playlist.Id));
+                    
+                }
+                catch (Google.GoogleApiException ex)
+                {
+                    if (ex.Message.ContainsCi("[playlistNotFound]"))
+                    {
+                        await playlistGotDeleted(playlist.Id);
+                        continue;
+                    }
+                    throw;
+                }
+
                 foreach (var playlistItem in playlistItems)
                 {
                     yield return _mapper.Map<PlaylistItemData>(playlistItem);

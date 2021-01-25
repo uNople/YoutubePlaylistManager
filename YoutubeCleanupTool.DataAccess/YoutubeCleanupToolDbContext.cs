@@ -63,6 +63,13 @@ namespace YouTubeCleanupTool.DataAccess
         }
 
         public void RemovePlaylistItem(PlaylistItemData playlistItem) => PlaylistItems.Remove(playlistItem);
+        public void RemovePlaylist(string playlistId)
+        {
+            var playlistToRemove = Playlists.FirstOrDefault(x => x.Id == playlistId);
+            if (playlistToRemove != null)
+                Playlists.Remove(playlistToRemove);
+        }
+
         public async Task<List<VideoData>> GetUncategorizedVideos(List<string> playlistTitles)
         {
             var playlists = (await Playlists

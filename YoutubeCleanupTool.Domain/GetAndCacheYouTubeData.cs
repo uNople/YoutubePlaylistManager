@@ -37,7 +37,7 @@ namespace YouTubeCleanupTool.Domain
         public async Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback)
         {
             var playlists = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists();
-            await foreach (var playlistItem in _youTubeApi.GetPlaylistItems(playlists))
+            await foreach (var playlistItem in _youTubeApi.GetPlaylistItems(playlists, RemovePlaylist))
             {
                 var result = await _youTubeCleanupToolDbContextFactory.Create().UpsertPlaylistItem(playlistItem);
                 callback(playlistItem, result);
@@ -124,6 +124,12 @@ namespace YouTubeCleanupTool.Domain
 
             await _youTubeApi.RemoveVideoFromPlaylist(playlistItem.Id);
             _youTubeCleanupToolDbContextFactory.Create().RemovePlaylistItem(playlistItem);
+            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync();
+        }
+
+        public async Task RemovePlaylist(string playlistId)
+        {
+            _youTubeCleanupToolDbContextFactory.Create().RemovePlaylist(playlistId);
             await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync();
         }
     }

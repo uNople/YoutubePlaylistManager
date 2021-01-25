@@ -13,6 +13,6 @@ namespace YouTubeCleanupTool.Domain
         public string PrivacyStatus { get; set; }
         public string Kind { get; set; }
         public string ThumbnailUrl { get; set; }
-        public List<PlaylistItemData> PlaylistItems { get; set; }
+        public List<PlaylistItemData> PlaylistItems { get; set; } = new();
     }
 }

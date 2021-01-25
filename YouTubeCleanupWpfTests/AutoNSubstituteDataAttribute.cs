@@ -1,8 +1,14 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using AutoFixture.Xunit2;
+using UnitTests.Common;
 
-namespace UnitTests.Common
+namespace YouTubeCleanupWpf.UnitTests
 {
     public class AutoNSubstituteDataAttribute : AutoDataAttribute
     {
@@ -11,8 +17,9 @@ namespace UnitTests.Common
                 new AutoNSubstituteCustomization() { ConfigureMembers = false },
                 // TODO: Need to redesign models etc so we don't have to do this. It's happening because
                 // VideoData -> List<PlaylistData> -> VideoData -> etc
-                new DontThrowRecursionErrorsCustomization()
-                )))
+                new DontThrowRecursionErrorsCustomization(),
+                new AutoMapperCustomization()
+            )))
         {
         }
     }

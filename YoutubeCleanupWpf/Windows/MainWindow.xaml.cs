@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows;
 using YouTubeCleanupWpf.ViewModels;
@@ -30,7 +31,17 @@ namespace YouTubeCleanupWpf.Windows
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            Task.Run(async () => await _mainWindowViewModel.LoadData());
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await _mainWindowViewModel.LoadData();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            });
         }
     }
 }

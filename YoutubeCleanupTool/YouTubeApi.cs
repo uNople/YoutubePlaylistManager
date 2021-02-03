@@ -36,7 +36,7 @@ namespace YouTubeApiWrapper
 
         public async IAsyncEnumerable<PlaylistData> GetPlaylists()
         {
-            var playlists = await HandleSecretRevocation(async getNewToken => await GetYouTubeWrapper(getNewToken).GetPlaylists());
+            var playlists = await HandleSecretRevocation(async getNewToken => await (await CreateYouTubeService(getNewToken)).GetPlaylists());
             
             foreach (var playlist in playlists)
             {
@@ -51,7 +51,7 @@ namespace YouTubeApiWrapper
                 List<PlaylistItem> playlistItems = null;
                 try
                 {
-                    playlistItems = await HandleSecretRevocation(async getNewToken => await GetYouTubeWrapper(getNewToken).GetPlaylistItems(playlist.Id));
+                    playlistItems = await HandleSecretRevocation(async getNewToken => await (await CreateYouTubeService(getNewToken)).GetPlaylistItems(playlist.Id));
                     
                 }
                 catch (Google.GoogleApiException ex)
@@ -76,7 +76,7 @@ namespace YouTubeApiWrapper
             foreach (var videoId in videoIdsToGet)
             {
                 var video = (await HandleSecretRevocation(async getNewToken
-                    => await GetYouTubeWrapper(getNewToken).GetVideos(videoId))).FirstOrDefault();
+                    => await (await CreateYouTubeService(getNewToken)).GetVideos(videoId))).FirstOrDefault();
 
                 if (video == null)
                 {
@@ -93,7 +93,7 @@ namespace YouTubeApiWrapper
         {
             return await HandleSecretRevocation(async getNewToken =>
             {
-                var playlistItem = await GetYouTubeWrapper(getNewToken).AddVideoToPlaylist(playlistId, videoId);
+                var playlistItem = await (await CreateYouTubeService(getNewToken)).AddVideoToPlaylist(playlistId, videoId);
                 return _mapper.Map<PlaylistItemData>(playlistItem);
             });
         }
@@ -102,7 +102,7 @@ namespace YouTubeApiWrapper
         {
             await HandleSecretRevocation(async getNewToken =>
             {
-                await GetYouTubeWrapper(getNewToken).RemoveVideoFromPlaylist(playlistItemId);
+                await (await CreateYouTubeService(getNewToken)).RemoveVideoFromPlaylist(playlistItemId);
                 return Task.CompletedTask;
             });
         }
@@ -118,12 +118,7 @@ namespace YouTubeApiWrapper
                 return await methodWhichCouldResultInNoAuthentication(true);
             }
         }
-
-        private IYouTubeServiceWrapper GetYouTubeWrapper(bool getNewToken)
-        {
-            return CreateYouTubeService(getNewToken).GetAwaiter().GetResult();
-        }
-
+        
         private async Task<IYouTubeServiceWrapper> CreateYouTubeService(bool getNewToken)
         {
             if (_youTubeServiceWrapper != null && !getNewToken)

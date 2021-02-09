@@ -38,6 +38,10 @@ namespace YouTubeApiWrapper
                 .ForPath(playlistItemData => playlistItemData.Title, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Snippet.Title))
                 .ForPath(playlistItemData => playlistItemData.PlaylistDataId, playlistItemData => playlistItemData.MapFrom(playlistItem => playlistItem.Snippet.PlaylistId))
                 .ReverseMap();
+
+            CreateMap<PlaylistItemData, PlaylistItemData>();
+            CreateMap<PlaylistData, PlaylistData>();
+            CreateMap<VideoData, VideoData>();
         }
 
         private static List<Category> MapCategories(Video video)

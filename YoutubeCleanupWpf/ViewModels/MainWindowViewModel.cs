@@ -160,6 +160,8 @@ namespace YouTubeCleanupWpf.ViewModels
                 ?.Where(x => x.VideoId != null)
                 .GroupBy(x => x.VideoId)
                 .ToDictionary(x => x.Key, x => x.Select(y => y.PlaylistDataId).ToList());
+            
+            var comparer = new DataSorter();
 
             if (Playlists.Count == 0)
             {
@@ -167,8 +169,6 @@ namespace YouTubeCleanupWpf.ViewModels
             }
             else
             {
-                var comparer = new PlaylistDataSorter();
-                
                 var mappedPlaylists = _mapper.Map<List<WpfPlaylistData>>(playlists);
                 foreach (var playlist in mappedPlaylists)
                 {

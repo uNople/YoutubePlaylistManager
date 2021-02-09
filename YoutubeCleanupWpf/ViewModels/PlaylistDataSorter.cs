@@ -4,12 +4,13 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YouTubeCleanupTool.Domain;
 
 namespace YouTubeCleanupWpf.ViewModels
 {
-    public class PlaylistDataSorter : IComparer<WpfPlaylistData>
+    public class DataSorter : IComparer<IData>
     {
-        public int Compare(WpfPlaylistData x, WpfPlaylistData y)
+        public int Compare(IData x, IData y)
         {
             if (ReferenceEquals(x, y)) return 0;
             if (ReferenceEquals(null, y)) return 1;

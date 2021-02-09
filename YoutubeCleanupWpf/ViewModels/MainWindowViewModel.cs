@@ -191,7 +191,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 
                 foreach (var removeThis in playlistsToRemove)
                 {
-                    Playlists.Remove(removeThis);
+                    Playlists.RemoveOnUi(removeThis);
                 }
             }
 

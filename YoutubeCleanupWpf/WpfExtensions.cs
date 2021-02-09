@@ -19,6 +19,18 @@ namespace YouTubeCleanupWpf
             Application.Current.Dispatcher.BeginInvoke(addMethod, item);
         }
 
+        public static void RemoveOnUi<T>(this ICollection<T> collection, T item)
+        {
+            if (Application.Current == null)
+            {
+                collection.Remove(item);
+                return;
+            }
+
+            Func<T, bool> addMethod = collection.Remove;
+            Application.Current.Dispatcher.BeginInvoke(addMethod, item);
+        }
+
         public static void ClearOnUi<T>(this ICollection<T> collection)
         {
             if (Application.Current == null)

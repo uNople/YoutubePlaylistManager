@@ -40,8 +40,10 @@ namespace YouTubeApiWrapper
                 .ReverseMap();
 
             CreateMap<PlaylistItemData, PlaylistItemData>();
-            CreateMap<PlaylistData, PlaylistData>();
-            CreateMap<VideoData, VideoData>();
+            
+            // NOTE: Commented these out for now cause I need to test what happens with deleted videos when we have this mapping here
+            //CreateMap<PlaylistData, PlaylistData>();
+            //CreateMap<VideoData, VideoData>();
         }
 
         private static List<Category> MapCategories(Video video)

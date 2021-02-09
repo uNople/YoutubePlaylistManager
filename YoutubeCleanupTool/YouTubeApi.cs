@@ -57,10 +57,13 @@ namespace YouTubeApiWrapper
                 {
                     await playlistGotDeleted(playlistId);
                 }
-                throw;
+                else
+                {
+                    throw;
+                }
             }
 
-            foreach (var item in playlistItems)
+            foreach (var item in playlistItems ?? new List<PlaylistItem>())
             {
                 yield return _mapper.Map<PlaylistItemData>(item);
             }

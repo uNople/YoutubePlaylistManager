@@ -6,7 +6,7 @@ namespace YouTubeCleanupTool.Domain
 {
     public interface IYouTubeApi
     {
-        IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(List<PlaylistData> playlists, Func<string, Task> playlistGotDeleted);
+        IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(string playlistId, Func<string, Task> playlistGotDeleted);
         IAsyncEnumerable<PlaylistData> GetPlaylists();
         IAsyncEnumerable<VideoData> GetVideos(List<string> videoIdsToGet);
         Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId);

@@ -115,12 +115,15 @@ namespace YouTubeCleanupTool.Domain.UnitTests
                 [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
                 [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
                 [Frozen] IYouTubeApi youTubeApi,
+                PlaylistData playlist,
                 List<PlaylistItemData> playlistItemData,
                 GetAndCacheYouTubeData getAndCacheYouTubeData)
         {
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
-            youTubeCleanupToolDbContext.GetPlaylists().Returns(playlistItemData.GroupBy(x => x.PlaylistDataId).Select(x => new PlaylistData { Id = x.Key }).ToList());
-            youTubeApi.GetPlaylistItems(Arg.Any<List<PlaylistData>>(), Arg.Any<Func<string, Task>>()).Returns(TestExtensions.ToAsyncEnumerable(playlistItemData));
+            youTubeCleanupToolDbContext.GetPlaylists().Returns(new List<PlaylistData> {playlist});
+            youTubeApi.GetPlaylistItems(Arg.Any<string>(), Arg.Any<Func<string, Task>>()).Returns(TestExtensions.ToAsyncEnumerable(playlistItemData));
+
+            youTubeCleanupToolDbContext.GetPlaylistItems(Arg.Any<string>()).Returns(new List<PlaylistItemData>());
 
             var callback = new Action<PlaylistItemData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
 
@@ -128,14 +131,70 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             await getAndCacheYouTubeData.GetPlaylistItems(callback);
 
             // Assert
-            await foreach (var _ in youTubeApi.Received(1).GetPlaylistItems(Arg.Any<List<PlaylistData>>(), Arg.Any<Func<string, Task>>())) { }
+            await foreach (var _ in youTubeApi.Received(1).GetPlaylistItems(Arg.Any<string>(), Arg.Any<Func<string, Task>>())) { }
             await youTubeCleanupToolDbContext.Received(3).UpsertPlaylistItem(Arg.Any<PlaylistItemData>());
             await youTubeCleanupToolDbContext.Received(1).SaveChangesAsync();
         }
-
-        public async Task When_getting_playlistItems_from_YouTube_api_Then_playlists_which_no_longer_exist_get_deleted_from_db()
+    
+        [Theory, AutoNSubstituteData]
+        public async Task When_getting_playlistItems_from_YouTube_api_Then_playlists_which_no_longer_exist_get_deleted_from_db(
+            [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+            [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
+            [Frozen] IYouTubeApi youTubeApi,
+            PlaylistData playlist,
+            
+            GetAndCacheYouTubeData getAndCacheYouTubeData)
         {
+            var playlistItems = new List<PlaylistItemData>
+            {
+                new()
+                {
+                    Id = "1",
+                    Title = "a",
+                    PlaylistDataId = playlist.Id
+                },
+                new()
+                {
+                    Id = "2",
+                    Title = "b",
+                    PlaylistDataId = playlist.Id
+                }
+            };
+            youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
+            youTubeCleanupToolDbContext.GetPlaylists().Returns(new List<PlaylistData> {playlist});
+            youTubeApi.GetPlaylistItems(Arg.Any<string>(), Arg.Any<Func<string, Task>>()).Returns(TestExtensions.ToAsyncEnumerable(playlistItems));
+            
+            var originalPlaylistItems = new List<PlaylistItemData>
+            {
+                new()
+                {
+                    Id = "1",
+                    Title = "a",
+                    PlaylistDataId = playlist.Id
+                },
+                new()
+                {
+                    Id = "2",
+                    Title = "b",
+                    PlaylistDataId = playlist.Id
+                },
+                new()
+                {
+                    Id = "3",
+                    Title = "c",
+                    PlaylistDataId = playlist.Id
+                }
+            };
+            youTubeCleanupToolDbContext.GetPlaylistItems(Arg.Any<string>()).Returns(originalPlaylistItems);
 
+            var callback = new Action<PlaylistItemData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
+            
+            await getAndCacheYouTubeData.GetPlaylistItems(callback);
+            
+            await foreach (var _ in youTubeApi.Received(1).GetPlaylistItems(Arg.Any<string>(), Arg.Any<Func<string, Task>>())) { }
+            await youTubeCleanupToolDbContext.Received(2).UpsertPlaylistItem(Arg.Any<PlaylistItemData>());
+            youTubeCleanupToolDbContext.Received(1).RemovePlaylistItem(Arg.Any<PlaylistItemData>());
+            await youTubeCleanupToolDbContext.Received(1).SaveChangesAsync();
         }
     }
 }

@@ -21,5 +21,6 @@ namespace YouTubeCleanupTool.Domain
         void RemovePlaylistItem(PlaylistItemData playlistItem);
         Task<List<VideoData>> GetUncategorizedVideos(List<string> playlistTitles);
         void RemovePlaylist(string playlistId);
+        Task<List<PlaylistItemData>> GetPlaylistItems(string playlistId);
     }
 }

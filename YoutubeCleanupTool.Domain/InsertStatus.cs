@@ -3,6 +3,7 @@
     public enum InsertStatus
     {
         Inserted,
-        Updated
+        Updated,
+        Deleted
     }
 }

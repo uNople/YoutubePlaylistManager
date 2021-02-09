@@ -44,30 +44,25 @@ namespace YouTubeApiWrapper
             }
         }
 
-        public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(List<PlaylistData> playlists, Func<string, Task> playlistGotDeleted)
+        public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(string playlistId, Func<string, Task> playlistGotDeleted)
         {
-            foreach (var playlist in playlists)
+            List<PlaylistItem> playlistItems = null;
+            try
             {
-                List<PlaylistItem> playlistItems = null;
-                try
+                playlistItems = await HandleSecretRevocation(async getNewToken => await (await CreateYouTubeService(getNewToken)).GetPlaylistItems(playlistId));
+            }
+            catch (Google.GoogleApiException ex)
+            {
+                if (ex.Message.ContainsCi("[playlistNotFound]"))
                 {
-                    playlistItems = await HandleSecretRevocation(async getNewToken => await (await CreateYouTubeService(getNewToken)).GetPlaylistItems(playlist.Id));
-                    
+                    await playlistGotDeleted(playlistId);
                 }
-                catch (Google.GoogleApiException ex)
-                {
-                    if (ex.Message.ContainsCi("[playlistNotFound]"))
-                    {
-                        await playlistGotDeleted(playlist.Id);
-                        continue;
-                    }
-                    throw;
-                }
+                throw;
+            }
 
-                foreach (var playlistItem in playlistItems)
-                {
-                    yield return _mapper.Map<PlaylistItemData>(playlistItem);
-                }
+            foreach (var item in playlistItems)
+            {
+                yield return _mapper.Map<PlaylistItemData>(item);
             }
         }
 

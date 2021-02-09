@@ -7,8 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeApiWrapper", "Youtub
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Help", "Help", "{78B20DB0-EBCF-4BD5-B452-8F646688D575}"
 	ProjectSection(SolutionItems) = preProject
+		NOTES.md = NOTES.md
 		README.md = README.md
-		TODO.md = TODO.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain", "YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj", "{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}"

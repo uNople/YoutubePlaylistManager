@@ -68,6 +68,7 @@ Run the following from the YouTubeCleanupWpf folder to set the api key
    - topicDetails.topicCategories -> contains https://en.wikipedia.org/wiki/Music is a potential indicator
 - But... none of the above really matters. YouTube data api doesn't indicate if something's really music or not.
   Even if something's not in the cateory, etc it *could* be playable on YouTube music probably due to ContentId or flagging.
+- When editing a playlist on YouTube, it reuses IDs when you remove + add another video to the playlist
 
 # Final remarks on differentiating music and video
 

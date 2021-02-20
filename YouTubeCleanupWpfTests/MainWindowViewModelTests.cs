@@ -1,15 +1,11 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using AutoFixture;
 using AutoFixture.Xunit2;
 using AutoMapper;
 using FluentAssertions;
 using NSubstitute;
-using UnitTests.Common;
 using Xunit;
-using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
 
@@ -100,24 +96,6 @@ namespace YouTubeCleanupWpf.UnitTests
             });
         }
 
-        public async Task When_playlist_is_deleted_from_YouTube_Then_it_is_deleted_from_video_filter(
-            [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-            [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-            [NoAutoProperties] MainWindowViewModel mainWindowViewModel
-        )
-        {
-            youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
-        }
-
-        public async Task When_playlist_is_added_to_YouTube_Then_it_is_added_to_video_filter(
-            [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-            [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-            [NoAutoProperties] MainWindowViewModel mainWindowViewModel
-        )
-        {
-            youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
-        }
-
         [Theory, AutoNSubstituteData]
         public async Task When_video_added_to_playlist_on_YouTube_and_refresh_happens_Then_video_inserted_into_ui(
             [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
@@ -201,11 +179,25 @@ namespace YouTubeCleanupWpf.UnitTests
             await mainWindowViewModel.LoadData();
             mainWindowViewModel.Videos.Should().BeEquivalentTo(expectedVideos);
         }
+        
+        [Fact(Skip = "Not Implemented")]
+        public async Task When_playlist_is_deleted_from_YouTube_Then_it_is_deleted_from_video_filter(
+        )
+        {
+            await Task.Run(() => throw new NotImplementedException());
+        }
+        
+        [Fact(Skip = "Not Implemented")]
+        public async Task When_playlist_is_added_to_YouTube_Then_it_is_added_to_video_filter(
+        )
+        {
+            await Task.Run(() => throw new NotImplementedException());
+        }
 
-        [Theory, AutoNSubstituteData]
+        [Fact(Skip = "Not Implemented")]
         public async Task When_video_removed_from_playlist_on_YouTube_and_refresh_happens_Then_video_removed_from_ui()
         {
-
+            await Task.Run(() => throw new NotImplementedException());
         }
 
     }

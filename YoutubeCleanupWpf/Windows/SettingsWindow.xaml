@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:YouTubeCleanupWpf"
         mc:Ignorable="d"
         Title="Settings" Height="450" Width="800" Closing="Window_Closing">
     <Grid>
@@ -12,9 +11,8 @@
                 <Label Content="Client secret path" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Width="135"/>
                 <TextBox HorizontalAlignment="Left" Margin="5,36,0,0" Text="{Binding WpfSettings.ClientSecretPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="NoWrap" VerticalAlignment="Top" Width="391"/>
                 <Button Content="..." Command="{Binding SelectClientSecretPathCommand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="401,36,0,0" VerticalAlignment="Top" Height="18"/>
-                <Button Content="Update api key" Command="{Binding UpdateApiKeyCommand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="320,196,0,0" VerticalAlignment="Top" Width="93"/>
                 <Button Content="Open google developer console" Command="{Binding OpenDeveloperConsoleCommand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="10,196,0,0" VerticalAlignment="Top" Width="209"/>
-                <TextBox HorizontalAlignment="Center" Margin="0,85,0,0" Text="You need both a client secret and an api key to use this app&#x0a;Click the 'Open google developer console' button to get both things&#x0a;Download the client secret to a folder, and set the client secret path&#x0a;Copy the API key and click the 'Update api key' button, which puts this into your windows credential manager&#x0a;NOTE: The username doesn't matter for the api key" TextWrapping="Wrap" VerticalAlignment="Top" Width="408" Height="106"/>
+                <TextBox HorizontalAlignment="Center" Margin="0,85,0,0" Text="You need both a client secret and an api key to use this app&#x0a;Click the 'Open google developer console' button to get both things&#x0a;Download the client secret to a folder, and set the client secret path&#x0a;Copy the API key and run (via commandline)&#x0a;dotnet user-secrets set &quot;AppSettings:ApiKey&quot; &quot;yourgoogleapikeyhere&quot;" TextWrapping="Wrap" VerticalAlignment="Top" Width="408" Height="106"/>
                 <Label Content="Instructions" HorizontalAlignment="Left" Margin="0,59,0,0" VerticalAlignment="Top" Width="135" Height="26"/>
             </Grid>
         </GroupBox>

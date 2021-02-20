@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using YouTubeCleanupTool.Domain;
 
 namespace YouTubeCleanupTool.DataAccess
 {

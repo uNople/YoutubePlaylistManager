@@ -4,18 +4,18 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Win32;
-using YouTubeApiWrapper.Interfaces;
 using YouTubeCleanupWpf.Converters;
 
 namespace YouTubeCleanupWpf.ViewModels
 {
     public class SettingsWindowViewModel : INotifyPropertyChanged
     {
+#pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore 067
         public WpfSettings WpfSettings { get; set; }
         public ICommand SelectDbPathCommand { get; set; }
         public ICommand SelectClientSecretPathCommand { get; set; }
-        public ICommand UpdateApiKeyCommand { get; set; }
         public ICommand OpenDeveloperConsoleCommand { get; set; }
 
 
@@ -24,50 +24,49 @@ namespace YouTubeCleanupWpf.ViewModels
             WpfSettings = wpfSettings;
             SelectDbPathCommand = new RunMethodWithoutParameterCommand(SelectDbPath, MainWindowViewModel.ShowError);
             SelectClientSecretPathCommand = new RunMethodWithoutParameterCommand(SelectClientSecret, MainWindowViewModel.ShowError);
-            UpdateApiKeyCommand = new RunMethodWithoutParameterCommand(UpdateApiKey, MainWindowViewModel.ShowError);
             OpenDeveloperConsoleCommand = new RunMethodWithoutParameterCommand(OpenDeveloperConsole, MainWindowViewModel.ShowError);
-
         }
         
         private async Task OpenDeveloperConsole()
         {
-            MainWindowViewModel.OpenLink("https://console.developers.google.com/?pli=1");
-        }
-        
-        private async Task UpdateApiKey()
-        {
-            // TODO: prompt to add secret somehow
+            await Task.Run(() => MainWindowViewModel.OpenLink("https://console.developers.google.com/?pli=1"));
         }
 
-        private async Task SelectClientSecret()
+        private Task SelectClientSecret()
         {
             if (GetFileDialog(WpfSettings.ClientSecretPath, out string newPath))
             {
                 WpfSettings.ClientSecretPath = newPath;
             }
+
+            return Task.CompletedTask;
         }
         
-        private async Task SelectDbPath()
+        private Task SelectDbPath()
         {
-            if (GetFileDialog(WpfSettings.DatabasePath, out string newPath))
+            if (GetFileDialog(WpfSettings.DatabasePath, out var newPath))
             {
                 WpfSettings.DatabasePath = newPath;
             }
+
+            return Task.CompletedTask;
         }
 
         private bool GetFileDialog(string currentPath, out string newPath)
         {
-            string initialDirectory = null;
+            var initialDirectory = @"C:\";
             try
             {
-                initialDirectory = Path.GetDirectoryName(currentPath);
+                var path = Path.GetDirectoryName(currentPath);
+                if (path != null)
+                    initialDirectory = path;
             }
             catch
             {
+                // don't care - if the above errors we have a value already for this
             }
-
-            initialDirectory ??= @"C:\";
-            var dialog = new OpenFileDialog {FileName = System.IO.Path.GetFileName(currentPath), InitialDirectory = initialDirectory};
+            
+            var dialog = new OpenFileDialog {FileName = Path.GetFileName(currentPath), InitialDirectory = initialDirectory};
             var result = dialog.ShowDialog();
             newPath = dialog.FileName;
             return result ?? false;

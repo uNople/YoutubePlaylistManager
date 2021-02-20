@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -32,7 +33,9 @@ namespace YouTubeCleanupWpf.Converters
                 _errorCallback(ex);
             }
         }
-
+        
+        #pragma warning disable 0067
         public event EventHandler? CanExecuteChanged;
+        #pragma warning restore 0067
     }
 }

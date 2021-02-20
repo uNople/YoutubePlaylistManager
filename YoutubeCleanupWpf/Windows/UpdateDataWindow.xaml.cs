@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Windows;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -7,16 +6,14 @@ namespace YouTubeCleanupWpf.Windows
     /// <summary>
     /// Interaction logic for UpdateDataWindow.xaml
     /// </summary>
-    public partial class UpdateDataWindow : Window, IUpdateDataWindow
+    public partial class UpdateDataWindow : IUpdateDataWindow
     {
-        private readonly UpdateDataViewModel _updateDataViewModel;
         private readonly WpfSettings _wpfSettings;
 
         public UpdateDataWindow([NotNull] UpdateDataViewModel updateDataViewModel, [NotNull] WpfSettings wpfSettings)
         {
-            _updateDataViewModel = updateDataViewModel;
-            _updateDataViewModel.ParentWindow = this;
-            DataContext = _updateDataViewModel;
+            updateDataViewModel.ParentWindow = this;
+            DataContext = updateDataViewModel;
             _wpfSettings = wpfSettings;
             this.StartOnSelectedWindow(_wpfSettings);
             InitializeComponent();

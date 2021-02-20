@@ -11,7 +11,7 @@ namespace YouTubeCleanupWpf
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
@@ -28,7 +28,7 @@ namespace YouTubeCleanupWpf
                 container.Resolve<WpfSettings>(); // just so the ctor gets called and the settings get loaded
                 container.Resolve<IYouTubeCleanupToolDbContextFactory>().Create().Migrate();
                 MainWindow = container.Resolve<MainWindow>();
-                MainWindow.Show();
+                MainWindow?.Show();
             }
             catch (Exception ex)
             {

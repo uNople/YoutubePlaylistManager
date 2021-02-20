@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
@@ -19,8 +18,10 @@ namespace YouTubeCleanupWpf
         private const int SaveDelayMs = 500;
         [JsonIgnore]
         public YouTubeServiceCreatorOptions YouTubeServiceCreatorOptions { get; set; }
+#pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
-        
+#pragma warning restore 067
+
         [JsonIgnore]
         public ObservableCollection<string> Monitors { get; set; }
         

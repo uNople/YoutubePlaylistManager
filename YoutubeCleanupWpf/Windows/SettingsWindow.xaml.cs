@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Windows;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -7,15 +7,13 @@ namespace YouTubeCleanupWpf.Windows
     /// <summary>
     /// Interaction logic for SettingsWindow.xaml
     /// </summary>
-    public partial class SettingsWindow : Window, ISettingsWindow
+    public partial class SettingsWindow : ISettingsWindow
     {
-        private readonly SettingsWindowViewModel _settingsWindowViewModel;
         private readonly WpfSettings _wpfSettings;
 
         public SettingsWindow([NotNull] SettingsWindowViewModel settingsWindowViewModel, [NotNull] WpfSettings wpfSettings)
         {
-            _settingsWindowViewModel = settingsWindowViewModel;
-            DataContext = _settingsWindowViewModel;
+            DataContext = settingsWindowViewModel;
             _wpfSettings = wpfSettings;
             this.StartOnSelectedWindow(_wpfSettings);
             InitializeComponent();
@@ -24,13 +22,13 @@ namespace YouTubeCleanupWpf.Windows
         public new void Show()
         {
             this.StartOnSelectedWindow(_wpfSettings);
-            base.Show();
+            new Action(() => base.Show()).RunOnUiThread();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            Hide();
+            new Action(() => base.Hide()).RunOnUiThread();
         }
     }
 

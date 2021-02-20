@@ -1,6 +1,4 @@
-﻿using YouTubeCleanupTool.Domain;
-
-namespace YouTubeCleanupTool.DataAccess
+﻿namespace YouTubeCleanupTool.Domain
 {
     public interface IYouTubeCleanupToolDbContextFactory
     {

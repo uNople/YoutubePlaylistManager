@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace YouTubeCleanupWpf
 {
@@ -6,8 +7,11 @@ namespace YouTubeCleanupWpf
     {
         public static void StartOnSelectedWindow(this Window window, WpfSettings wpfSettings)
         {
-            window.Top = wpfSettings.CurrentScreen.Bounds.Top + 100;
-            window.Left = wpfSettings.CurrentScreen.Bounds.Left + 100;
+            new Action(() =>
+            {
+                window.Top = wpfSettings.CurrentScreen.Bounds.Top + 100;
+                window.Left = wpfSettings.CurrentScreen.Bounds.Left + 100;
+            }).RunOnUiThread();
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
-using YouTubeApiWrapper.Interfaces;
 using YouTubeCleanupTool.Domain;
 
 namespace YouTubeApiWrapper

@@ -11,32 +11,45 @@ namespace YouTubeCleanupWpf.ViewModels
 {
     public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
     {
+#pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore 067
         public string LogText { get; set; }
         public ICommand CloseCommand { get; set; }
         public UpdateDataWindow ParentWindow { get; set; }
         public CancellationTokenSource CancellationTokenSource { get; set; }
         public MainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> PendingLogs { get; } = new ConcurrentQueue<string>();
-        private readonly Timer _renderLogsToUi;
+        private readonly Timer _timer;
+        private readonly int _timerDuration;
 
         public UpdateDataViewModel()
         {
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, MainWindowViewModel.ShowError);
-            _renderLogsToUi = new Timer(DequeueLogs, null, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(200));
+            _timerDuration = (int) TimeSpan.FromMilliseconds(1000).TotalMilliseconds;
+            _timer = new Timer(DequeueLogs, null, _timerDuration, Timeout.Infinite);
         }
 
-        private void DequeueLogs(object? state)
+        private void DequeueLogs(object state)
         {
-            var logMessage = "";
-            while (PendingLogs.TryDequeue(out var message))
+            try
             {
-                logMessage = string.IsNullOrWhiteSpace(logMessage) ? message : $"{message}{Environment.NewLine}{logMessage}";
-            }
+                var logMessage = "";
+                while (PendingLogs.TryDequeue(out var message))
+                {
+                    logMessage = string.IsNullOrWhiteSpace(logMessage) ? message : $"{message}{Environment.NewLine}{logMessage}";
+                }
 
-            if (!string.IsNullOrWhiteSpace(logMessage))
+                if (!string.IsNullOrWhiteSpace(logMessage))
+                {
+                    new Action(() => LogText = $"{logMessage}{Environment.NewLine}{LogText}").RunOnUiThread();
+                }
+
+                _timer.Change(_timerDuration, Timeout.Infinite);
+            }
+            catch (ObjectDisposedException)
             {
-                new Action(() => LogText = $"{logMessage}{Environment.NewLine}{LogText}").RunOnUiThread();
+                // If we're in here, the timer's been disposed (probably the app exiting) while we're setting the next callback up
             }
         }
 

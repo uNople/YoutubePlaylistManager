@@ -12,12 +12,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
-using Google.Apis.YouTube.v3.Data;
-using YouTubeApiWrapper.Interfaces;
-using YouTubeCleanupTool.DataAccess;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.Converters;
-using YouTubeCleanupWpf.Windows;
 
 namespace YouTubeCleanupWpf.ViewModels
 {
@@ -67,7 +63,9 @@ namespace YouTubeCleanupWpf.ViewModels
         private WpfVideoData _selectedVideo;
         private readonly IWindowService _windowService;
 
+#pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore 067
         public ICommand OpenVideoCommand { get; set; }
         public ICommand OpenPlaylistCommand { get; set; }
         public ICommand OpenChannelCommand { get; set; }
@@ -156,7 +154,7 @@ namespace YouTubeCleanupWpf.ViewModels
         
         private async Task UpdateSettings()
         {
-            _windowService.ShowSettingsWindow();
+            await Task.Run(() => _windowService.ShowSettingsWindow());
         }
 
         public async Task LoadData()
@@ -164,7 +162,7 @@ namespace YouTubeCleanupWpf.ViewModels
             var playlists = (await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists())?.OrderBy(x => x.Title).ToList() ?? new List<PlaylistData>();
             var playlistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems() ?? new List<PlaylistItemData>();
             _videosToPlaylistMap = playlistItems
-                ?.Where(x => x.VideoId != null)
+                .Where(x => x.VideoId != null)
                 .GroupBy(x => x.VideoId)
                 .ToDictionary(x => x.Key, x => x.Select(y => y.PlaylistDataId).ToList());
             

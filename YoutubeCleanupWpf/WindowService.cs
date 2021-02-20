@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Autofac;
 using YouTubeCleanupWpf.Windows;
 
 namespace YouTubeCleanupWpf

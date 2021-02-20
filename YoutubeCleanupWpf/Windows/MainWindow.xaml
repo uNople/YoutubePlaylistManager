@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:YouTubeCleanupWpf"
-        xmlns:youTubeCleanupWpf="clr-namespace:YouTubeCleanupWpf"
         xmlns:converters="clr-namespace:YouTubeCleanupWpf.Converters"
+        xmlns:domain="clr-namespace:YouTubeCleanupTool.Domain;assembly=YouTubeCleanupTool.Domain"
+        xmlns:viewModels="clr-namespace:YouTubeCleanupWpf.ViewModels"
+        xmlns:youTubeCleanupWpf="clr-namespace:YouTubeCleanupWpf"
         mc:Ignorable="d"
         Title="YouTube Cleanup" Height="864" Width="1152"
         Loaded="MainWindow_OnLoaded"
@@ -32,7 +33,7 @@
         <Grid Column="0" Row="0">
             <ComboBox ItemsSource="{Binding VideoFilter, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedFilterFromComboBox, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Visibility="{Binding SearchActive, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Margin="36,5,0,5" >
                 <ComboBox.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate DataType="domain:IData">
                         <Grid>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
@@ -50,7 +51,7 @@
         <Grid Column="0" Row="1">
             <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ToolTip="Double-click to open video in your browser">
                 <ListBox.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate DataType="youTubeCleanupWpf:WpfVideoData">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100" />
@@ -60,7 +61,7 @@
                                 <RowDefinition Height="70" />
                             </Grid.RowDefinitions>
                             <Grid.InputBindings>
-                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.OpenVideoCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.(viewModels:MainWindowViewModel.OpenVideoCommand), UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
                             </Grid.InputBindings>
                             <Image Margin="0,5,0,5" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Source="{Binding Thumbnail}" Width="100" Height="97" />
                             <TextBlock Grid.Row="0" Padding="10, 0, 0, 0" Grid.Column="1" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" Text="{Binding Title}" />
@@ -72,7 +73,7 @@
         <Grid Column="1" Row="1" Margin="10,0,0,0">
             <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Playlists, UpdateSourceTrigger=PropertyChanged}" ToolTip="Double-click to open playlist in your browser">
                 <ListBox.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate DataType="youTubeCleanupWpf:WpfPlaylistData">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="18" />
@@ -82,9 +83,9 @@
                                 <RowDefinition Height="18" />
                             </Grid.RowDefinitions>
                             <Grid.InputBindings>
-                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.OpenPlaylistCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.(viewModels:MainWindowViewModel.OpenPlaylistCommand), UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
                             </Grid.InputBindings>
-                            <CheckBox VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" IsChecked="{Binding VideoInPlaylist}" Command="{Binding ElementName=Ui, Path=DataContext.CheckedOrUncheckedVideoInPlaylistCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
+                            <CheckBox VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" IsChecked="{Binding VideoInPlaylist}" Command="{Binding ElementName=Ui, Path=DataContext.(viewModels:MainWindowViewModel.CheckedOrUncheckedVideoInPlaylistCommand), UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
                             <Label VerticalAlignment="Center" Padding="2,0,0,0" Margin="0" Grid.Column="1" Grid.Row="0" Content="{Binding Title}" />
                         </Grid>
                     </DataTemplate>
@@ -98,7 +99,7 @@
             <TextBox Text="{Binding SelectedVideo.Description, UpdateSourceTrigger=PropertyChanged, FallbackValue=Description of video}" Margin="0,364,0,0" TextWrapping="WrapWithOverflow"/>
             <TextBox Text="{Binding SelectedVideo.ChannelTitle, UpdateSourceTrigger=PropertyChanged, FallbackValue=Channel name}" Margin="0,330,0,0" VerticalAlignment="Top" Height="29" TextWrapping="WrapWithOverflow" ToolTip="Double-click to open the channel in your browser" >
                 <TextBox.InputBindings>
-                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.OpenChannelCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding SelectedVideo}" />
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.(viewModels:MainWindowViewModel.OpenChannelCommand), UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding SelectedVideo}" />
                 </TextBox.InputBindings>
             </TextBox>
         </Grid>

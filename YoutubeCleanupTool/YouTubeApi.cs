@@ -141,7 +141,7 @@ namespace YouTubeApiWrapper
 
             if (getNewToken)
             {
-                var success = await credential.RefreshTokenAsync(CancellationToken.None);
+                await credential.RefreshTokenAsync(CancellationToken.None);
             }
 
             // Create the service.

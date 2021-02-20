@@ -33,7 +33,7 @@ namespace YouTubeCleanupWpf.ViewModels
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
-            Videos = new ObservableCollection<VideoData>();
+            Videos = new ObservableCollection<WpfVideoData>();
             Playlists = new ObservableCollection<WpfPlaylistData>();
             VideoFilter = new ObservableCollection<VideoFilter>();
             _mapper = mapper;
@@ -75,7 +75,7 @@ namespace YouTubeCleanupWpf.ViewModels
         public ICommand CheckedOrUncheckedVideoInPlaylistCommand { get; set; }
         public ICommand RefreshDataCommand { get; set; }
         public ICommand UpdateSettingsCommand { get; set; }
-        public ObservableCollection<VideoData> Videos { get; set; }
+        public ObservableCollection<WpfVideoData> Videos { get; set; }
         public ObservableCollection<WpfPlaylistData> Playlists { get; set; }
         public ObservableCollection<VideoFilter> VideoFilter { get; set; }
         public string SearchResultCount { get; set; }
@@ -101,12 +101,19 @@ namespace YouTubeCleanupWpf.ViewModels
             set
             {
                 _selectedFilterDataFromComboBox = value;
-                // This is here so when we select the videos we run that async. the async part happens in the DeferTimer
-                // Prior to this, we had it run synchronously, and it froze the UI whenever we selected another filter
-                // with a lot of videos
-                _selectedFilterDataFromComboBoxDeferTimer.DeferByMilliseconds(2);
+
+                // TODO: need a better way of doing this, like post-load or something we enable this?
+                if (ShouldSelectingFilterUpdateVideos)
+                {
+                    // This is here so when we select the videos we run that async. the async part happens in the DeferTimer
+                    // Prior to this, we had it run synchronously, and it froze the UI whenever we selected another filter
+                    // with a lot of videos
+                    _selectedFilterDataFromComboBoxDeferTimer.DeferByMilliseconds(2);
+                }
             }
         }
+
+        public bool ShouldSelectingFilterUpdateVideos { get; set; } = true;
 
         private string _searchText;
 
@@ -212,9 +219,40 @@ namespace YouTubeCleanupWpf.ViewModels
             {
                 await GetVideos(100);
             }
-            else
+            else if (SelectedFilterFromComboBox.FilterType == FilterType.PlaylistTitle)
             {
-                // get videos for the selected filter/playlist, then add any new ones / delete any deleted ones
+                var matchingPlaylist = Playlists.First(x => x.Title == SelectedFilterFromComboBox.Title);
+
+                var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
+                var videoIds = new HashSet<string>(matchingPlaylist.PlaylistItems.OrderBy(x => x.Position).Select(x => x.VideoId));
+                
+                foreach (var video in videos.Where(x => videoIds.Contains(x.Id)))
+                {
+                    var compareResult = Videos.ToList().BinarySearch(video, comparer);
+                    if (compareResult < 0)
+                    {
+                        Videos.Insert(~compareResult, video);
+                    }
+                    // TODO: handle rename of title in playlist item - Compare based on ID, not title. Then, we can check title, or just map what we got from YouTube over the top
+                    // Note for why:
+                    // It seems like YouTube reuses Ids in playlists for PlaylistItems
+                    // Due to this, we don't know if the title not being there means it's a brand new item, or it replaced something we have locally
+
+                    var videosToRemove = new List<WpfVideoData>();
+                    foreach (var videoData in Videos)
+                    {
+                        if (!videos.Any(x => x.Id == videoData.Id))
+                        {
+                            videosToRemove.Add(videoData);
+                        }
+                    }
+
+                    foreach (var removeThis in videosToRemove)
+                    {
+                        Videos.RemoveOnUi(removeThis);
+                    }
+                }
+
             }
         }
         

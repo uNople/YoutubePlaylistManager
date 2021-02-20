@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using YouTubeCleanupWpf.Windows;
 
 namespace YouTubeCleanupWpf
@@ -16,14 +17,14 @@ namespace YouTubeCleanupWpf
         }
 
 
-        public void ShowSettingsWindow()
+        public async Task ShowSettingsWindow()
         {
-            _settingsWindow.Show();
+            await _settingsWindow.ShowWindow();
         }
 
-        public void ShowUpdateDataWindow()
+        public async Task ShowUpdateDataWindow()
         {
-            _updateDataWindow.Show();
+            await _updateDataWindow.ShowWindow();
         }
     }
 }

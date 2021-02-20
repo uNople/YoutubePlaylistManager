@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -15,25 +16,25 @@ namespace YouTubeCleanupWpf.Windows
         {
             DataContext = settingsWindowViewModel;
             _wpfSettings = wpfSettings;
-            this.StartOnSelectedWindow(_wpfSettings);
+            _ = this.StartOnSelectedWindow(_wpfSettings);
             InitializeComponent();
         }
 
-        public new void Show()
+        public async Task ShowWindow()
         {
-            this.StartOnSelectedWindow(_wpfSettings);
-            new Action(() => base.Show()).RunOnUiThread();
+            await this.StartOnSelectedWindow(_wpfSettings);
+            await new Action(() => base.Show()).RunOnUiThread();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            new Action(() => base.Hide()).RunOnUiThread();
+            await new Action(Hide).RunOnUiThread();
         }
     }
 
     public interface ISettingsWindow
     {
-        void Show();
+        Task ShowWindow();
     }
 }

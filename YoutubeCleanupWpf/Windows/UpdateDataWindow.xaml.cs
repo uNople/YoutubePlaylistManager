@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -15,14 +16,14 @@ namespace YouTubeCleanupWpf.Windows
             updateDataViewModel.ParentWindow = this;
             DataContext = updateDataViewModel;
             _wpfSettings = wpfSettings;
-            this.StartOnSelectedWindow(_wpfSettings);
+            _ =  this.StartOnSelectedWindow(_wpfSettings);
             InitializeComponent();
         }
         
-        public new void Show()
+        public async Task ShowWindow()
         {
-            this.StartOnSelectedWindow(_wpfSettings);
-            base.Show();
+            await this.StartOnSelectedWindow(_wpfSettings);
+            Show();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -34,6 +35,6 @@ namespace YouTubeCleanupWpf.Windows
 
     public interface IUpdateDataWindow
     {
-        void Show();
+        Task ShowWindow();
     }
 }

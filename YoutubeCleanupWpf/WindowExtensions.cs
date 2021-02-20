@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace YouTubeCleanupWpf
 {
     public static class WindowExtensions
     {
-        public static void StartOnSelectedWindow(this Window window, WpfSettings wpfSettings)
+        public static async Task StartOnSelectedWindow(this Window window, WpfSettings wpfSettings)
         {
-            new Action(() =>
+            await new Action(() =>
             {
                 window.Top = wpfSettings.CurrentScreen.Bounds.Top + 100;
                 window.Left = wpfSettings.CurrentScreen.Bounds.Left + 100;

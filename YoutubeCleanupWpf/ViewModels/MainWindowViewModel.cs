@@ -88,7 +88,8 @@ namespace YouTubeCleanupWpf.ViewModels
             set
             {
                 _selectedVideo = value;
-                SelectedVideoChanged(value);
+                // Doesn't get awaited, so runs in the background
+                Task.Run(() => SelectedVideoChanged(value));
             }
         }
 
@@ -131,7 +132,7 @@ namespace YouTubeCleanupWpf.ViewModels
             UpdateHappening = true;
             var cancellationTokenSource = new CancellationTokenSource();
             
-            _windowService.ShowUpdateDataWindow();
+            await _windowService.ShowUpdateDataWindow();
             _updateDataViewModel.CancellationTokenSource = cancellationTokenSource;
             _updateDataViewModel.MainWindowViewModel = this;
 
@@ -287,7 +288,7 @@ namespace YouTubeCleanupWpf.ViewModels
             SearchResultCount = $"{videosFound.Count} videos found";
             foreach (var video in videosFound)
             {
-                AddVideoToCollection(video);
+                await AddVideoToCollection(video);
             }
         }
 
@@ -349,7 +350,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
                 foreach (var videoId in matchingPlaylist.PlaylistItems.OrderBy(x => x.Position).Select(x => x.VideoId))
                 {
-                    AddVideoToCollection(videos.FirstOrDefault(x => x.Id == videoId));
+                    await AddVideoToCollection(videos.FirstOrDefault(x => x.Id == videoId));
                 }
             }
             else if (videoFilter.FilterType == FilterType.All)
@@ -357,7 +358,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
                 foreach (var video in videos)
                 {
-                    AddVideoToCollection(video);
+                    await AddVideoToCollection(video);
                 }
             }
             else if (videoFilter.FilterType == FilterType.Uncategorized)
@@ -367,12 +368,12 @@ namespace YouTubeCleanupWpf.ViewModels
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetUncategorizedVideos(playlistsThatMeanUncategorized));
                 foreach (var video in videos)
                 {
-                    AddVideoToCollection(video);
+                    await AddVideoToCollection(video);
                 }
             }
         }
         
-        private void SelectedVideoChanged(WpfVideoData video)
+        private async Task SelectedVideoChanged(WpfVideoData video)
         {
             if (video == null)
             {
@@ -380,7 +381,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 {
                     if (playlistItem.VideoInPlaylist)
                     {
-                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = false);
+                        await WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = false);
                     }
                 }
                 return;
@@ -393,11 +394,11 @@ namespace YouTubeCleanupWpf.ViewModels
                 {
                     if (playlistItemsHashSet.Contains(playlistItem.Id) && !playlistItem.VideoInPlaylist)
                     {
-                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = true);
+                        await WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = true);
                     }
                     else if (playlistItem.VideoInPlaylist)
                     {
-                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = false);
+                        await WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = false);
                     }
                 }
             }
@@ -410,14 +411,14 @@ namespace YouTubeCleanupWpf.ViewModels
                 return;
             foreach (var video in videos.Take(limit))
             {
-                AddVideoToCollection(video);
+                await AddVideoToCollection(video);
             }
         }
 
-        private void AddVideoToCollection(VideoData video)
+        private async Task AddVideoToCollection(VideoData video)
         {
             WpfVideoData videoData = _mapper.Map<WpfVideoData>(video);
-            new Action(() =>
+            await new Action(() =>
             {
                 var image = CreateBitmapImageFromByteArray(videoData);
                 videoData.Thumbnail = image;

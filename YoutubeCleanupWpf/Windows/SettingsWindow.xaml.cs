@@ -28,7 +28,7 @@ namespace YouTubeCleanupWpf.Windows
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            new Action(() => base.Hide()).RunOnUiThread();
+            new Action(Hide).RunOnUiThread();
         }
     }
 

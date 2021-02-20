@@ -150,6 +150,8 @@ namespace YouTubeCleanupWpf.ViewModels
             _updateDataViewModel.PrependText("Completed! - You can close the window now.");
 
             await LoadData();
+
+            _windowService.SetUpdateComplete();
         }
         
         private async Task UpdateSettings()
@@ -417,12 +419,8 @@ namespace YouTubeCleanupWpf.ViewModels
         private void AddVideoToCollection(VideoData video)
         {
             WpfVideoData videoData = _mapper.Map<WpfVideoData>(video);
-            new Action(() =>
-            {
-                var image = CreateBitmapImageFromByteArray(videoData);
-                videoData.Thumbnail = image;
-            }).RunOnUiThread();
-
+            var image = CreateBitmapImageFromByteArray(videoData);
+            videoData.Thumbnail = image;
             Videos.AddOnUi(videoData);
         }
 
@@ -436,7 +434,7 @@ namespace YouTubeCleanupWpf.ViewModels
             thumbnail.StreamSource = new MemoryStream(videoData.ThumbnailBytes);
             thumbnail.DecodePixelWidth = 200;
             thumbnail.EndInit();
-            // Freeze so we can apparently move this between threads
+            // Freeze so we can move this between threads (eg, create on background thread, use on UI thread)
             thumbnail.Freeze();
             return thumbnail;
         }

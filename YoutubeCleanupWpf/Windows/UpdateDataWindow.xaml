@@ -8,5 +8,6 @@
     <Grid>
         <TextBox Margin="10,10,10,45" Text="{Binding LogText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" IsReadOnly="false" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True"/>
         <Button Content="Close" Command="{Binding CloseCommand, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,10" HorizontalAlignment="Right" Width="33" Height="20" VerticalAlignment="Bottom"/>
+        <ProgressBar Name="ProgressBar" Height="20" Margin="10,0,48,10" VerticalAlignment="Bottom" IsIndeterminate="True"/>
     </Grid>
 </Window>

@@ -4,5 +4,6 @@
     {
         void ShowSettingsWindow();
         void ShowUpdateDataWindow();
+        void SetUpdateComplete();
     }
 }

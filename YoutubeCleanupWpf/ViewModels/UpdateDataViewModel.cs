@@ -20,19 +20,23 @@ namespace YouTubeCleanupWpf.ViewModels
         public CancellationTokenSource CancellationTokenSource { get; set; }
         public MainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> PendingLogs { get; } = new ConcurrentQueue<string>();
-        private readonly Timer _timer;
-        private readonly int _timerDuration;
+        private Thread _currentThread;
 
         public UpdateDataViewModel()
         {
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, MainWindowViewModel.ShowError);
-            _timerDuration = (int) TimeSpan.FromMilliseconds(1000).TotalMilliseconds;
-            _timer = new Timer(DequeueLogs, null, _timerDuration, Timeout.Infinite);
         }
 
-        private void DequeueLogs(object state)
+        internal void Start()
         {
-            try
+            _currentThread = new Thread(DequeueLogs);
+            _currentThread.Start();
+        }
+
+        private void DequeueLogs()
+        {
+            Thread.CurrentThread.Name = "Update logs thread";
+            while (true)
             {
                 var logMessage = "";
                 while (PendingLogs.TryDequeue(out var message))
@@ -42,14 +46,16 @@ namespace YouTubeCleanupWpf.ViewModels
 
                 if (!string.IsNullOrWhiteSpace(logMessage))
                 {
-                    new Action(() => LogText = $"{logMessage}{Environment.NewLine}{LogText}").RunOnUiThread();
+                    // NOTE: we still need to clamp the text's length to get a responsive UI
+                    var logText = $"{logMessage}{Environment.NewLine}{LogText}";
+                    logText = logText.Substring(0, Math.Min(logText.Length, 10000));
+                    new Action(() => LogText = logText).RunOnUiThread();
                 }
 
-                _timer.Change(_timerDuration, Timeout.Infinite);
-            }
-            catch (ObjectDisposedException)
-            {
-                // If we're in here, the timer's been disposed (probably the app exiting) while we're setting the next callback up
+                if (CancellationTokenSource?.IsCancellationRequested ?? false)
+                    return;
+
+                Thread.Sleep(100);
             }
         }
 
@@ -58,11 +64,10 @@ namespace YouTubeCleanupWpf.ViewModels
             PendingLogs.Enqueue(message);
         }
 
-        private async Task Hide()
+        public async Task Hide()
         {
             CancellationTokenSource?.Cancel();
             LogText = "";
-            ParentWindow.Hide();
             await Task.Run(() => new Action(() => ParentWindow.Hide()).RunOnUiThread());
             MainWindowViewModel.UpdateHappening = false;
         }

@@ -16,7 +16,7 @@ namespace YouTubeCleanupWpf
             }
 
             Action<T> addMethod = collection.Add;
-            Application.Current.Dispatcher.BeginInvoke(addMethod, item);
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, addMethod, item);
         }
 
         public static void RemoveOnUi<T>(this ICollection<T> collection, T item)
@@ -28,7 +28,7 @@ namespace YouTubeCleanupWpf
             }
 
             Func<T, bool> addMethod = collection.Remove;
-            Application.Current.Dispatcher.BeginInvoke(addMethod, item);
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, addMethod, item);
         }
 
         public static void ClearOnUi<T>(this ICollection<T> collection)
@@ -39,7 +39,7 @@ namespace YouTubeCleanupWpf
                 return;
             }
 
-            Application.Current.Dispatcher.BeginInvoke(collection.Clear);
+            Application.Current.Dispatcher.Invoke(collection.Clear, DispatcherPriority.Normal);
         }
 
         public static void RunOnUiThread(this Action action)
@@ -50,7 +50,7 @@ namespace YouTubeCleanupWpf
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(
+            Application.Current.Dispatcher.BeginInvoke(
                 DispatcherPriority.Normal,
                 action);
         }

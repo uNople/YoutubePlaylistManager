@@ -12,6 +12,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.Converters;
 
@@ -255,7 +257,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 SpecialVideoFilters.ForEach(x => VideoFilter.AddOnUi(x));
                 foreach (var playlist in playlists.OrderBy(x => x.Title))
                 {
-                    VideoFilter.AddOnUi(new VideoFilter {Title = playlist.Title, FilterType = FilterType.PlaylistTitle});
+                    VideoFilter.AddOnUi(new VideoFilter { Title = playlist.Title, FilterType = FilterType.PlaylistTitle });
                 }
             }
             else
@@ -272,7 +274,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 var matchingPlaylist = Playlists.First(x => x.Title == SelectedFilterFromComboBox.Title);
                 _logger.LogInformation($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
 
-                var videoIds = new HashSet<string>(matchingPlaylist.PlaylistItems.OrderBy(x => x.Position).Select(x => x.VideoId));
+                var videoIds = new HashSet<string>(matchingPlaylist.PlaylistItems.Select(x => x.VideoId));
                 _logger.LogInformation($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.Title}'. Ids: {string.Join(", ", videoIds)}");
                 var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
@@ -403,11 +405,15 @@ namespace YouTubeCleanupWpf.ViewModels
             Videos.ClearOnUi();
             if (videoFilter.FilterType == FilterType.PlaylistTitle)
             {
-                var matchingPlaylist = Playlists.First(x => x.Title == videoFilter.Title);
-                var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
-                foreach (var videoId in matchingPlaylist.PlaylistItems.OrderBy(x => x.Position).Select(x => x.VideoId))
+                // Make this a method or something. I think I use this pattern elsewhere
+                var videoIds = new HashSet<string>(Playlists.First(x => x.Title == videoFilter.Title).PlaylistItems.Select(x => x.VideoId));
+                var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
+                    .Where(x => videoIds.Contains(x.Id))
+                    .OrderBy(x => x.Title)
+                    .ThenBy(x => x.Id);
+                foreach (var video in videos)
                 {
-                    AddVideoToCollection(videos.FirstOrDefault(x => x.Id == videoId));
+                    AddVideoToCollection(video);
                 }
             }
             else if (videoFilter.FilterType == FilterType.All)

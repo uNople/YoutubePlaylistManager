@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
@@ -53,6 +56,16 @@ namespace YouTubeCleanupWpf
             var section = config.GetSection(nameof(AppSettings));
             var appSettingsConfig = section.Get<AppSettings>();
             builder.RegisterInstance(appSettingsConfig).As<IAppSettings>().SingleInstance();
+
+            var services = new ServiceCollection();
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.SetMinimumLevel(LogLevel.Information);
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+            });
+            builder.Populate(services);
         }
     }
 }

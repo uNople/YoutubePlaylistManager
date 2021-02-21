@@ -25,7 +25,8 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IMapper mapper,
             [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
             [NotNull] IUpdateDataViewModel updateDataViewModel,
-            [NotNull] IWindowService windowService
+            [NotNull] IWindowService windowService,
+            [NotNull] ILogger<MainWindowViewModel> logger
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -46,6 +47,7 @@ namespace YouTubeCleanupWpf.ViewModels
             _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), ShowError);
             _updateDataViewModel = updateDataViewModel;
             _windowService = windowService;
+            _logger = logger;
             SpecialVideoFilters = new List<VideoFilter>()
             {
                 new() {Title = "All", FilterType = FilterType.All},
@@ -63,10 +65,11 @@ namespace YouTubeCleanupWpf.ViewModels
         private readonly IUpdateDataViewModel _updateDataViewModel;
         private WpfVideoData _selectedVideo;
         private readonly IWindowService _windowService;
+        private readonly ILogger<MainWindowViewModel> _logger;
 
-        #pragma warning disable 067
+#pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
-        #pragma warning restore 067
+#pragma warning restore 067
         public ICommand OpenVideoCommand { get; set; }
         public ICommand OpenPlaylistCommand { get; set; }
         public ICommand OpenChannelCommand { get; set; }
@@ -267,12 +270,16 @@ namespace YouTubeCleanupWpf.ViewModels
             else if (SelectedFilterFromComboBox.FilterType == FilterType.PlaylistTitle)
             {
                 var matchingPlaylist = Playlists.First(x => x.Title == SelectedFilterFromComboBox.Title);
+                _logger.LogInformation($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
 
                 var videoIds = new HashSet<string>(matchingPlaylist.PlaylistItems.OrderBy(x => x.Position).Select(x => x.VideoId));
+                _logger.LogInformation($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.Title}'. Ids: {string.Join(", ", videoIds)}");
                 var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
                     .ToList();
-                
+                _logger.LogInformation($"Videos from DB: {SerializeVideoCollection(videos)}");
+                _logger.LogInformation($"Videos from UI: {SerializeVideoCollection(Videos.ToList())}");
+
                 foreach (var video in videos)
                 {
                     var compareResult = Videos.ToList().BinarySearch(video, comparer);
@@ -281,6 +288,7 @@ namespace YouTubeCleanupWpf.ViewModels
                         var image = CreateBitmapImageFromByteArray(video);
                         video.Thumbnail = image;
                         Videos.Insert(~compareResult, video);
+                        _logger.LogInformation($"Video {video.Title} (id {video.Id}) wasn't found in the right order I guess, so we inserted it");
                     }
                     // TODO: handle rename of title in playlist item - Compare based on ID, not title. Then, we can check title, or just map what we got from YouTube over the top
                     // Note for why:
@@ -301,7 +309,6 @@ namespace YouTubeCleanupWpf.ViewModels
                         Videos.RemoveOnUi(removeThis);
                     }
                 }
-
             }
         });
 
@@ -486,6 +493,11 @@ namespace YouTubeCleanupWpf.ViewModels
             // Freeze so we can move this between threads (eg, create on background thread, use on UI thread)
             thumbnail.Freeze();
             return thumbnail;
+        }
+        
+        private string SerializeVideoCollection(List<WpfVideoData> videos)
+        {
+            return JsonConvert.SerializeObject(videos.Select(x => new { x.Title, x.Id }), Formatting.Indented);
         }
     }
 }

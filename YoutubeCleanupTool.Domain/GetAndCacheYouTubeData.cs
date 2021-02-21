@@ -38,29 +38,40 @@ namespace YouTubeCleanupTool.Domain
             var playlists = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists();
             foreach (var playlist in playlists)
             {
-                var playlistItems = new List<PlaylistItemData>();
-                await foreach (var playlistItem in _youTubeApi.GetPlaylistItems(playlist.Id, RemovePlaylist))
-                {
-                    playlistItems.Add(playlistItem);
-                    var result = await _youTubeCleanupToolDbContextFactory.Create().UpsertPlaylistItem(playlistItem);
-                    callback(playlistItem, result);
-                }
-
-                // Now we have to remove playlist items we didn't get back from the API - Otherwise if we delete + add items then we end up with duplicates
-                var originalPlaylistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems(playlist.Id);
-
-                var playlistItemsHashSet = new HashSet<string>(playlistItems.Select(x => x.Id).ToList());
-                foreach (var playlistItem in originalPlaylistItems)
-                {
-                    if (!playlistItemsHashSet.Contains(playlistItem.Id))
-                    {
-                        _youTubeCleanupToolDbContextFactory.Create().RemovePlaylistItem(playlistItem);
-                        callback(playlistItem, InsertStatus.Deleted);
-                    }
-                }
+                await GetPlaylistItems(callback, playlist);
             }
             
             await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync();
+        }
+
+        public async Task GetPlaylistItemsForPlaylist(Action<PlaylistItemData, InsertStatus> callback, PlaylistData playlist)
+        {
+            await GetPlaylistItems(callback, playlist);
+            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync();
+        }
+
+        private async Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback, PlaylistData playlist)
+        {
+            var playlistItems = new List<PlaylistItemData>();
+            await foreach (var playlistItem in _youTubeApi.GetPlaylistItems(playlist.Id, RemovePlaylist))
+            {
+                playlistItems.Add(playlistItem);
+                var result = await _youTubeCleanupToolDbContextFactory.Create().UpsertPlaylistItem(playlistItem);
+                callback(playlistItem, result);
+            }
+
+            // Now we have to remove playlist items we didn't get back from the API - Otherwise if we delete + add items then we end up with duplicates
+            var originalPlaylistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems(playlist.Id);
+
+            var playlistItemsHashSet = new HashSet<string>(playlistItems.Select(x => x.Id).ToList());
+            foreach (var playlistItem in originalPlaylistItems)
+            {
+                if (!playlistItemsHashSet.Contains(playlistItem.Id))
+                {
+                    _youTubeCleanupToolDbContextFactory.Create().RemovePlaylistItem(playlistItem);
+                    callback(playlistItem, InsertStatus.Deleted);
+                }
+            }
         }
 
         public async Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos, CancellationToken cancellationToken)

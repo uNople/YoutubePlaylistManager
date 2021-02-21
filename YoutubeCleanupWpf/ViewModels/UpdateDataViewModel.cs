@@ -19,7 +19,7 @@ namespace YouTubeCleanupWpf.ViewModels
         public UpdateDataWindow ParentWindow { get; set; }
         public CancellationTokenSource CancellationTokenSource { get; set; }
         public MainWindowViewModel MainWindowViewModel { get; set; }
-        private ConcurrentQueue<string> PendingLogs { get; } = new ConcurrentQueue<string>();
+        private ConcurrentQueue<string> PendingLogs { get; } = new();
         private Thread _currentThread;
 
         public UpdateDataViewModel()

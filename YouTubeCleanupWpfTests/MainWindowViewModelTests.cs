@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
 

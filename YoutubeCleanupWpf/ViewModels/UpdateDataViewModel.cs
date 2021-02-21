@@ -64,12 +64,13 @@ namespace YouTubeCleanupWpf.ViewModels
             PendingLogs.Enqueue(message);
         }
 
-        public async Task Hide()
+        public Task Hide()
         {
             CancellationTokenSource?.Cancel();
             LogText = "";
-            await Task.Run(() => new Action(() => ParentWindow.Hide()).RunOnUiThread());
+            ParentWindow.Hide();
             MainWindowViewModel.UpdateHappening = false;
+            return Task.CompletedTask;
         }
     }
 

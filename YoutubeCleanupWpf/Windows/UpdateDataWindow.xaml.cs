@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -38,7 +37,7 @@ namespace YouTubeCleanupWpf.Windows
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            Task.Run(() => _updateDataViewModel.Hide());
+            _updateDataViewModel.Hide();
             Hide();
         }
     }

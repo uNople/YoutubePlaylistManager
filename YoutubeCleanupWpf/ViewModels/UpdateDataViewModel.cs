@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -22,9 +23,9 @@ namespace YouTubeCleanupWpf.ViewModels
         private ConcurrentQueue<string> PendingLogs { get; } = new();
         private Thread _currentThread;
 
-        public UpdateDataViewModel()
+        public UpdateDataViewModel([NotNull]IErrorHandler errorHandler)
         {
-            CloseCommand = new RunMethodWithoutParameterCommand(Hide, MainWindowViewModel.ShowError);
+            CloseCommand = new RunMethodWithoutParameterCommand(Hide, errorHandler.HandleError);
         }
 
         internal void Start()
@@ -69,7 +70,11 @@ namespace YouTubeCleanupWpf.ViewModels
             CancellationTokenSource?.Cancel();
             LogText = "";
             ParentWindow.Hide();
-            MainWindowViewModel.UpdateHappening = false;
+            if (MainWindowViewModel != null)
+            {
+                MainWindowViewModel.UpdateHappening = false;
+            }
+
             return Task.CompletedTask;
         }
     }

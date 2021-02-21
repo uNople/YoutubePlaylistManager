@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +19,8 @@ namespace YouTubeCleanupWpf
         private const int SaveDelayMs = 500;
         [JsonIgnore]
         public YouTubeServiceCreatorOptions YouTubeServiceCreatorOptions { get; set; }
+        [JsonIgnore]
+        public IErrorHandler ErrorHandler { get; set; }
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 067
@@ -33,8 +36,9 @@ namespace YouTubeCleanupWpf
         public Screen CurrentScreen { get; set; }
         private DeferTimer _saveSettingsDeferTimer;
 
-        public WpfSettings(YouTubeServiceCreatorOptions youTubeServiceCreatorOptions)
+        public WpfSettings(YouTubeServiceCreatorOptions youTubeServiceCreatorOptions, IErrorHandler errorHandler)
         {
+            ErrorHandler = errorHandler;
             YouTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
         }
 
@@ -46,7 +50,7 @@ namespace YouTubeCleanupWpf
             Themes = new ObservableCollection<string>(new[] {"DarkMode", "Pink", "NoTheme"});
             YouTubeServiceCreatorOptions.DatabasePath = DatabasePath;
             YouTubeServiceCreatorOptions.ClientSecretPath = ClientSecretPath;
-            _saveSettingsDeferTimer = new DeferTimer(SaveSetting, MainWindowViewModel.ShowError);
+            _saveSettingsDeferTimer = new DeferTimer(SaveSetting, ErrorHandler.HandleError);
         }
 
         private async Task SaveSetting()
@@ -119,7 +123,7 @@ namespace YouTubeCleanupWpf
             catch (Exception ex)
             {
                 Application.Current.Resources.MergedDictionaries.Clear();
-                MainWindowViewModel.ShowError(ex);
+                ErrorHandler.HandleError(ex);
             }
         }
 

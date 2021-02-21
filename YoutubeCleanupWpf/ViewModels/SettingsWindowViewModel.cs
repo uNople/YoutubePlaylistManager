@@ -19,12 +19,12 @@ namespace YouTubeCleanupWpf.ViewModels
         public ICommand OpenDeveloperConsoleCommand { get; set; }
 
 
-        public SettingsWindowViewModel([NotNull] WpfSettings wpfSettings)
+        public SettingsWindowViewModel([NotNull] WpfSettings wpfSettings, [NotNull] IErrorHandler errorHandler)
         {
             WpfSettings = wpfSettings;
-            SelectDbPathCommand = new RunMethodWithoutParameterCommand(SelectDbPath, MainWindowViewModel.ShowError);
-            SelectClientSecretPathCommand = new RunMethodWithoutParameterCommand(SelectClientSecret, MainWindowViewModel.ShowError);
-            OpenDeveloperConsoleCommand = new RunMethodWithoutParameterCommand(OpenDeveloperConsole, MainWindowViewModel.ShowError);
+            SelectDbPathCommand = new RunMethodWithoutParameterCommand(SelectDbPath, errorHandler.HandleError);
+            SelectClientSecretPathCommand = new RunMethodWithoutParameterCommand(SelectClientSecret, errorHandler.HandleError);
+            OpenDeveloperConsoleCommand = new RunMethodWithoutParameterCommand(OpenDeveloperConsole, errorHandler.HandleError);
         }
         
         private async Task OpenDeveloperConsole()

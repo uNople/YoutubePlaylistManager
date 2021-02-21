@@ -21,6 +21,7 @@ namespace YouTubeCleanupWpf
             builder.RegisterType<UpdateDataWindow>().As<IUpdateDataWindow>();
             builder.RegisterType<SettingsWindow>().As<ISettingsWindow>();
             builder.RegisterType<MainWindowViewModel>().SingleInstance();
+            builder.RegisterType<MessageBoxErrorHandler>().As<IErrorHandler>();
             builder.RegisterType<UpdateDataViewModel>()
                 .As<IUpdateDataViewModel>()
                 .As<UpdateDataViewModel>()
@@ -32,15 +33,17 @@ namespace YouTubeCleanupWpf
             builder.Register(x =>
                 {
                     var youTubeServiceCreatorOptions = x.Resolve<YouTubeServiceCreatorOptions>();
+                    var errorHandler = x.Resolve<IErrorHandler>();
                     try
                     {
                         var wpfSettings = JsonConvert.DeserializeObject<WpfSettings>(File.ReadAllText("WpfSettings.json"));
                         wpfSettings.YouTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
+                        wpfSettings.ErrorHandler = errorHandler;
                         return wpfSettings;
                     }
                     catch
                     {
-                        return new WpfSettings(youTubeServiceCreatorOptions);
+                        return new WpfSettings(youTubeServiceCreatorOptions, errorHandler);
                     }
                     
                 })

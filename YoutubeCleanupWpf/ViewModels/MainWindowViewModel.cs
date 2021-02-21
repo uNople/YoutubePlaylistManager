@@ -28,7 +28,8 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
             [NotNull] IUpdateDataViewModel updateDataViewModel,
             [NotNull] IWindowService windowService,
-            [NotNull] ILogger<MainWindowViewModel> logger
+            [NotNull] ILogger<MainWindowViewModel> logger,
+            [NotNull] IErrorHandler errorHandler
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -37,16 +38,16 @@ namespace YouTubeCleanupWpf.ViewModels
             VideoFilter = new ObservableCollection<VideoFilter>();
             _mapper = mapper;
             _getAndCacheYouTubeData = getAndCacheYouTubeData;
-            CheckedOrUncheckedVideoInPlaylistCommand = new RunMethodCommand<WpfPlaylistData>(async o => await UpdateVideoInPlaylist(o), ShowError);
-            OpenPlaylistCommand = new RunMethodCommand<PlaylistData>(OpenPlaylist, ShowError);
-            OpenChannelCommand = new RunMethodCommand<VideoData>(OpenChannel, ShowError);
-            OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, ShowError);
-            SearchCommand = new RunMethodWithoutParameterCommand(Search, ShowError);
-            RefreshDataCommand = new RunMethodWithoutParameterCommand(UpdateData, ShowError);
-            UpdateSettingsCommand = new RunMethodWithoutParameterCommand(UpdateSettings, ShowError);
-            RefreshSelectedPlaylistCommand = new RunMethodWithoutParameterCommand(UpdateSelectedPlaylist, ShowError);
-            _searchTypeDelayDeferTimer = new DeferTimer(async () => await SearchForVideos(SearchText), ShowError);
-            _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), ShowError);
+            CheckedOrUncheckedVideoInPlaylistCommand = new RunMethodCommand<WpfPlaylistData>(async o => await UpdateVideoInPlaylist(o), errorHandler.HandleError);
+            OpenPlaylistCommand = new RunMethodCommand<PlaylistData>(OpenPlaylist, errorHandler.HandleError);
+            OpenChannelCommand = new RunMethodCommand<VideoData>(OpenChannel, errorHandler.HandleError);
+            OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, errorHandler.HandleError);
+            SearchCommand = new RunMethodWithoutParameterCommand(Search, errorHandler.HandleError);
+            RefreshDataCommand = new RunMethodWithoutParameterCommand(UpdateData, errorHandler.HandleError);
+            UpdateSettingsCommand = new RunMethodWithoutParameterCommand(UpdateSettings, errorHandler.HandleError);
+            RefreshSelectedPlaylistCommand = new RunMethodWithoutParameterCommand(UpdateSelectedPlaylist, errorHandler.HandleError);
+            _searchTypeDelayDeferTimer = new DeferTimer(async () => await SearchForVideos(SearchText), errorHandler.HandleError);
+            _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), errorHandler.HandleError);
             _updateDataViewModel = updateDataViewModel;
             _windowService = windowService;
             _logger = logger;
@@ -316,7 +317,6 @@ namespace YouTubeCleanupWpf.ViewModels
 
         private async Task OpenChannel(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}"));
         private async Task OpenPlaylist(PlaylistData playlistData) => await Task.Run(() => OpenLink($"https://www.youtube.com/playlist?list={playlistData.Id}"));
-        public static void ShowError(Exception ex) => MessageBox.Show(ex.ToString());
         private async Task OpenVideo(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/watch?v={videoData.Id}"));
 
         public static void OpenLink(string url)
@@ -486,19 +486,27 @@ namespace YouTubeCleanupWpf.ViewModels
             Videos.AddOnUi(videoData);
         }
 
-        private static BitmapImage CreateBitmapImageFromByteArray(WpfVideoData videoData)
+        private BitmapImage CreateBitmapImageFromByteArray(WpfVideoData videoData)
         {
             if (videoData.ThumbnailBytes.Length == 0)
                 return null;
 
-            var thumbnail = new BitmapImage();
-            thumbnail.BeginInit();
-            thumbnail.StreamSource = new MemoryStream(videoData.ThumbnailBytes);
-            thumbnail.DecodePixelWidth = 200;
-            thumbnail.EndInit();
-            // Freeze so we can move this between threads (eg, create on background thread, use on UI thread)
-            thumbnail.Freeze();
-            return thumbnail;
+            try
+            {
+                var thumbnail = new BitmapImage();
+                thumbnail.BeginInit();
+                thumbnail.StreamSource = new MemoryStream(videoData.ThumbnailBytes);
+                thumbnail.DecodePixelWidth = 200;
+                thumbnail.EndInit();
+                // Freeze so we can move this between threads (eg, create on background thread, use on UI thread)
+                thumbnail.Freeze();
+                return thumbnail;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating thumbnail image");
+                return null;
+            }
         }
         
         private string SerializeVideoCollection(List<WpfVideoData> videos)

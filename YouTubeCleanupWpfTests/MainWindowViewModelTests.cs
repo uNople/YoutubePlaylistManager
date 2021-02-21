@@ -116,6 +116,7 @@ namespace YouTubeCleanupWpf.UnitTests
             IMapper mapper,
             [NoAutoProperties]MainWindowViewModel mainWindowViewModel)
         {
+            mainWindowViewModel.ShouldSelectingFilterUpdateVideos = false;
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
 
             mainWindowViewModel.SelectedFilterFromComboBox = new VideoFilter()
@@ -132,13 +133,14 @@ namespace YouTubeCleanupWpf.UnitTests
             youTubeCleanupToolDbContext.GetVideos().Returns(new List<VideoData>() { videoData });
             
             mainWindowViewModel.Videos.Should().BeEmpty();
-            await mainWindowViewModel.LoadData();
-
             var expectedVideos = new List<WpfVideoData> {mapper.Map<WpfVideoData>(videoData)};
+
+            await mainWindowViewModel.LoadData();
+            LogVideos(mainWindowViewModel, expectedVideos);
             mainWindowViewModel.Videos.Should().BeEquivalentTo(expectedVideos, WithDefaultListCompare());
             
             await mainWindowViewModel.LoadData();
-
+            LogVideos(mainWindowViewModel, expectedVideos);
             mainWindowViewModel.Videos.Should().BeEquivalentTo(expectedVideos, WithDefaultListCompare());
         }
 

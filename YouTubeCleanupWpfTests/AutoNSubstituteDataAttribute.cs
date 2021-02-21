@@ -13,7 +13,8 @@ namespace YouTubeCleanupWpf.UnitTests
                 // TODO: Need to redesign models etc so we don't have to do this. It's happening because
                 // VideoData -> List<PlaylistData> -> VideoData -> etc
                 new DontThrowRecursionErrorsCustomization(),
-                new AutoMapperCustomization()
+                new AutoMapperCustomization(),
+                new ErrorHandlingCustomization()
             )))
         {
         }

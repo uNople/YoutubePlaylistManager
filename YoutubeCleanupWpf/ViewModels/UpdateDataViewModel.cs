@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Google.Apis.Logging;
+using Microsoft.Extensions.Logging;
 using YouTubeCleanupWpf.Converters;
 using YouTubeCleanupWpf.Windows;
 
@@ -12,6 +14,7 @@ namespace YouTubeCleanupWpf.ViewModels
 {
     public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
     {
+        private readonly ILogger<UpdateDataViewModel> _logger;
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 067
@@ -23,8 +26,9 @@ namespace YouTubeCleanupWpf.ViewModels
         private ConcurrentQueue<string> PendingLogs { get; } = new();
         private Thread _currentThread;
 
-        public UpdateDataViewModel([NotNull]IErrorHandler errorHandler)
+        public UpdateDataViewModel([NotNull]IErrorHandler errorHandler, [NotNull]ILogger<UpdateDataViewModel> logger)
         {
+            _logger = logger;
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, errorHandler.HandleError);
         }
 
@@ -62,6 +66,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
         public void PrependText(string message)
         {
+            _logger.LogInformation(message);
             PendingLogs.Enqueue(message);
         }
 

@@ -212,8 +212,12 @@ namespace YouTubeCleanupWpf.ViewModels
 
         public async Task LoadData() => await DoNotRunFilterUpdate(async () =>
         {
-            var playlists = (await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists())?.OrderBy(x => x.Title).ToList() ?? new List<PlaylistData>();
+            var playlists = (await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists())?.OrderBy(x => x, new DataSorter()).ToList() ?? new List<PlaylistData>();
             var playlistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems() ?? new List<PlaylistItemData>();
+            var playlistItemsByPlaylist = playlistItems.GroupBy(x => x.PlaylistDataId)
+                // TODO: figure out why sometimes playlist items have a null playlist
+                .Where(x => x.Key != null)
+                .ToDictionary(x => x.Key, x => x.Select(y => y));
             _videosToPlaylistMap = playlistItems
                 .Where(x => x.VideoId != null)
                 .GroupBy(x => x.VideoId)
@@ -245,6 +249,14 @@ namespace YouTubeCleanupWpf.ViewModels
                     {
                         playlistsToRemove.Add(playlist);
                     }
+                    else
+                    {
+                        playlist.PlaylistItems.ClearOnUi();
+                        if (playlistItemsByPlaylist.ContainsKey(playlist.Id))
+                        {
+                            playlistItemsByPlaylist[playlist.Id].ForEach(playlist.PlaylistItems.AddOnUi);
+                        }
+                    }
                 }
 
                 foreach (var removeThis in playlistsToRemove)
@@ -275,7 +287,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 var matchingPlaylist = Playlists.First(x => x.Title == SelectedFilterFromComboBox.Title);
                 _logger.LogInformation($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
 
-                var videoIds = new HashSet<string>(matchingPlaylist.PlaylistItems.Select(x => x.VideoId));
+                var videoIds = new HashSet<string>(playlistItemsByPlaylist[matchingPlaylist.Id].Select(x => x.VideoId));
                 _logger.LogInformation($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.Title}'. Ids: {string.Join(", ", videoIds)}");
                 var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
@@ -310,6 +322,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     foreach (var removeThis in videosToRemove)
                     {
                         Videos.RemoveOnUi(removeThis);
+                        _logger.LogInformation($"Video {video.Title} (id {video.Id}) got removed from the UI, it was no longer found");
                     }
                 }
             }
@@ -409,12 +422,15 @@ namespace YouTubeCleanupWpf.ViewModels
                 var videoIds = new HashSet<string>(Playlists.First(x => x.Title == videoFilter.Title).PlaylistItems.Select(x => x.VideoId));
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
-                    .OrderBy(x => x.Title)
-                    .ThenBy(x => x.Id);
+                    .OrderBy(x => x, new DataSorter())
+                    .ToList();
+                _logger.LogInformation($"Videos after selecting a playlist: {SerializeVideoCollection(_mapper.Map<List<WpfVideoData>>(videos))}");
                 foreach (var video in videos)
                 {
                     AddVideoToCollection(video);
                 }
+                
+                _logger.LogInformation($"Videos after selecting a playlist: {SerializeVideoCollection(Videos.ToList())}");
             }
             else if (videoFilter.FilterType == FilterType.All)
             {

@@ -126,9 +126,11 @@ namespace YouTubeCleanupWpf.UnitTests
             };
 
             mainWindowViewModel.Playlists.Add(playlistData);
-            
-            playlistData.PlaylistItems = new List<PlaylistItemData>() {new() {VideoId = videoData.Id}};
+
+            var playlistItems = new List<PlaylistItemData>() {new() {VideoId = videoData.Id, PlaylistDataId = playlistData.Id}};
+            playlistData.PlaylistItems = playlistItems;
             youTubeCleanupToolDbContext.GetPlaylists().Returns(new List<PlaylistData> {playlistData});
+            youTubeCleanupToolDbContext.GetPlaylistItems().Returns(playlistItems);
 
             youTubeCleanupToolDbContext.GetVideos().Returns(new List<VideoData>() { videoData });
             
@@ -166,9 +168,11 @@ namespace YouTubeCleanupWpf.UnitTests
             };
             
             mainWindowViewModel.Playlists.Add(playlistData);
-
-            playlistData.PlaylistItems = new List<PlaylistItemData> { new() { VideoId = videoData.Id }, new() { VideoId = videoDataTwo.Id }, new() { VideoId = videoDataThree.Id } };
+            var playlistItems = new List<PlaylistItemData> {new() {VideoId = videoData.Id, PlaylistDataId = playlistData.Id}, new() {VideoId = videoDataTwo.Id, PlaylistDataId = playlistData.Id}, new() {VideoId = videoDataThree.Id, PlaylistDataId = playlistData.Id}};
+            playlistData.PlaylistItems = playlistItems;
             youTubeCleanupToolDbContext.GetPlaylists().Returns(new List<PlaylistData> { playlistData });
+            var playlistDataForVideo4 = new PlaylistItemData {VideoId = videoDataFour.Id, PlaylistDataId = playlistData.Id};
+            youTubeCleanupToolDbContext.GetPlaylistItems().Returns(playlistItems, new List<PlaylistItemData>(playlistItems) { playlistDataForVideo4 });
 
             youTubeCleanupToolDbContext.GetVideos().Returns(
                 new List<VideoData> { videoData, videoDataTwo, videoDataThree }, 
@@ -187,7 +191,7 @@ namespace YouTubeCleanupWpf.UnitTests
             LogVideos(mainWindowViewModel, expectedVideos);
             mainWindowViewModel.Videos.Should().BeEquivalentTo(expectedVideos, WithDefaultListCompare());
 
-            playlistData.PlaylistItems.Add(new PlaylistItemData { VideoId = videoDataFour.Id});
+            playlistData.PlaylistItems.Add(playlistDataForVideo4);
 
             await mainWindowViewModel.LoadData();
 

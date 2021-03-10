@@ -7,6 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeApiWrapper", "Youtub
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Help", "Help", "{78B20DB0-EBCF-4BD5-B452-8F646688D575}"
 	ProjectSection(SolutionItems) = preProject
+		ARCHITECTURE.md = ARCHITECTURE.md
 		NOTES.md = NOTES.md
 		README.md = README.md
 	EndProjectSection
@@ -19,11 +20,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain.U
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupWpf", "YoutubeCleanupWpf\YouTubeCleanupWpf.csproj", "{1F01C4B1-68CA-4752-B73F-3E0ED9A63876}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTubeCleanupWpf.UnitTests", "YouTubeCleanupWpfTests\YouTubeCleanupWpf.UnitTests.csproj", "{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupWpf.UnitTests", "YouTubeCleanupWpfTests\YouTubeCleanupWpf.UnitTests.csproj", "{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{36D9F9BA-A7CE-4F8A-A392-2072796B978B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests.Common", "UnitTests.Common\UnitTests.Common.csproj", "{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests.Common", "UnitTests.Common\UnitTests.Common.csproj", "{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

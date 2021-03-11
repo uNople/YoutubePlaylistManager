@@ -57,7 +57,8 @@ namespace YouTubeCleanupWpf.ViewModels
                     new Action(() => LogText = logText).RunOnUiThread();
                 }
 
-                if (CancellationTokenSource?.IsCancellationRequested ?? false)
+                // Only return out of this if the logs have all been written to the UI
+                if ((CancellationTokenSource?.IsCancellationRequested ?? false) && PendingLogs.IsEmpty)
                     return;
 
                 Thread.Sleep(100);

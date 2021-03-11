@@ -310,10 +310,12 @@ namespace YouTubeCleanupWpf.ViewModels
                     // It seems like YouTube reuses Ids in playlists for PlaylistItems
                     // Due to this, we don't know if the title not being there means it's a brand new item, or it replaced something we have locally
 
+                    var videosById = videos.ToDictionary(x => x.Id, x => x);
                     var videosToRemove = new List<WpfVideoData>();
                     foreach (var videoData in Videos)
                     {
-                        if (!videos.Any(x => x.Id == videoData.Id))
+                        
+                        if (!videosById.ContainsKey(videoData.Id))
                         {
                             videosToRemove.Add(videoData);
                         }

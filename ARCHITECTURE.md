@@ -8,7 +8,7 @@ It allows for fast search of your videos, and fast scroll through thousands of v
 playlist (rather than waiting every 100 videos for the 'next page' on YouTube)
 
 ## Project interaction overview
-![](Design\YouTubePlaylistManagerDiagram.png)
+![](Design/YouTubePlaylistManagerDiagram.png)
 
 [Online Version](https://drive.google.com/file/d/1Y8-YgVYh6b51JDk2_0UtjnZOPK1W6jbq/view?usp=sharing)
 

@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Google.Apis.Logging;
 using Microsoft.Extensions.Logging;
 using YouTubeCleanupWpf.Converters;
 using YouTubeCleanupWpf.Windows;
@@ -32,10 +31,15 @@ namespace YouTubeCleanupWpf.ViewModels
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, errorHandler.HandleError);
         }
 
-        internal void Start()
+        internal async Task Start()
         {
-            _currentThread = new Thread(DequeueLogs);
-            _currentThread.Start();
+            await new Action(() => LogText = "").RunOnUiThreadAsync();
+
+            if (_currentThread == null)
+            {
+                _currentThread = new Thread(DequeueLogs);
+                _currentThread.Start();
+            }
         }
 
         private void DequeueLogs()
@@ -43,6 +47,12 @@ namespace YouTubeCleanupWpf.ViewModels
             Thread.CurrentThread.Name = "Update logs thread";
             while (true)
             {
+                if ((CancellationTokenSource?.IsCancellationRequested ?? false) && PendingLogs.IsEmpty)
+                {
+                    Thread.Sleep(100);
+                    continue;
+                }
+                
                 var logMessage = "";
                 while (PendingLogs.TryDequeue(out var message))
                 {
@@ -54,12 +64,8 @@ namespace YouTubeCleanupWpf.ViewModels
                     // NOTE: we still need to clamp the text's length to get a responsive UI
                     var logText = $"{logMessage}{Environment.NewLine}{LogText}";
                     logText = logText.Substring(0, Math.Min(logText.Length, 10000));
-                    new Action(() => LogText = logText).RunOnUiThread();
+                    new Action(() => LogText = logText).RunOnUiThreadSync();
                 }
-
-                // Only return out of this if the logs have all been written to the UI
-                if ((CancellationTokenSource?.IsCancellationRequested ?? false) && PendingLogs.IsEmpty)
-                    return;
 
                 Thread.Sleep(100);
             }

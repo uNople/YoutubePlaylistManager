@@ -1,9 +1,11 @@
-﻿namespace YouTubeCleanupWpf
+﻿using System.Threading.Tasks;
+
+namespace YouTubeCleanupWpf
 {
     public interface IWindowService
     {
         void ShowSettingsWindow();
-        void ShowUpdateDataWindow();
+        Task ShowUpdateDataWindow();
         void SetUpdateComplete();
     }
 }

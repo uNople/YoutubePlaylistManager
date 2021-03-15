@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
@@ -145,7 +144,7 @@ namespace YouTubeCleanupWpf.ViewModels
             UpdateHappening = true;
             var cancellationTokenSource = new CancellationTokenSource();
 
-            _windowService.ShowUpdateDataWindow();
+            await _windowService.ShowUpdateDataWindow();
             _updateDataViewModel.CancellationTokenSource = cancellationTokenSource;
             _updateDataViewModel.MainWindowViewModel = this;
 
@@ -170,7 +169,7 @@ namespace YouTubeCleanupWpf.ViewModels
             UpdateHappening = true;
             var cancellationTokenSource = new CancellationTokenSource();
 
-            _windowService.ShowUpdateDataWindow();
+            await _windowService.ShowUpdateDataWindow();
             _updateDataViewModel.CancellationTokenSource = cancellationTokenSource;
             _updateDataViewModel.MainWindowViewModel = this;
 

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -21,11 +22,11 @@ namespace YouTubeCleanupWpf.Windows
             InitializeComponent();
         }
         
-        public new void Show()
+        public new async Task Show()
         {
             this.StartOnSelectedWindow(_wpfSettings);
             SetProgressBarState(ProgressBarState.Running);
-            _updateDataViewModel.Start();
+            await _updateDataViewModel.Start();
             base.Show();
         }
 
@@ -44,7 +45,7 @@ namespace YouTubeCleanupWpf.Windows
 
     public interface IUpdateDataWindow
     {
-        void Show();
+        Task Show();
         void SetProgressBarState(ProgressBarState state);
     }
 

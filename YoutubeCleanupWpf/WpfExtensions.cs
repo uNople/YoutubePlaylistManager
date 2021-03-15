@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -53,6 +54,30 @@ namespace YouTubeCleanupWpf
             Application.Current.Dispatcher.BeginInvoke(
                 DispatcherPriority.Normal,
                 action);
+        }
+
+        public static void RunOnUiThreadSync(this Action action)
+        {
+            if (Application.Current == null)
+            {
+                action();
+                return;
+            }
+
+            Application.Current.Dispatcher.Invoke(
+                DispatcherPriority.Normal,
+                action);
+        }
+        
+        public static async Task RunOnUiThreadAsync(this Action action)
+        {
+            if (Application.Current == null)
+            {
+                await Task.Run(action);
+                return;
+            }
+
+            await Application.Current.Dispatcher.InvokeAsync(action, DispatcherPriority.Normal);
         }
     }
 }

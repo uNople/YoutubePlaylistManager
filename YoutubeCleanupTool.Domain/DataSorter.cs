@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using YouTubeCleanupTool.Domain;
 
-namespace YouTubeCleanupWpf.ViewModels
+namespace YouTubeCleanupTool.Domain
 {
     public class DataSorter : IComparer<IData>
     {

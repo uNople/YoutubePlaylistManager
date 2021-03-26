@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using YouTubeCleanupTool.Domain;
@@ -9,7 +10,10 @@ namespace YouTubeCleanupTool.DataAccess
     {
         private readonly YouTubeServiceCreatorOptions _youTubeServiceCreatorOptions;
         private readonly IMapper _mapper;
-        private IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
+        // Due to errors like "A second operation was started on this context before a previous operation completed"
+        // We can only have a cache of this DB Context per thread, not one static instance per application
+        [ThreadStatic]
+        private static IYouTubeCleanupToolDbContext _youTubeCleanupToolDbContext;
 
         public YouTubeCleanupToolDbContextFactory([NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions,
             [NotNull] IMapper mapper)

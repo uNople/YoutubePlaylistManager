@@ -178,13 +178,24 @@ namespace YouTubeCleanupWpf.ViewModels
 
             async Task Callback(IData data, InsertStatus status, CancellationToken cancellationToken)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
                 await Task.Run(() => _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}"), cancellationToken);
             }
 
-            await refresh(Callback, cancellationTokenSource.Token);
-            
-            await LoadData();
-
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    await refresh(Callback, cancellationTokenSource.Token);
+                }
+                catch (TaskCanceledException)
+                {
+                    // If we cancel, it's no big deal
+                }
+                
+                await LoadData();
+            }, cancellationTokenSource.Token);
             _windowService.SetUpdateComplete();
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -25,6 +26,7 @@ namespace YouTubeCleanupWpf.ViewModels
         public MainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> PendingLogs { get; } = new();
         private Thread _currentThread;
+        private readonly StringBuilder _logStringBuilder = new StringBuilder();
 
         public UpdateDataViewModel([NotNull]IErrorHandler errorHandler, [NotNull]ILogger<UpdateDataViewModel> logger)
         {
@@ -35,7 +37,7 @@ namespace YouTubeCleanupWpf.ViewModels
         internal async Task Start()
         {
             await new Action(() => LogText = "").RunOnUiThreadAsync();
-
+            
             if (_currentThread == null)
             {
                 _currentThread = new Thread(DequeueLogs);
@@ -50,21 +52,27 @@ namespace YouTubeCleanupWpf.ViewModels
             {
                 if ((CancellationTokenSource?.IsCancellationRequested ?? false) && PendingLogs.IsEmpty)
                 {
-                    Thread.Sleep(100);
-                    continue;
+                    _logStringBuilder.Clear();
+                    _currentThread.Interrupt();
+                    _currentThread = null;
+                    return;
                 }
                 
-                var logMessage = "";
+                var shouldAppend = false;
                 while (PendingLogs.TryDequeue(out var message))
                 {
                     _logger.LogTrace(message);
-                    logMessage = string.IsNullOrWhiteSpace(logMessage) ? message : $"{message}{Environment.NewLine}{logMessage}";
+                    _logStringBuilder.Insert(0, message + Environment.NewLine);
+                    shouldAppend = true;
                 }
 
-                if (!string.IsNullOrWhiteSpace(logMessage))
+                if (shouldAppend)
                 {
+                    // Clamp the string builder to 10,000 characters (better than creating yet another string to do the truncate on)
+                    // TODO: Implement
+                    
                     // NOTE: we still need to clamp the text's length to get a responsive UI
-                    var logText = $"{logMessage}{Environment.NewLine}{LogText}";
+                    var logText = _logStringBuilder.ToString();
                     logText = logText.Substring(0, Math.Min(logText.Length, 10000));
                     new Action(() => LogText = logText).RunOnUiThreadSync();
                 }
@@ -88,6 +96,9 @@ namespace YouTubeCleanupWpf.ViewModels
                 MainWindowViewModel.UpdateHappening = false;
             }
 
+            // Lots of strings created + appended here means a lot on the heap. Closing takes  
+            // a little time anyway, so doing a collect here won't cause any performance issues. 
+            GC.Collect();
             return Task.CompletedTask;
         }
     }

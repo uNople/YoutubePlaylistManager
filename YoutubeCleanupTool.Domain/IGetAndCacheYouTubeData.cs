@@ -6,12 +6,12 @@ namespace YouTubeCleanupTool.Domain
 {
     public interface IGetAndCacheYouTubeData
     {
-        Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback);
-        Task GetPlaylists(Action<PlaylistData, InsertStatus> callback);
-        Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos, CancellationToken c);
+        Task GetPlaylistItems(Func<IData, InsertStatus, CancellationToken, Task> callback, CancellationToken cancellationToken);
+        Task GetPlaylists(Func<IData, InsertStatus, CancellationToken, Task> callback, CancellationToken cancellationToken);
+        Task GetVideos(Func<IData, InsertStatus, CancellationToken, Task> callback, bool getAllVideos, CancellationToken cancellationToken);
         Task GetUnicodeVideoTitles(Action<string> callback);
         Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId);
         Task RemoveVideoFromPlaylist(string playlistId, string videoId);
-        Task GetPlaylistItemsForPlaylist(Action<PlaylistItemData, InsertStatus> callback, PlaylistData playlist);
+        Task GetPlaylistItemsForPlaylist(Func<IData, InsertStatus, CancellationToken, Task> callback, PlaylistData playlist, CancellationToken cancellationToken);
     }
 }

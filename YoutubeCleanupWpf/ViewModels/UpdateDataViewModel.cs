@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,6 +57,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 var logMessage = "";
                 while (PendingLogs.TryDequeue(out var message))
                 {
+                    _logger.LogTrace(message);
                     logMessage = string.IsNullOrWhiteSpace(logMessage) ? message : $"{message}{Environment.NewLine}{logMessage}";
                 }
 
@@ -73,7 +75,6 @@ namespace YouTubeCleanupWpf.ViewModels
 
         public void PrependText(string message)
         {
-            _logger.LogInformation(message);
             PendingLogs.Enqueue(message);
         }
 

@@ -19,13 +19,13 @@ namespace YouTubeCleanupWpf.Windows
             _mainWindowViewModel = mainWindowViewModel;
             _wpfSettings = wpfSettings;
             DataContext = _mainWindowViewModel;
-            this.StartOnSelectedWindow(_wpfSettings);
+            Task.Run(async () => await this.StartOnSelectedWindow(_wpfSettings));
             InitializeComponent();
         }
         
-        public new void Show()
+        public new async Task Show()
         {
-            this.StartOnSelectedWindow(_wpfSettings);
+            await this.StartOnSelectedWindow(_wpfSettings);
             base.Show();
         }
 

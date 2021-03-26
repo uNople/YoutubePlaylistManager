@@ -43,10 +43,8 @@ namespace YouTubeCleanupTool.Domain.UnitTests
 
             youTubeApi.GetVideos(Arg.Any<List<string>>()).Returns(TestExtensions.ToAsyncEnumerable(videos));
 
-            var callback = new Action<VideoData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
-
             // Act
-            await getAndCacheYouTubeData.GetVideos(callback, false, CancellationToken.None);
+            await getAndCacheYouTubeData.GetVideos(Callback, false, CancellationToken.None);
 
             // Assert
             // TODO: Assert we're passing in expectedGetTheseVideos to GetVideos 
@@ -76,10 +74,8 @@ namespace YouTubeCleanupTool.Domain.UnitTests
 
             youTubeApi.GetVideos(Arg.Any<List<string>>()).Returns(TestExtensions.ToAsyncEnumerable(videos));
 
-            var callback = new Action<VideoData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
-
             // Act
-            await getAndCacheYouTubeData.GetVideos(callback, true, CancellationToken.None);
+            await getAndCacheYouTubeData.GetVideos(Callback, true, CancellationToken.None);
 
             // Assert
             await foreach (var _ in youTubeApi.Received(1).GetVideos(Arg.Any<List<string>>())) { }
@@ -98,10 +94,8 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             youTubeApi.GetPlaylists().Returns(TestExtensions.ToAsyncEnumerable(playlistData));
 
-            var callback = new Action<PlaylistData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
-
             // Act
-            await getAndCacheYouTubeData.GetPlaylists(callback);
+            await getAndCacheYouTubeData.GetPlaylists(Callback, CancellationToken.None);
 
             // Assert
             await foreach (var _ in youTubeApi.Received(1).GetPlaylists()) { }
@@ -124,10 +118,8 @@ namespace YouTubeCleanupTool.Domain.UnitTests
 
             youTubeCleanupToolDbContext.GetPlaylistItems(Arg.Any<string>()).Returns(new List<PlaylistItemData>());
 
-            var callback = new Action<PlaylistItemData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
-
             // Act
-            await getAndCacheYouTubeData.GetPlaylistItems(callback);
+            await getAndCacheYouTubeData.GetPlaylistItems(Callback, CancellationToken.None);
 
             // Assert
             await foreach (var _ in youTubeApi.Received(1).GetPlaylistItems(Arg.Any<string>(), Arg.Any<Func<string, Task>>())) { }
@@ -186,14 +178,18 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             };
             youTubeCleanupToolDbContext.GetPlaylistItems(Arg.Any<string>()).Returns(originalPlaylistItems);
 
-            var callback = new Action<PlaylistItemData, InsertStatus>((data, insertStatus) => _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}"));
-            
-            await getAndCacheYouTubeData.GetPlaylistItems(callback);
+            await getAndCacheYouTubeData.GetPlaylistItems(Callback, CancellationToken.None);
             
             await foreach (var _ in youTubeApi.Received(1).GetPlaylistItems(Arg.Any<string>(), Arg.Any<Func<string, Task>>())) { }
             await youTubeCleanupToolDbContext.Received(2).UpsertPlaylistItem(Arg.Any<PlaylistItemData>());
             youTubeCleanupToolDbContext.Received(1).RemovePlaylistItem(Arg.Any<PlaylistItemData>());
             await youTubeCleanupToolDbContext.Received(1).SaveChangesAsync();
+        }
+        
+        private Task Callback(IData data, InsertStatus insertStatus, CancellationToken cancellationToken)
+        {
+            _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}");
+            return Task.CompletedTask;
         }
     }
 }

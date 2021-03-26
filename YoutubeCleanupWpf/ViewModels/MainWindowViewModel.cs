@@ -42,11 +42,12 @@ namespace YouTubeCleanupWpf.ViewModels
             OpenChannelCommand = new RunMethodCommand<VideoData>(OpenChannel, errorHandler.HandleError);
             OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, errorHandler.HandleError);
             SearchCommand = new RunMethodWithoutParameterCommand(Search, errorHandler.HandleError);
-            RefreshDataCommand = new RunMethodWithoutParameterCommand(UpdateData, errorHandler.HandleError);
+            RefreshDataCommand = new RunMethodWithoutParameterCommand(UpdateAllPlaylists, errorHandler.HandleError);
             UpdateSettingsCommand = new RunMethodWithoutParameterCommand(UpdateSettings, errorHandler.HandleError);
             RefreshSelectedPlaylistCommand = new RunMethodWithoutParameterCommand(UpdateSelectedPlaylist, errorHandler.HandleError);
             _searchTypeDelayDeferTimer = new DeferTimer(async () => await SearchForVideos(SearchText), errorHandler.HandleError);
             _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), errorHandler.HandleError);
+            _selectedVideoChangedDeferTimer = new DeferTimer(async () => await SelectedVideoChanged(SelectedVideo), errorHandler.HandleError);
             _updateDataViewModel = updateDataViewModel;
             _windowService = windowService;
             _logger = logger;
@@ -58,6 +59,7 @@ namespace YouTubeCleanupWpf.ViewModels
         }
 
         private readonly DeferTimer _selectedFilterDataFromComboBoxDeferTimer;
+        private readonly DeferTimer _selectedVideoChangedDeferTimer;
         private readonly DeferTimer _searchTypeDelayDeferTimer;
         private readonly IYouTubeCleanupToolDbContextFactory _youTubeCleanupToolDbContextFactory;
         private readonly IMapper _mapper;
@@ -94,7 +96,7 @@ namespace YouTubeCleanupWpf.ViewModels
             set
             {
                 _selectedVideo = value;
-                SelectedVideoChanged(value);
+                _selectedVideoChangedDeferTimer.DeferByMilliseconds(2);
             }
         }
 
@@ -141,30 +143,31 @@ namespace YouTubeCleanupWpf.ViewModels
 
             var matchingPlaylist = Playlists.First(x => x.Title == SelectedFilterFromComboBox.Title);
 
-            UpdateHappening = true;
-            var cancellationTokenSource = new CancellationTokenSource();
-
-            await _windowService.ShowUpdateDataWindow();
-            _updateDataViewModel.CancellationTokenSource = cancellationTokenSource;
-            _updateDataViewModel.MainWindowViewModel = this;
-
-            void Callback(IData data, InsertStatus status)
+            await DoRefreshFromYouTube(async (callback, cancellationToken) =>
             {
-                _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}");
-            }
-
-            _updateDataViewModel.PrependText("Updating playlist");
-            await _getAndCacheYouTubeData.GetPlaylistItemsForPlaylist(Callback, matchingPlaylist);
-            _updateDataViewModel.PrependText("Updating videos");
-            await _getAndCacheYouTubeData.GetVideos(Callback, false, cancellationTokenSource.Token);
-            _updateDataViewModel.PrependText("Completed! - You can close the window now.");
-
-            await LoadData();
-
-            _windowService.SetUpdateComplete();
+                _updateDataViewModel.PrependText("Updating playlist");
+                await _getAndCacheYouTubeData.GetPlaylistItemsForPlaylist(callback, matchingPlaylist, cancellationToken);
+                _updateDataViewModel.PrependText("Updating videos");
+                await  _getAndCacheYouTubeData.GetVideos(callback, false, cancellationToken);
+                _updateDataViewModel.PrependText("Completed! - You can close the window now.");
+            });
         }
 
-        private async Task UpdateData()
+        private async Task UpdateAllPlaylists()
+        {
+            await DoRefreshFromYouTube(async (callback, cancellationToken) =>
+            {
+                _updateDataViewModel.PrependText("Updating playlists");
+                await _getAndCacheYouTubeData.GetPlaylists(callback, cancellationToken);
+                _updateDataViewModel.PrependText("Updating playlist items");
+                await _getAndCacheYouTubeData.GetPlaylistItems(callback, cancellationToken);
+                _updateDataViewModel.PrependText("Updating videos");
+                await _getAndCacheYouTubeData.GetVideos(callback, false, cancellationToken);
+                _updateDataViewModel.PrependText("Completed! - You can close the window now.");
+            });
+        }
+
+        private async Task DoRefreshFromYouTube(Func<Func<IData, InsertStatus, CancellationToken, Task>, CancellationToken, Task> refresh)
         {
             UpdateHappening = true;
             var cancellationTokenSource = new CancellationTokenSource();
@@ -173,19 +176,13 @@ namespace YouTubeCleanupWpf.ViewModels
             _updateDataViewModel.CancellationTokenSource = cancellationTokenSource;
             _updateDataViewModel.MainWindowViewModel = this;
 
-            void Callback(IData data, InsertStatus status)
+            async Task Callback(IData data, InsertStatus status, CancellationToken cancellationToken)
             {
-                _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}");
+                await Task.Run(() => _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}"), cancellationToken);
             }
 
-            _updateDataViewModel.PrependText("Updating playlists");
-            await _getAndCacheYouTubeData.GetPlaylists(Callback);
-            _updateDataViewModel.PrependText("Updating playlist items");
-            await _getAndCacheYouTubeData.GetPlaylistItems(Callback);
-            _updateDataViewModel.PrependText("Updating videos");
-            await _getAndCacheYouTubeData.GetVideos(Callback, false, cancellationTokenSource.Token);
-            _updateDataViewModel.PrependText("Completed! - You can close the window now.");
-
+            await refresh(Callback, cancellationTokenSource.Token);
+            
             await LoadData();
 
             _windowService.SetUpdateComplete();
@@ -453,7 +450,7 @@ namespace YouTubeCleanupWpf.ViewModels
             }
         }
 
-        private void SelectedVideoChanged(WpfVideoData video)
+        private async Task SelectedVideoChanged(WpfVideoData video)
         {
             if (video == null)
             {
@@ -461,7 +458,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 {
                     if (playlistItem.VideoInPlaylist)
                     {
-                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = false);
+                        await WpfExtensions.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = false);
                     }
                 }
                 return;
@@ -474,11 +471,11 @@ namespace YouTubeCleanupWpf.ViewModels
                 {
                     if (playlistItemsHashSet.Contains(playlistItem.Id) && !playlistItem.VideoInPlaylist)
                     {
-                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = true);
+                        await WpfExtensions.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = true);
                     }
                     else if (playlistItem.VideoInPlaylist)
                     {
-                        WpfExtensions.RunOnUiThread(() => playlistItem.VideoInPlaylist = false);
+                        await WpfExtensions.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = false);
                     }
                 }
             }

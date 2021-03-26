@@ -23,41 +23,41 @@ namespace YouTubeCleanupTool.Domain
             _httpClientWrapper = httpClientWrapper;
         }
 
-        public async Task GetPlaylists(Action<PlaylistData, InsertStatus> callback)
+        public async Task GetPlaylists(Func<IData, InsertStatus, CancellationToken, Task> callback, CancellationToken cancellationToken)
         {
-            await foreach (var playlist in _youTubeApi.GetPlaylists())
+            await foreach (var playlist in _youTubeApi.GetPlaylists().WithCancellation(cancellationToken))
             {
                 var result = await _youTubeCleanupToolDbContextFactory.Create().UpsertPlaylist(playlist);
-                callback(playlist, result);
+                await callback(playlist, result, cancellationToken);
             }
-            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync();
+            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync(cancellationToken);
         }
 
-        public async Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback)
+        public async Task GetPlaylistItems(Func<IData, InsertStatus, CancellationToken, Task> callback, CancellationToken cancellationToken)
         {
             var playlists = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists();
             foreach (var playlist in playlists)
             {
-                await GetPlaylistItems(callback, playlist);
+                await GetPlaylistItems(callback, playlist, cancellationToken);
             }
             
-            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync();
+            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync(cancellationToken);
         }
 
-        public async Task GetPlaylistItemsForPlaylist(Action<PlaylistItemData, InsertStatus> callback, PlaylistData playlist)
+        public async Task GetPlaylistItemsForPlaylist(Func<IData, InsertStatus, CancellationToken, Task> callback, PlaylistData playlist, CancellationToken cancellationToken)
         {
-            await GetPlaylistItems(callback, playlist);
-            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync();
+            await GetPlaylistItems(callback, playlist, cancellationToken);
+            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync(cancellationToken);
         }
 
-        private async Task GetPlaylistItems(Action<PlaylistItemData, InsertStatus> callback, PlaylistData playlist)
+        private async Task GetPlaylistItems(Func<IData, InsertStatus, CancellationToken, Task> callback, PlaylistData playlist, CancellationToken cancellationToken)
         {
             var playlistItems = new List<PlaylistItemData>();
-            await foreach (var playlistItem in _youTubeApi.GetPlaylistItems(playlist.Id, RemovePlaylist))
+            await foreach (var playlistItem in _youTubeApi.GetPlaylistItems(playlist.Id, RemovePlaylist).WithCancellation(cancellationToken))
             {
                 playlistItems.Add(playlistItem);
                 var result = await _youTubeCleanupToolDbContextFactory.Create().UpsertPlaylistItem(playlistItem);
-                callback(playlistItem, result);
+                await callback(playlistItem, result, cancellationToken);
             }
 
             // Now we have to remove playlist items we didn't get back from the API - Otherwise if we delete + add items then we end up with duplicates
@@ -69,22 +69,22 @@ namespace YouTubeCleanupTool.Domain
                 if (!playlistItemsHashSet.Contains(playlistItem.Id))
                 {
                     _youTubeCleanupToolDbContextFactory.Create().RemovePlaylistItem(playlistItem);
-                    callback(playlistItem, InsertStatus.Deleted);
+                    await callback(playlistItem, InsertStatus.Deleted, cancellationToken);
                 }
             }
         }
 
-        public async Task GetVideos(Action<VideoData, InsertStatus> callback, bool getAllVideos, CancellationToken cancellationToken)
+        public async Task GetVideos(Func<IData, InsertStatus, CancellationToken, Task> callback, bool getAllVideos, CancellationToken cancellationToken)
         {
             var playlistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems();
             var videosToGet = playlistItems.Select(x => x.VideoId).ToList();
             var videosToSkip = getAllVideos ? new List<string>() : (await _youTubeCleanupToolDbContextFactory.Create().GetVideos()).Select(x => x.Id);
             videosToGet = videosToGet.Except(videosToSkip).ToList();
-            await foreach (var video in _youTubeApi.GetVideos(videosToGet))
+            await foreach (var video in _youTubeApi.GetVideos(videosToGet).WithCancellation(cancellationToken))
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    callback(new VideoData { Title = "CANCELLED", Id = "CANCELLED" }, InsertStatus.Inserted);
+                    await callback(new VideoData { Title = "CANCELLED", Id = "CANCELLED" }, InsertStatus.Inserted, cancellationToken);
                     return;
                 }
 
@@ -93,13 +93,13 @@ namespace YouTubeCleanupTool.Domain
                     // We only want to insert this if we haven't already - because we want to preserve any existing data we have
                     if (!await _youTubeCleanupToolDbContextFactory.Create().VideoExists(video.Id))
                     {
-                        await UpsertVideo(callback, video);
+                        await UpsertVideo(callback, video, cancellationToken);
                     }
                 }
                 else
                 {
                     video.ThumbnailBytes = await GetThumbnail(cancellationToken, video);
-                    await UpsertVideo(callback, video);
+                    await UpsertVideo(callback, video, cancellationToken);
                 }
             }
         }
@@ -117,11 +117,11 @@ namespace YouTubeCleanupTool.Domain
             }
         }
 
-        private async Task UpsertVideo(Action<VideoData, InsertStatus> callback, VideoData video)
+        private async Task UpsertVideo(Func<IData, InsertStatus, CancellationToken, Task> callback, VideoData video, CancellationToken cancellationToken)
         {
             var result = await _youTubeCleanupToolDbContextFactory.Create().UpsertVideo(video);
-            callback(video, result);
-            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync();
+            await callback(video, result, cancellationToken);
+            await _youTubeCleanupToolDbContextFactory.Create().SaveChangesAsync(cancellationToken);
         }
 
         public async Task GetUnicodeVideoTitles(Action<string> callback)

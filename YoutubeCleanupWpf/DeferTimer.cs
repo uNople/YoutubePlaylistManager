@@ -26,6 +26,7 @@ namespace YouTubeCleanupWpf
         private void RunAction(object state)
         {
             // Hmmmm. Not sure about this. Mixing timer and async might be bad?
+            // TODO: Will this timer even fire if the app is under heavy load?
             Task.Run(async () => await RunAction());
         }
 

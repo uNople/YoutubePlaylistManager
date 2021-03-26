@@ -18,13 +18,13 @@ namespace YouTubeCleanupWpf.Windows
             _updateDataViewModel.ParentWindow = this;
             DataContext = _updateDataViewModel;
             _wpfSettings = wpfSettings;
-            this.StartOnSelectedWindow(_wpfSettings);
+            Task.Run(async () => await this.StartOnSelectedWindow(_wpfSettings));
             InitializeComponent();
         }
         
         public new async Task Show()
         {
-            this.StartOnSelectedWindow(_wpfSettings);
+            await this.StartOnSelectedWindow(_wpfSettings);
             SetProgressBarState(ProgressBarState.Running);
             await _updateDataViewModel.Start();
             base.Show();

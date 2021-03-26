@@ -36,9 +36,18 @@ namespace YouTubeCleanupWpf
                     var errorHandler = x.Resolve<IErrorHandler>();
                     try
                     {
+                        // TODO: Sometimes... the settings disappear. Should figure out why and fix it
                         var wpfSettings = JsonConvert.DeserializeObject<WpfSettings>(File.ReadAllText("WpfSettings.json"));
-                        wpfSettings.YouTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
-                        wpfSettings.ErrorHandler = errorHandler;
+                        if (wpfSettings != null)
+                        {
+                            wpfSettings.YouTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
+                            wpfSettings.ErrorHandler = errorHandler;
+                        }
+                        else
+                        {
+                            wpfSettings = new WpfSettings(youTubeServiceCreatorOptions, errorHandler);
+                        }
+
                         return wpfSettings;
                     }
                     catch
@@ -47,7 +56,7 @@ namespace YouTubeCleanupWpf
                     }
                     
                 })
-                .OnActivating(x => x.Instance.InitializeSettings())
+                .OnActivating(x => x?.Instance?.InitializeSettings())
                 .SingleInstance();
 
             var config = new ConfigurationBuilder()

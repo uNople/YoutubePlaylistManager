@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
+using System.Windows;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
@@ -10,6 +12,7 @@ using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
 using YouTubeCleanupWpf.Windows;
+using Module = Autofac.Module;
 
 namespace YouTubeCleanupWpf
 {
@@ -34,27 +37,28 @@ namespace YouTubeCleanupWpf
                 {
                     var youTubeServiceCreatorOptions = x.Resolve<YouTubeServiceCreatorOptions>();
                     var errorHandler = x.Resolve<IErrorHandler>();
+                    const string settingsFileName = "WpfSettings.json";
                     try
                     {
                         // TODO: Sometimes... the settings disappear. Should figure out why and fix it
-                        var wpfSettings = JsonConvert.DeserializeObject<WpfSettings>(File.ReadAllText("WpfSettings.json"));
-                        if (wpfSettings != null)
-                        {
-                            wpfSettings.YouTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
-                            wpfSettings.ErrorHandler = errorHandler;
-                        }
-                        else
-                        {
-                            wpfSettings = new WpfSettings(youTubeServiceCreatorOptions, errorHandler);
-                        }
-
+                        var wpfSettings = JsonConvert.DeserializeObject<WpfSettings>(File.ReadAllText(settingsFileName));
+                        wpfSettings.YouTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
+                        wpfSettings.ErrorHandler = errorHandler;
                         return wpfSettings;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        return new WpfSettings(youTubeServiceCreatorOptions, errorHandler);
+                        var currentDirectory = Environment.CurrentDirectory;
+                        var assemblyDirectory = Assembly.GetExecutingAssembly().Location;
+                        var logMessage = @$"Current dir: {currentDirectory}
+Assembly dir: {assemblyDirectory}
+File exists in whatever dir: {File.Exists(settingsFileName)}
+File exists in current dir: {File.Exists(Path.Combine(currentDirectory, settingsFileName))}
+File exists in assembly dir: {File.Exists(Path.Combine(assemblyDirectory, settingsFileName))}
+Error: {ex}";
+                        MessageBox.Show(logMessage);
+                        throw new InvalidOperationException();
                     }
-                    
                 })
                 .OnActivating(x => x?.Instance?.InitializeSettings())
                 .SingleInstance();

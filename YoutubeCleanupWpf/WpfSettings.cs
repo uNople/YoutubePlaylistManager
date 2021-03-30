@@ -56,7 +56,7 @@ namespace YouTubeCleanupWpf
             await Task.Run(() => File.WriteAllText("WpfSettings.json", JsonConvert.SerializeObject(this, Formatting.Indented)));
         }
 
-        private string _databasePath;
+        private string _databasePath = "Application.db";
         public string DatabasePath
         {
             get => _databasePath;
@@ -69,7 +69,7 @@ namespace YouTubeCleanupWpf
             }
         }
 
-        private string _clientSecretPath;
+        private string _clientSecretPath = @"C:\temp\client_secret.json";
         public string ClientSecretPath
         {
             get => _clientSecretPath;

@@ -3,6 +3,7 @@ using System.Linq;
 using AutoMapper;
 using Google.Apis.YouTube.v3.Data;
 using YouTubeCleanupTool.Domain;
+using YouTubeCleanupTool.Domain.Entities;
 
 namespace YouTubeApiWrapper
 {

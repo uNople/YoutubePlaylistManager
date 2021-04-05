@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace YouTubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain.Entities
 {
     [Table("Videos")]
     public class VideoData : IData

@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using YouTubeCleanupTool.Domain.Entities;
 
 namespace YouTubeCleanupTool.Domain
 {

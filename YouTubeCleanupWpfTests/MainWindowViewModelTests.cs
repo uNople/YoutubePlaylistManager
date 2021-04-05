@@ -11,6 +11,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using YouTubeCleanupTool.Domain;
+using YouTubeCleanupTool.Domain.Entities;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.UnitTests

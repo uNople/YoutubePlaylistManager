@@ -15,6 +15,7 @@ using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.YouTube.v3.Data;
 using YouTubeApiWrapper.Interfaces;
 using YouTubeCleanupTool.Domain;
+using YouTubeCleanupTool.Domain.Entities;
 
 namespace YouTubeApiWrapper
 {

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using UnitTests.Common;
 using Xunit;
 using Xunit.Abstractions;
+using YouTubeCleanupTool.Domain.Entities;
 
 namespace YouTubeCleanupTool.Domain.UnitTests
 {

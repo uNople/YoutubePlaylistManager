@@ -14,6 +14,7 @@ using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
+using YouTubeCleanupTool.Domain.Entities;
 using YouTubeCleanupWpf.Converters;
 
 namespace YouTubeCleanupWpf.ViewModels

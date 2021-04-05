@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace YouTubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain.Entities
 {
     [Table("Categories")]
     public class Category

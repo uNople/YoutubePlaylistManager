@@ -452,6 +452,7 @@ namespace YouTubeCleanupWpf.ViewModels
             else if (videoFilter.FilterType == FilterType.Uncategorized)
             {
                 // TODO: Create some way of indicating a playlist is a "dumping ground" playlist - meaning videos only in that should be uncategorized
+                // NOTE: unfortunately the watch later playlist isn't available in the YouTube data API
                 var playlistsThatMeanUncategorized = new List<string> { "Liked videos", "!WatchLater" };
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetUncategorizedVideos(playlistsThatMeanUncategorized));
                 foreach (var video in videos)

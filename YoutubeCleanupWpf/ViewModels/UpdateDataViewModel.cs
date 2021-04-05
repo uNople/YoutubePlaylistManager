@@ -46,6 +46,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
         private void DequeueLogs()
         {
+            const int MAX_STRING_LENGTH = 10000;
             Thread.CurrentThread.Name = "Update logs thread";
             while (true)
             {
@@ -68,11 +69,11 @@ namespace YouTubeCleanupWpf.ViewModels
                 if (shouldAppend)
                 {
                     // Clamp the string builder to 10,000 characters (better than creating yet another string to do the truncate on)
-                    // TODO: Implement
+                    if (_logStringBuilder.Length > MAX_STRING_LENGTH)
+                        _logStringBuilder.Remove(MAX_STRING_LENGTH, _logStringBuilder.Length - MAX_STRING_LENGTH);
                     
                     // NOTE: we still need to clamp the text's length to get a responsive UI
                     var logText = _logStringBuilder.ToString();
-                    logText = logText.Substring(0, Math.Min(logText.Length, 10000));
                     new Action(() => LogText = logText).RunOnUiThreadSync();
                 }
 

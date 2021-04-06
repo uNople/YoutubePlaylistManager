@@ -15,33 +15,25 @@ namespace YouTubeCleanupWpf.ViewModels
     public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
     {
         private readonly ILogger<UpdateDataViewModel> _logger;
+        private readonly IAppClosingCancellationToken _appClosingCancellationToken;
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 067
         public string LogText { get; set; }
         public ICommand CloseCommand { get; set; }
         public UpdateDataWindow ParentWindow { get; set; }
-        public CancellationTokenSource CancellationTokenSource { get; set; }
         public MainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> PendingLogs { get; } = new();
         private Thread _currentThread;
         private readonly StringBuilder _logStringBuilder = new StringBuilder();
-
-        public UpdateDataViewModel([NotNull]IErrorHandler errorHandler, [NotNull]ILogger<UpdateDataViewModel> logger)
+        public string CurrentTitle { get; set; }
+        public UpdateDataViewModel([NotNull]IErrorHandler errorHandler, [NotNull]ILogger<UpdateDataViewModel> logger, [NotNull]IAppClosingCancellationToken appClosingCancellationToken)
         {
             _logger = logger;
+            _appClosingCancellationToken = appClosingCancellationToken;
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, errorHandler.HandleError);
-        }
-
-        internal async Task Start()
-        {
-            await new Action(() => LogText = "").RunOnUiThreadAsync();
-            
-            if (_currentThread == null)
-            {
-                _currentThread = new Thread(DequeueLogs);
-                _currentThread.Start();
-            }
+            _currentThread = new Thread(DequeueLogs);
+            _currentThread.Start();
         }
 
         private void DequeueLogs()
@@ -50,7 +42,7 @@ namespace YouTubeCleanupWpf.ViewModels
             Thread.CurrentThread.Name = "Update logs thread";
             while (true)
             {
-                if ((CancellationTokenSource?.IsCancellationRequested ?? false) && PendingLogs.IsEmpty)
+                if (_appClosingCancellationToken.CancellationTokenSource.IsCancellationRequested)
                 {
                     _logStringBuilder.Clear();
                     _currentThread.Interrupt();
@@ -81,20 +73,14 @@ namespace YouTubeCleanupWpf.ViewModels
             }
         }
 
-        public void PrependText(string message)
+        public async Task PrependText(string message)
         {
-            PendingLogs.Enqueue(message);
+            await Task.Run(() => PendingLogs.Enqueue(message));
         }
-
+        
         public Task Hide()
         {
-            CancellationTokenSource?.Cancel();
-            LogText = "";
             ParentWindow.Hide();
-            if (MainWindowViewModel != null)
-            {
-                MainWindowViewModel.UpdateHappening = false;
-            }
 
             // Lots of strings created + appended here means a lot on the heap. Closing takes  
             // a little time anyway, so doing a collect here won't cause any performance issues. 
@@ -105,8 +91,6 @@ namespace YouTubeCleanupWpf.ViewModels
 
     public interface IUpdateDataViewModel
     {
-        CancellationTokenSource CancellationTokenSource { get; set; }
-        MainWindowViewModel MainWindowViewModel { get; set; }
-        void PrependText(string message);
+        Task PrependText(string message);
     }
 }

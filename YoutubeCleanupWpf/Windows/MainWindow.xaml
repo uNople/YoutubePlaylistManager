@@ -12,6 +12,7 @@
         Loaded="MainWindow_OnLoaded"
         WindowStartupLocation="Manual"
         x:Name="Ui" Icon="/icon_2I6_icon.ico"
+        Closing="MainWindow_OnClosing"
         >
     <Window.Resources>
         <converters:NullabilityToVisibilityConverter x:Key="NullabilityToVisibilityConverter" />
@@ -105,6 +106,7 @@
             </TextBox>
         </Grid>
         <Grid Grid.Column="2" Grid.Row="0">
+            <Button Content="Logs" Command="{Binding ShowLogsCommand, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,60,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="40"/>
             <Button Content="↻" Command="{Binding RefreshDataCommand, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding UpdateHappening, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,35,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="20"/>
             <Button Content="⚙" Command="{Binding UpdateSettingsCommand, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="20"/>
         </Grid>

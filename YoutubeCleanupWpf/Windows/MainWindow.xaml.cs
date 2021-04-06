@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,11 +14,13 @@ namespace YouTubeCleanupWpf.Windows
     {
         private readonly MainWindowViewModel _mainWindowViewModel;
         private readonly WpfSettings _wpfSettings;
+        private readonly IAppClosingCancellationToken _appClosingCancellationToken;
 
-        public MainWindow([NotNull]MainWindowViewModel mainWindowViewModel, [NotNull] WpfSettings wpfSettings)
+        public MainWindow([NotNull]MainWindowViewModel mainWindowViewModel, [NotNull] WpfSettings wpfSettings, [NotNull] IAppClosingCancellationToken appClosingCancellationToken)
         {
             _mainWindowViewModel = mainWindowViewModel;
             _wpfSettings = wpfSettings;
+            _appClosingCancellationToken = appClosingCancellationToken;
             DataContext = _mainWindowViewModel;
             Task.Run(async () => await this.StartOnSelectedWindow(_wpfSettings));
             InitializeComponent();
@@ -42,6 +45,11 @@ namespace YouTubeCleanupWpf.Windows
                     MessageBox.Show(ex.ToString());
                 }
             });
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            _appClosingCancellationToken.CancellationTokenSource.Cancel();
         }
     }
 }

@@ -22,9 +22,9 @@ namespace YouTubeCleanupWpf
             _settingsWindow.Show();
         }
 
-        public async Task ShowUpdateDataWindow()
+        public async Task ShowUpdateDataWindow(string title)
         {
-            await _updateDataWindow.Show();
+            await _updateDataWindow.Show(title);
         }
 
         public void SetUpdateComplete()

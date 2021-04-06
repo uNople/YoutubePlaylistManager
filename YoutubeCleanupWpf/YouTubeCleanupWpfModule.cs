@@ -17,6 +17,8 @@ namespace YouTubeCleanupWpf
     {
         protected override void Load(ContainerBuilder builder)
         {
+            // NOTE: even though this isn't registered as SingleInstance, I think it ends up being SingleInstance anyway
+            // Since we're starting App.xaml.cs, which only launches one MainWindow...
             builder.RegisterType<MainWindow>();
             builder.RegisterType<UpdateDataWindow>().As<IUpdateDataWindow>();
             builder.RegisterType<SettingsWindow>().As<ISettingsWindow>();
@@ -29,6 +31,7 @@ namespace YouTubeCleanupWpf
             builder.RegisterType<SettingsWindowViewModel>().SingleInstance();
             builder.RegisterType<WindowService>().As<IWindowService>();
             builder.RegisterAutoMapper(typeof(YouTubeCleanupWpfModule).Assembly);
+            builder.RegisterType<AppClosingCancellationToken>().As<IAppClosingCancellationToken>().SingleInstance();
 
             builder.Register(x =>
                 {

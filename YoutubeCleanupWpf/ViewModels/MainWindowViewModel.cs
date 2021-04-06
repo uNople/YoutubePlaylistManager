@@ -46,6 +46,7 @@ namespace YouTubeCleanupWpf.ViewModels
             RefreshDataCommand = new RunMethodWithoutParameterCommand(UpdateAllPlaylists, errorHandler.HandleError);
             UpdateSettingsCommand = new RunMethodWithoutParameterCommand(UpdateSettings, errorHandler.HandleError);
             RefreshSelectedPlaylistCommand = new RunMethodWithoutParameterCommand(UpdateSelectedPlaylist, errorHandler.HandleError);
+            ShowLogsCommand = new RunMethodWithoutParameterCommand(ShowLogsWindow, errorHandler.HandleError);
             _searchTypeDelayDeferTimer = new DeferTimer(async () => await SearchForVideos(SearchText), errorHandler.HandleError);
             _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), errorHandler.HandleError);
             _selectedVideoChangedDeferTimer = new DeferTimer(async () => await SelectedVideoChanged(SelectedVideo), errorHandler.HandleError);
@@ -83,6 +84,7 @@ namespace YouTubeCleanupWpf.ViewModels
         public ICommand RefreshDataCommand { get; set; }
         public ICommand UpdateSettingsCommand { get; set; }
         public ICommand RefreshSelectedPlaylistCommand { get; set; }
+        public ICommand ShowLogsCommand { get; set; }
         public ObservableCollection<WpfVideoData> Videos { get; set; }
         public ObservableCollection<WpfPlaylistData> Playlists { get; set; }
         public ObservableCollection<VideoFilter> VideoFilter { get; set; }
@@ -146,58 +148,66 @@ namespace YouTubeCleanupWpf.ViewModels
 
             await DoRefreshFromYouTube(async (callback, cancellationToken) =>
             {
-                _updateDataViewModel.PrependText("Updating playlist");
+                await _updateDataViewModel.PrependText("Updating playlist");
                 await _getAndCacheYouTubeData.GetPlaylistItemsForPlaylist(callback, matchingPlaylist, cancellationToken);
-                _updateDataViewModel.PrependText("Updating videos");
+                await _updateDataViewModel.PrependText("Updating videos");
                 await  _getAndCacheYouTubeData.GetVideos(callback, false, cancellationToken);
-                _updateDataViewModel.PrependText("Completed! - You can close the window now.");
-            });
+                await _updateDataViewModel.PrependText("Completed! - You can close the window now.");
+            }, $"Update playlist {matchingPlaylist.Title}");
         }
 
         private async Task UpdateAllPlaylists()
         {
             await DoRefreshFromYouTube(async (callback, cancellationToken) =>
             {
-                _updateDataViewModel.PrependText("Updating playlists");
+                await _updateDataViewModel.PrependText("Updating playlists");
                 await _getAndCacheYouTubeData.GetPlaylists(callback, cancellationToken);
-                _updateDataViewModel.PrependText("Updating playlist items");
+                await _updateDataViewModel.PrependText("Updating playlist items");
                 await _getAndCacheYouTubeData.GetPlaylistItems(callback, cancellationToken);
-                _updateDataViewModel.PrependText("Updating videos");
+                await _updateDataViewModel.PrependText("Updating videos");
                 await _getAndCacheYouTubeData.GetVideos(callback, false, cancellationToken);
-                _updateDataViewModel.PrependText("Completed! - You can close the window now.");
-            });
+                await _updateDataViewModel.PrependText("Completed! - You can close the window now.");
+            }, "Update All Playlists from YouTube");
         }
 
-        private async Task DoRefreshFromYouTube(Func<Func<IData, InsertStatus, CancellationToken, Task>, CancellationToken, Task> refresh)
+        private async Task ShowLogsWindow()
+        {
+            await _windowService.ShowUpdateDataWindow("Logs");
+        }
+        
+        private async Task DoRefreshFromYouTube(Func<Func<IData, InsertStatus, CancellationToken, Task>, CancellationToken, Task> refresh, string title)
         {
             UpdateHappening = true;
-            var cancellationTokenSource = new CancellationTokenSource();
-
-            await _windowService.ShowUpdateDataWindow();
-            _updateDataViewModel.CancellationTokenSource = cancellationTokenSource;
-            _updateDataViewModel.MainWindowViewModel = this;
-
-            async Task Callback(IData data, InsertStatus status, CancellationToken cancellationToken)
+            try
             {
-                if (cancellationToken.IsCancellationRequested)
-                    return;
-                await Task.Run(() => _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}"), cancellationToken);
+                var cancellationTokenSource = new CancellationTokenSource();
+
+                await _windowService.ShowUpdateDataWindow(title);
+
+                async Task Callback(IData data, InsertStatus status, CancellationToken cancellationToken)
+                {
+                    await _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}");
+                }
+
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        await refresh(Callback, cancellationTokenSource.Token);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // If we cancel, it's no big deal
+                    }
+
+                    await LoadData();
+                }, cancellationTokenSource.Token);
             }
-
-            await Task.Run(async () =>
+            finally
             {
-                try
-                {
-                    await refresh(Callback, cancellationTokenSource.Token);
-                }
-                catch (TaskCanceledException)
-                {
-                    // If we cancel, it's no big deal
-                }
-                
-                await LoadData();
-            }, cancellationTokenSource.Token);
-            _windowService.SetUpdateComplete();
+                _windowService.SetUpdateComplete();
+                UpdateHappening = false;
+            }
         }
 
         private async Task UpdateSettings()
@@ -293,25 +303,25 @@ namespace YouTubeCleanupWpf.ViewModels
             else if (SelectedFilterFromComboBox.FilterType == FilterType.PlaylistTitle)
             {
                 var matchingPlaylist = Playlists.First(x => x.Title == SelectedFilterFromComboBox.Title);
-                _logger.LogInformation($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
+                await _updateDataViewModel.PrependText($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
 
                 var videoIds = new HashSet<string>(playlistItemsByPlaylist[matchingPlaylist.Id].Select(x => x.VideoId));
-                _logger.LogInformation($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.Title}'. Ids: {string.Join(", ", videoIds)}");
+                await _updateDataViewModel.PrependText($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.Title}'. Ids: {string.Join(", ", videoIds)}");
                 var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
                     .ToList();
-                _logger.LogInformation($"Videos from DB: {SerializeVideoCollection(videos)}");
-                _logger.LogInformation($"Videos from UI: {SerializeVideoCollection(Videos.ToList())}");
+                await _updateDataViewModel.PrependText($"Videos from DB: {SerializeVideoCollection(videos)}");
+                await _updateDataViewModel.PrependText($"Videos from UI: {SerializeVideoCollection(Videos.ToList())}");
 
                 foreach (var video in videos)
                 {
                     var compareResult = Videos.ToList().BinarySearch(video, comparer);
                     if (compareResult < 0)
                     {
-                        var image = CreateBitmapImageFromByteArray(video);
+                        var image = await CreateBitmapImageFromByteArray(video);
                         video.Thumbnail = image;
                         Videos.Insert(~compareResult, video);
-                        _logger.LogInformation($"Video {video.Title} (id {video.Id}) wasn't found in the right order I guess, so we inserted it");
+                        await _updateDataViewModel.PrependText($"Video {video.Title} (id {video.Id}) wasn't found in the right order I guess, so we inserted it");
                     }
                     // TODO: handle rename of title in playlist item - Compare based on ID, not title. Then, we can check title, or just map what we got from YouTube over the top
                     // Note for why:
@@ -332,7 +342,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     foreach (var removeThis in videosToRemove)
                     {
                         Videos.RemoveOnUi(removeThis);
-                        _logger.LogInformation($"Video {video.Title} (id {video.Id}) got removed from the UI, it was no longer found");
+                        await _updateDataViewModel.PrependText($"Video {video.Title} (id {video.Id}) got removed from the UI, it was no longer found");
                     }
                 }
             }
@@ -370,7 +380,7 @@ namespace YouTubeCleanupWpf.ViewModels
             SearchResultCount = $"{videosFound.Count} videos found";
             foreach (var video in videosFound)
             {
-                AddVideoToCollection(video);
+                await AddVideoToCollection(video);
             }
         }
 
@@ -434,20 +444,20 @@ namespace YouTubeCleanupWpf.ViewModels
                     .Where(x => videoIds.Contains(x.Id))
                     .OrderBy(x => x, new DataSorter())
                     .ToList();
-                _logger.LogInformation($"Videos after selecting a playlist: {SerializeVideoCollection(_mapper.Map<List<WpfVideoData>>(videos))}");
+                await _updateDataViewModel.PrependText($"Videos after selecting a playlist: {SerializeVideoCollection(_mapper.Map<List<WpfVideoData>>(videos))}");
                 foreach (var video in videos)
                 {
-                    AddVideoToCollection(video);
+                    await AddVideoToCollection(video);
                 }
                 
-                _logger.LogInformation($"Videos after selecting a playlist: {SerializeVideoCollection(Videos.ToList())}");
+                await _updateDataViewModel.PrependText($"Videos after selecting a playlist: {SerializeVideoCollection(Videos.ToList())}");
             }
             else if (videoFilter.FilterType == FilterType.All)
             {
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
                 foreach (var video in videos)
                 {
-                    AddVideoToCollection(video);
+                    await AddVideoToCollection(video);
                 }
             }
             else if (videoFilter.FilterType == FilterType.Uncategorized)
@@ -458,7 +468,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetUncategorizedVideos(playlistsThatMeanUncategorized));
                 foreach (var video in videos)
                 {
-                    AddVideoToCollection(video);
+                    await AddVideoToCollection(video);
                 }
             }
         }
@@ -501,37 +511,40 @@ namespace YouTubeCleanupWpf.ViewModels
                 return;
             foreach (var video in videos.Take(limit))
             {
-                AddVideoToCollection(video);
+                await AddVideoToCollection(video);
             }
         }
 
-        private void AddVideoToCollection(VideoData video)
+        private async Task AddVideoToCollection(VideoData video)
         {
             WpfVideoData videoData = _mapper.Map<WpfVideoData>(video);
-            var image = CreateBitmapImageFromByteArray(videoData);
+            var image = await CreateBitmapImageFromByteArray(videoData);
             videoData.Thumbnail = image;
             Videos.AddOnUi(videoData);
         }
 
-        private BitmapImage CreateBitmapImageFromByteArray(WpfVideoData videoData)
+        private async Task<BitmapImage> CreateBitmapImageFromByteArray(WpfVideoData videoData)
         {
             if (videoData.ThumbnailBytes.Length == 0)
                 return null;
 
             try
             {
-                var thumbnail = new BitmapImage();
-                thumbnail.BeginInit();
-                thumbnail.StreamSource = new MemoryStream(videoData.ThumbnailBytes);
-                thumbnail.DecodePixelWidth = 200;
-                thumbnail.EndInit();
-                // Freeze so we can move this between threads (eg, create on background thread, use on UI thread)
-                thumbnail.Freeze();
-                return thumbnail;
+                return await Task.Run(() =>
+                {
+                    var thumbnail = new BitmapImage();
+                    thumbnail.BeginInit();
+                    thumbnail.StreamSource = new MemoryStream(videoData.ThumbnailBytes);
+                    thumbnail.DecodePixelWidth = 200;
+                    thumbnail.EndInit();
+                    // Freeze so we can move this between threads (eg, create on background thread, use on UI thread)
+                    thumbnail.Freeze();
+                    return thumbnail;
+                });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating thumbnail image");
+                await _updateDataViewModel.PrependText($"Error creating thumbnail image: {ex}");
                 return null;
             }
         }

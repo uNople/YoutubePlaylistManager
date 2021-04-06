@@ -5,7 +5,7 @@ namespace YouTubeCleanupWpf
     public interface IWindowService
     {
         void ShowSettingsWindow();
-        Task ShowUpdateDataWindow();
+        Task ShowUpdateDataWindow(string title);
         void SetUpdateComplete();
     }
 }

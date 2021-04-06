@@ -112,7 +112,7 @@ namespace YouTubeCleanupTool.DataAccess
             else
             {
                 status = InsertStatus.Inserted;
-                dbSet.Add(data);
+                await dbSet.AddAsync(data);
             }
             return status;
         }

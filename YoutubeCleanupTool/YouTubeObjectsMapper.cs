@@ -4,12 +4,13 @@ using AutoMapper;
 using Google.Apis.YouTube.v3.Data;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupTool.Domain.Entities;
+using Thumbnail = YouTubeCleanupTool.Domain.Entities.Thumbnail;
 
 namespace YouTubeApiWrapper
 {
     public class YouTubeObjectsMapperProfile : Profile
-	{
-		public YouTubeObjectsMapperProfile()
+    {
+        public YouTubeObjectsMapperProfile()
         {
             CreateMap<Playlist, PlaylistData>()
                 .ForPath(playlistData => playlistData.Title, playlistData => playlistData.MapFrom(playlist => playlist.Snippet.Localized.Title))
@@ -27,6 +28,7 @@ namespace YouTubeApiWrapper
                 .ForPath(videoData => videoData.ChannelTitle, videoData => videoData.MapFrom(video => video.Snippet.ChannelTitle))
                 .ForPath(videoData => videoData.License, videoData => videoData.MapFrom(video => video.Status.License))
                 .ForPath(videoData => videoData.RecordingDate, videoData => videoData.MapFrom(video => video.RecordingDetails.RecordingDate))
+                .ForPath(videoData => videoData.Thumbnails, videoData => videoData.MapFrom(video => MapThumbnails(video)))
                 .ReverseMap();
 
             CreateMap<PlaylistItem, PlaylistItemData>()
@@ -41,15 +43,34 @@ namespace YouTubeApiWrapper
                 .ReverseMap();
 
             CreateMap<PlaylistItemData, PlaylistItemData>();
-            
+
             // NOTE: Commented these out for now cause I need to test what happens with deleted videos when we have this mapping here
             //CreateMap<PlaylistData, PlaylistData>();
             //CreateMap<VideoData, VideoData>();
         }
 
+        private List<Thumbnail> MapThumbnails(Video video)
+        {
+            Thumbnail map(Google.Apis.YouTube.v3.Data.Thumbnail thumb) => new()
+            {
+                ThumbnailUrl = thumb.Url,
+                Width = thumb.Width,
+                Height = thumb.Height,
+            };
+
+            List<Thumbnail> thumbnails = new()
+            {
+                map(video.Snippet.Thumbnails.High),
+                map(video.Snippet.Thumbnails.Maxres),
+                map(video.Snippet.Thumbnails.Medium),
+                map(video.Snippet.Thumbnails.Standard)
+            };
+            return thumbnails;
+        }
+
         private static List<Category> MapCategories(Video video)
         {
-            return video.TopicDetails?.TopicCategories?.Select(x => new Category { CategoryName = x }).ToList() ?? new List<Category>();
+            return video.TopicDetails?.TopicCategories?.Select(x => new Category {CategoryName = x}).ToList() ?? new List<Category>();
         }
     }
 }

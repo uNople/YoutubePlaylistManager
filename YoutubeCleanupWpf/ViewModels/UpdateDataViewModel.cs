@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,8 +25,10 @@ namespace YouTubeCleanupWpf.ViewModels
         public ICommand CloseCommand { get; set; }
         public UpdateDataWindow ParentWindow { get; set; }
         public MainWindowViewModel MainWindowViewModel { get; set; }
-        private ConcurrentQueue<string> PendingLogs { get; } = new();
-        private Thread _currentThread;
+        private ConcurrentQueue<string> UiLogs { get; } = new();
+        private ConcurrentQueue<string> DiskLogs { get; } = new();
+        private Thread _writeLogsToUiThread;
+        private Thread _writeLogsToDiskThread;
         private readonly StringBuilder _logStringBuilder = new StringBuilder();
         public string CurrentTitle { get; set; }
         public UpdateDataViewModel([NotNull]IErrorHandler errorHandler, [NotNull]ILogger<UpdateDataViewModel> logger, [NotNull]IAppClosingCancellationToken appClosingCancellationToken)
@@ -32,26 +36,52 @@ namespace YouTubeCleanupWpf.ViewModels
             _logger = logger;
             _appClosingCancellationToken = appClosingCancellationToken;
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, errorHandler.HandleError);
-            _currentThread = new Thread(DequeueLogs);
-            _currentThread.Start();
+            _writeLogsToUiThread = new Thread(WriteLogsToUi);
+            _writeLogsToUiThread.Start();
+            _writeLogsToDiskThread = new Thread(WriteLogsToDisk);
+            _writeLogsToDiskThread.Start();
         }
 
-        private void DequeueLogs()
+        private void WriteLogsToDisk()
+        {
+            Thread.CurrentThread.Name = "Update logs to disk thread";
+            const string logFile = "Log.txt";
+            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), logFile);
+            while (true)
+            {
+                if (_appClosingCancellationToken.CancellationTokenSource.IsCancellationRequested)
+                {
+                    _writeLogsToDiskThread.Interrupt();
+                    _writeLogsToDiskThread = null;
+                    return;
+                }
+
+                var messages = new List<string>();
+                while (DiskLogs.TryDequeue(out var message))
+                {
+                    messages.Add(message);
+                }
+                
+                File.AppendAllLines(path, messages);
+            }
+        }
+
+        private void WriteLogsToUi()
         {
             const int MAX_STRING_LENGTH = 10000;
-            Thread.CurrentThread.Name = "Update logs thread";
+            Thread.CurrentThread.Name = "Update logs in ui thread";
             while (true)
             {
                 if (_appClosingCancellationToken.CancellationTokenSource.IsCancellationRequested)
                 {
                     _logStringBuilder.Clear();
-                    _currentThread.Interrupt();
-                    _currentThread = null;
+                    _writeLogsToUiThread.Interrupt();
+                    _writeLogsToUiThread = null;
                     return;
                 }
                 
                 var shouldAppend = false;
-                while (PendingLogs.TryDequeue(out var message))
+                while (UiLogs.TryDequeue(out var message))
                 {
                     _logger.LogTrace(message);
                     _logStringBuilder.Insert(0, message + Environment.NewLine);
@@ -75,7 +105,11 @@ namespace YouTubeCleanupWpf.ViewModels
 
         public async Task PrependText(string message)
         {
-            await Task.Run(() => PendingLogs.Enqueue(message));
+            await Task.Run(() =>
+            {
+                UiLogs.Enqueue(message);
+                DiskLogs.Enqueue($"{DateTime.Now:o} {message}");
+            });
         }
         
         public Task Hide()

@@ -43,6 +43,9 @@ namespace YouTubeCleanupWpf.ViewModels
         private int _released;
         private int _timedOut;
         private int _inProgress;
+        public bool IsProgressBarIndeterminate { get; set; } 
+        public int ProgressBarValue { get; set; }
+        public int ProgressBarMaxValue { get; set; }
 
         public UpdateDataViewModel([NotNull]IErrorHandler errorHandler, [NotNull]ILogger<UpdateDataViewModel> logger, [NotNull]IAppClosingCancellationToken appClosingCancellationToken)
         {
@@ -143,11 +146,26 @@ namespace YouTubeCleanupWpf.ViewModels
                 extraMessage: $"guid {runGuid} title {title}");
         }
 
-        public async Task SetActiveTaskComplete(Guid runGuid, string title, CancellationTokenSource cancellationTokenSource)
+        public async Task SetActiveTaskComplete(Guid runGuid, string title)
         {
             await DoActiveTaskWork(async () => await Task.Run(() => ActiveJobs.Remove(runGuid)), extraMessage: $"guid {runGuid} title {title}");
         }
 
+        public async Task IncrementProgress()
+        {
+            await new Action(() => ProgressBarValue++).RunOnUiThreadAsync();
+        }
+
+        public async Task SetNewProgressMax(int progressBarMaxValue)
+        {
+            await new Action(() =>
+            {
+                IsProgressBarIndeterminate = false;
+                ProgressBarValue = 0;
+                ProgressBarMaxValue = progressBarMaxValue;
+            }).RunOnUiThreadAsync();
+        }
+        
         public async Task CancelActiveTasks()
         {
             await DoActiveTaskWork(async () => await Task.Run(() => 

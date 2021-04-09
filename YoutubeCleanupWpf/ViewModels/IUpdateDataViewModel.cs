@@ -8,6 +8,8 @@ namespace YouTubeCleanupWpf.ViewModels
     {
         Task PrependText(string message);
         Task CreateNewActiveTask(Guid runGuid, string title, CancellationTokenSource cancellationTokenSource);
-        Task SetActiveTaskComplete(Guid runGuid, string title, CancellationTokenSource cancellationTokenSource);
+        Task SetActiveTaskComplete(Guid runGuid, string title);
+        Task IncrementProgress();
+        Task SetNewProgressMax(int progressBarMaxValue);
     }
 }

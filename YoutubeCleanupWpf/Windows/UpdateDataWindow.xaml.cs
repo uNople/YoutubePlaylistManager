@@ -27,8 +27,6 @@ namespace YouTubeCleanupWpf.Windows
         {
             await new Action(() => _updateDataViewModel.CurrentTitle = title).RunOnUiThreadAsync();
 
-            SetProgressBarState(ProgressBarState.Running);
-            
             // show + bring to front
             if (!IsVisible)
             {
@@ -38,11 +36,6 @@ namespace YouTubeCleanupWpf.Windows
 
             Activate();
             Focus();
-        }
-
-        public void SetProgressBarState(ProgressBarState state)
-        {
-            ProgressBar.IsIndeterminate = state == ProgressBarState.Running;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -56,7 +49,6 @@ namespace YouTubeCleanupWpf.Windows
     public interface IUpdateDataWindow
     {
         Task Show(string title);
-        void SetProgressBarState(ProgressBarState state);
     }
 
     public enum ProgressBarState

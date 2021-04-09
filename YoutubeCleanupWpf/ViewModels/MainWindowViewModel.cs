@@ -160,6 +160,15 @@ namespace YouTubeCleanupWpf.ViewModels
         {
             await DoRefreshFromYouTube(async (callback, cancellationToken) =>
             {
+                // TODO: Work out and store an average of how long these things take
+                // Then work out the number of steps per method based on how long it takes
+                // Use that to set the max progress bar value
+                /*
+                 * Implementation Idea for this:
+                 * - Store in the DB some times for each run of this
+                 * - Select out things like how many of each thing we have vs how long a run takes on average
+                 * - Exclude runs that did things like reauth, or runs that were cancelled
+                 */
                 await _updateDataViewModel.PrependText("Updating playlists");
                 await _getAndCacheYouTubeData.GetPlaylists(callback, cancellationToken);
                 await _updateDataViewModel.PrependText("Updating playlist items");
@@ -184,10 +193,12 @@ namespace YouTubeCleanupWpf.ViewModels
             {
                 await _updateDataViewModel.CreateNewActiveTask(runGuid, title, cancellationTokenSource);
                 await _windowService.ShowUpdateDataWindow(title);
+                await _updateDataViewModel.SetNewProgressMax(10000);
 
                 async Task Callback(IData data, InsertStatus status, CancellationToken cancellationToken)
                 {
                     await _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}");
+                    await _updateDataViewModel.IncrementProgress();
                 }
 
                 await Task.Run(async () =>
@@ -206,9 +217,9 @@ namespace YouTubeCleanupWpf.ViewModels
             }
             finally
             {
-                _windowService.SetUpdateComplete();
+                // TODO: reset progress bar
                 UpdateHappening = false;
-                await _updateDataViewModel.SetActiveTaskComplete(runGuid, title, cancellationTokenSource);
+                await _updateDataViewModel.SetActiveTaskComplete(runGuid, title);
             }
         }
 

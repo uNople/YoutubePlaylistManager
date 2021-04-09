@@ -26,10 +26,5 @@ namespace YouTubeCleanupWpf
         {
             await _updateDataWindow.Show(title);
         }
-
-        public void SetUpdateComplete()
-        {
-            _updateDataWindow.SetProgressBarState(ProgressBarState.Stopped);
-        }
     }
 }

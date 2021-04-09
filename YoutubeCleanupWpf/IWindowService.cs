@@ -6,6 +6,5 @@ namespace YouTubeCleanupWpf
     {
         void ShowSettingsWindow();
         Task ShowUpdateDataWindow(string title);
-        void SetUpdateComplete();
     }
 }

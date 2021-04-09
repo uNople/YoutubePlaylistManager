@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
+using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.Converters;
 using YouTubeCleanupWpf.Windows;
 
@@ -46,7 +47,8 @@ namespace YouTubeCleanupWpf.ViewModels
         {
             Thread.CurrentThread.Name = "Update logs to disk thread";
             const string logFile = "Log.txt";
-            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), logFile);
+            // This will just fall back to the filename, so it'll be in whatever directory the exe is in
+            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty, logFile);
             while (true)
             {
                 if (_appClosingCancellationToken.CancellationTokenSource.IsCancellationRequested)
@@ -61,8 +63,16 @@ namespace YouTubeCleanupWpf.ViewModels
                 {
                     messages.Add(message);
                 }
-                
-                File.AppendAllLines(path, messages);
+
+                try
+                {
+                    File.AppendAllLines(path, messages);
+                }
+                catch (Exception ex)
+                {
+                    UiLogs.Enqueue($"Access to path {path} denied. Error: {ex}");
+                    messages.ForEach(DiskLogs.Enqueue);
+                }
             }
         }
 

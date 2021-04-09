@@ -256,7 +256,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     if (compareResult < 0)
                     {
                         // InsertOnUi?
-                        Playlists.Insert(~compareResult, playlist);
+                        await new Action(() => Playlists.Insert(~compareResult, playlist)).RunOnUiThreadAsync();
                     }
                 }
 
@@ -320,7 +320,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     {
                         var image = await CreateBitmapImageFromByteArray(video);
                         video.Thumbnail = image;
-                        Videos.Insert(~compareResult, video);
+                        await new Action(() => Videos.Insert(~compareResult, video)).RunOnUiThreadAsync();
                         await _updateDataViewModel.PrependText($"Video {video.Title} (id {video.Id}) wasn't found in the right order I guess, so we inserted it");
                     }
                     // TODO: handle rename of title in playlist item - Compare based on ID, not title. Then, we can check title, or just map what we got from YouTube over the top

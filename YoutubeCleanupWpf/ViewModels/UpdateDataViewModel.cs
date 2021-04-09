@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +26,7 @@ namespace YouTubeCleanupWpf.ViewModels
 #pragma warning restore 067
         public string LogText { get; set; }
         public ICommand CloseCommand { get; set; }
+        public ICommand CancelActiveTasksCommand { get; set; }
         public UpdateDataWindow ParentWindow { get; set; }
         public MainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> UiLogs { get; } = new();
@@ -32,11 +35,21 @@ namespace YouTubeCleanupWpf.ViewModels
         private Thread _writeLogsToDiskThread;
         private readonly StringBuilder _logStringBuilder = new StringBuilder();
         public string CurrentTitle { get; set; }
+        private Dictionary<Guid, CancellableJob> ActiveJobs { get; set; } = new();
+        private SemaphoreSlim ActiveJobsSemaphore { get; set; } = new(1, 1);
+        public bool TasksRunning { get; set; }
+        private int _waiting;
+        private int _gained;
+        private int _released;
+        private int _timedOut;
+        private int _inProgress;
+
         public UpdateDataViewModel([NotNull]IErrorHandler errorHandler, [NotNull]ILogger<UpdateDataViewModel> logger, [NotNull]IAppClosingCancellationToken appClosingCancellationToken)
         {
             _logger = logger;
             _appClosingCancellationToken = appClosingCancellationToken;
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, errorHandler.HandleError);
+            CancelActiveTasksCommand = new RunMethodWithoutParameterCommand(CancelActiveTasks, errorHandler.HandleError);
             _writeLogsToUiThread = new Thread(WriteLogsToUi);
             _writeLogsToUiThread.Start();
             _writeLogsToDiskThread = new Thread(WriteLogsToDisk);
@@ -73,6 +86,8 @@ namespace YouTubeCleanupWpf.ViewModels
                     UiLogs.Enqueue($"Access to path {path} denied. Error: {ex}");
                     messages.ForEach(DiskLogs.Enqueue);
                 }
+
+                Thread.Sleep(100);
             }
         }
 
@@ -121,6 +136,77 @@ namespace YouTubeCleanupWpf.ViewModels
                 DiskLogs.Enqueue($"{DateTime.Now:o} {message}");
             });
         }
+
+        public async Task CreateNewActiveTask(Guid runGuid, string title, CancellationTokenSource cancellationTokenSource)
+        {
+            await DoActiveTaskWork(async () => await Task.Run(() => ActiveJobs[runGuid] = new CancellableJob {Id = runGuid, Name = title, CancellationTokenSource = cancellationTokenSource}),
+                extraMessage: $"guid {runGuid} title {title}");
+        }
+
+        public async Task SetActiveTaskComplete(Guid runGuid, string title, CancellationTokenSource cancellationTokenSource)
+        {
+            await DoActiveTaskWork(async () => await Task.Run(() => ActiveJobs.Remove(runGuid)), extraMessage: $"guid {runGuid} title {title}");
+        }
+
+        public async Task CancelActiveTasks()
+        {
+            await DoActiveTaskWork(async () => await Task.Run(() => 
+            {
+                foreach (var item in ActiveJobs)
+                {
+                    item.Value.Cancel();
+                }
+                ActiveJobs.Clear();
+                TasksRunning = false;
+            }), extraMessage: "Cancelling active tasks");
+        }
+
+        /// <summary>
+        /// Run a task which interacts with the ActiveJobs dictionary.
+        /// This was intended for a few things:
+        /// 1. Be thread safe when interacting with the dictionary
+        /// 2. Have a timeout which is obeyed, so things don't end up locking and causing problems
+        ///    NOTE: it's not really an issue if we time out and don't either queue up the Job, or
+        ///          time out and fail to cancel every job. We can always retry
+        /// 3. Play with semaphores again
+        /// 4. Have some useful debug information written if things go wrong. We have counts of where
+        ///    we got to in the process, so we can at least see where we got stuck  
+        /// </summary>
+        /// <param name="act"></param>
+        /// <param name="callingMethod"></param>
+        /// <param name="extraMessage"></param>
+        private async Task DoActiveTaskWork(Func<Task> act, [CallerMemberName]string callingMethod = default, string extraMessage = default)
+        {
+            const int perThreadTimeoutTimeMs = 500;
+            Interlocked.Increment(ref _inProgress);
+            Interlocked.Increment(ref _waiting);
+            
+            async Task Log(string message) => await PrependText($"{message} - In Progress: {_inProgress}, waiting: {_waiting}, gained: {_gained}, released: {_released}, Timed out: {_timedOut} - Task work: {callingMethod} - {extraMessage}");
+
+            if (await ActiveJobsSemaphore.WaitAsync(perThreadTimeoutTimeMs))
+            {
+                Interlocked.Increment(ref _gained);
+                try
+                {
+                    await act();
+                    TasksRunning = ActiveJobs.Any();
+                }
+                finally
+                {
+                    Interlocked.Increment(ref _released);
+                    ActiveJobsSemaphore.Release();
+                }
+            }
+            else
+            {
+                Interlocked.Increment(ref _timedOut);
+                await PrependText($"{callingMethod}: Couldn't gain access to lock within {perThreadTimeoutTimeMs}ms.{(!string.IsNullOrEmpty(extraMessage) ? $" {extraMessage}" : "")}");
+                await Log("Extra information:");
+            }
+
+            Interlocked.Decrement(ref _inProgress);
+            await Log("Finish");
+        }
         
         public Task Hide()
         {
@@ -131,10 +217,5 @@ namespace YouTubeCleanupWpf.ViewModels
             GC.Collect();
             return Task.CompletedTask;
         }
-    }
-
-    public interface IUpdateDataViewModel
-    {
-        Task PrependText(string message);
     }
 }

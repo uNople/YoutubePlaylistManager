@@ -32,7 +32,7 @@
         </Grid.RowDefinitions>
 
         <Grid Column="0" Row="0">
-            <ComboBox ItemsSource="{Binding VideoFilter, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedFilterFromComboBox, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Visibility="{Binding SearchActive, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Margin="36,5,31,5" >
+            <ComboBox ItemsSource="{Binding VideoFilter, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedFilterFromComboBox, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Visibility="{Binding SearchActive, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBooleanToVisibilityConverter}}" IsEnabled="{Binding UpdateHappening, Converter={StaticResource InverseBooleanConverter}, UpdateSourceTrigger=PropertyChanged}" Margin="36,5,31,5" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate DataType="domain:IData">
                         <Grid>
@@ -43,8 +43,8 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Visibility="{Binding SearchActive, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter}}" TextWrapping="Wrap" Margin="36,5,31,5"/>
-            <Button Content="🔎" Command="{Binding SearchCommand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Width="26" Margin="5,5,0,5"/>
+            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Visibility="{Binding SearchActive, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="{Binding UpdateHappening, Converter={StaticResource InverseBooleanConverter}, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="36,5,31,5"/>
+            <Button Content="🔎" Command="{Binding SearchCommand, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding UpdateHappening, Converter={StaticResource InverseBooleanConverter}, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Width="26" Margin="5,5,0,5"/>
             <Button Content="↻" Command="{Binding RefreshSelectedPlaylistCommand, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding UpdateHappening, Converter={StaticResource InverseBooleanConverter}, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,6,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="20"/>
         </Grid>
         <Grid Column="1" Row="0">

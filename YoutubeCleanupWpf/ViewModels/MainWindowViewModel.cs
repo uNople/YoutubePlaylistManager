@@ -178,10 +178,11 @@ namespace YouTubeCleanupWpf.ViewModels
         private async Task DoRefreshFromYouTube(Func<Func<IData, InsertStatus, CancellationToken, Task>, CancellationToken, Task> refresh, string title)
         {
             UpdateHappening = true;
+            var cancellationTokenSource = new CancellationTokenSource();
+            var runGuid = Guid.NewGuid();
             try
             {
-                var cancellationTokenSource = new CancellationTokenSource();
-
+                await _updateDataViewModel.CreateNewActiveTask(runGuid, title, cancellationTokenSource);
                 await _windowService.ShowUpdateDataWindow(title);
 
                 async Task Callback(IData data, InsertStatus status, CancellationToken cancellationToken)
@@ -195,9 +196,9 @@ namespace YouTubeCleanupWpf.ViewModels
                     {
                         await refresh(Callback, cancellationTokenSource.Token);
                     }
-                    catch (TaskCanceledException)
+                    catch (Exception ex) when (ex is TaskCanceledException or OperationCanceledException)
                     {
-                        // If we cancel, it's no big deal
+                        // If we cancel, it's no big deal   
                     }
 
                     await LoadData();
@@ -207,6 +208,7 @@ namespace YouTubeCleanupWpf.ViewModels
             {
                 _windowService.SetUpdateComplete();
                 UpdateHappening = false;
+                await _updateDataViewModel.SetActiveTaskComplete(runGuid, title, cancellationTokenSource);
             }
         }
 

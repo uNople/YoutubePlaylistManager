@@ -31,6 +31,7 @@ namespace YouTubeCleanupTool.Domain
             {
                 var result = await context.UpsertPlaylist(playlist);
                 await callback(playlist, result, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
             }
             await context.SaveChangesAsync(cancellationToken);
         }
@@ -62,6 +63,7 @@ namespace YouTubeCleanupTool.Domain
                 playlistItems.Add(playlistItem);
                 var result = await context.UpsertPlaylistItem(playlistItem);
                 await callback(playlistItem, result, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
             }
 
             // Now we have to remove playlist items we didn't get back from the API - Otherwise if we delete + add items then we end up with duplicates
@@ -74,6 +76,7 @@ namespace YouTubeCleanupTool.Domain
                 {
                     context.RemovePlaylistItem(playlistItem);
                     await callback(playlistItem, InsertStatus.Deleted, cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
             }
         }
@@ -87,11 +90,7 @@ namespace YouTubeCleanupTool.Domain
             videosToGet = videosToGet.Except(videosToSkip).ToList();
             await foreach (var video in _youTubeApi.GetVideos(videosToGet).WithCancellation(cancellationToken))
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    await callback(new VideoData { Title = "CANCELLED", Id = "CANCELLED" }, InsertStatus.Inserted, cancellationToken);
-                    return;
-                }
+                cancellationToken.ThrowIfCancellationRequested();
 
                 if (video.IsDeletedFromYouTube)
                 {

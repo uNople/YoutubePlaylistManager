@@ -52,15 +52,4 @@ namespace YouTubeCleanupWpf.Windows
             Hide();
         }
     }
-
-    public interface IUpdateDataWindow
-    {
-        Task Show(string title);
-    }
-
-    public enum ProgressBarState
-    {
-        Running,
-        Stopped
-    }
 }

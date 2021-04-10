@@ -39,9 +39,4 @@ namespace YouTubeCleanupWpf.Windows
             await _doWorkOnUi.RunOnUiThreadAsync(Hide);
         }
     }
-
-    public interface ISettingsWindow
-    {
-        Task Show();
-    }
 }

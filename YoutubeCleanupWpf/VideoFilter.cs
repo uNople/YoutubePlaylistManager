@@ -10,11 +10,4 @@
             return (VideoFilter)MemberwiseClone();
         }
     }
-
-    public enum FilterType
-    {
-        PlaylistTitle,
-        Uncategorized,
-        All
-    }
 }

@@ -19,7 +19,7 @@ using YouTubeCleanupWpf.Converters;
 
 namespace YouTubeCleanupWpf.ViewModels
 {
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     {
         public MainWindowViewModel
         (

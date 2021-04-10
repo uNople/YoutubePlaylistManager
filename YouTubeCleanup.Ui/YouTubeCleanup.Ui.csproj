@@ -10,4 +10,8 @@
       <ProjectReference Include="..\YoutubeCleanupTool\YouTubeApiWrapper.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="PropertyChanged.Fody" Version="3.3.3" PrivateAssets="All" />
+    </ItemGroup>
+
 </Project>

@@ -28,8 +28,8 @@ namespace YouTubeCleanupWpf.ViewModels
         public string LogText { get; set; }
         public ICommand CloseCommand { get; set; }
         public ICommand CancelActiveTasksCommand { get; set; }
-        public UpdateDataWindow ParentWindow { get; set; }
-        public MainWindowViewModel MainWindowViewModel { get; set; }
+        public IUpdateDataWindow ParentWindow { get; set; }
+        public IMainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> UiLogs { get; } = new();
         private ConcurrentQueue<string> DiskLogs { get; } = new();
         private Thread _writeLogsToUiThread;

@@ -10,9 +10,4 @@ namespace YouTubeCleanupWpf
             MessageBox.Show(ex.ToString());
         }
     }
-
-    public interface IErrorHandler
-    {
-        void HandleError(Exception ex);
-    }
 }

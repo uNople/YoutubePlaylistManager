@@ -1,18 +1,21 @@
-﻿using System;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace YouTubeCleanupWpf
 {
-    public static class WindowExtensions
+    public class WindowExtensions
     {
-        public static async Task StartOnSelectedWindow(this Window window, WpfSettings wpfSettings)
+        private readonly DoWorkOnUi _doWorkOnUi;
+        public WindowExtensions([NotNull] DoWorkOnUi doWorkOnUi) => _doWorkOnUi = doWorkOnUi;
+
+        public async Task StartOnSelectedWindow(Window window, WpfSettings wpfSettings)
         {
-            await new Action(() =>
+            await _doWorkOnUi.RunOnUiThreadAsync(() =>
             {
                 window.Top = wpfSettings.CurrentScreen.Bounds.Top + 100;
                 window.Left = wpfSettings.CurrentScreen.Bounds.Left + 100;
-            }).RunOnUiThreadAsync();
+            });
         }
     }
 }

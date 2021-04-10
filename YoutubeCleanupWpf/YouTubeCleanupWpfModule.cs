@@ -32,6 +32,8 @@ namespace YouTubeCleanupWpf
             builder.RegisterType<WindowService>().As<IWindowService>();
             builder.RegisterAutoMapper(typeof(YouTubeCleanupWpfModule).Assembly);
             builder.RegisterType<AppClosingCancellationToken>().As<IAppClosingCancellationToken>().SingleInstance();
+            builder.RegisterType<DoWorkOnUi>();
+            builder.RegisterType<WindowExtensions>();
 
             builder.Register(x =>
                 {

@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupTool.Domain.Entities;
@@ -28,8 +27,8 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IGetAndCacheYouTubeData getAndCacheYouTubeData,
             [NotNull] IUpdateDataViewModel updateDataViewModel,
             [NotNull] IWindowService windowService,
-            [NotNull] ILogger<MainWindowViewModel> logger,
-            [NotNull] IErrorHandler errorHandler
+            [NotNull] IErrorHandler errorHandler,
+            [NotNull] DoWorkOnUi doWorkOnUi
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -52,7 +51,7 @@ namespace YouTubeCleanupWpf.ViewModels
             _selectedVideoChangedDeferTimer = new DeferTimer(async () => await SelectedVideoChanged(SelectedVideo), errorHandler.HandleError);
             _updateDataViewModel = updateDataViewModel;
             _windowService = windowService;
-            _logger = logger;
+            _doWorkOnUi = doWorkOnUi;
             SpecialVideoFilters = new List<VideoFilter>()
             {
                 new() {Title = "All", FilterType = FilterType.All},
@@ -71,7 +70,7 @@ namespace YouTubeCleanupWpf.ViewModels
         private readonly IUpdateDataViewModel _updateDataViewModel;
         private WpfVideoData _selectedVideo;
         private readonly IWindowService _windowService;
-        private readonly ILogger<MainWindowViewModel> _logger;
+        private readonly DoWorkOnUi _doWorkOnUi;
 
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
@@ -217,7 +216,7 @@ namespace YouTubeCleanupWpf.ViewModels
             }
             finally
             {
-                // TODO: reset progress bar
+                await _updateDataViewModel.ResetProgress();
                 UpdateHappening = false;
                 await _updateDataViewModel.SetActiveTaskComplete(runGuid, title);
             }
@@ -258,7 +257,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
             if (Playlists.Count == 0)
             {
-                playlists.ForEach(x => Playlists.AddOnUi(_mapper.Map<WpfPlaylistData>(x)));
+                playlists.ForEach(x => _doWorkOnUi.AddOnUi(Playlists, _mapper.Map<WpfPlaylistData>(x)));
             }
             else
             {
@@ -269,7 +268,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     if (compareResult < 0)
                     {
                         // InsertOnUi?
-                        await new Action(() => Playlists.Insert(~compareResult, playlist)).RunOnUiThreadAsync();
+                        await _doWorkOnUi.RunOnUiThreadAsync(() => Playlists.Insert(~compareResult, playlist));
                     }
                 }
 
@@ -282,26 +281,26 @@ namespace YouTubeCleanupWpf.ViewModels
                     }
                     else
                     {
-                        playlist.PlaylistItems.ClearOnUi();
+                        _doWorkOnUi.ClearOnUi(playlist.PlaylistItems);
                         if (playlistItemsByPlaylist.ContainsKey(playlist.Id))
                         {
-                            playlistItemsByPlaylist[playlist.Id].ForEach(playlist.PlaylistItems.AddOnUi);
+                            playlistItemsByPlaylist[playlist.Id].ForEach(x => _doWorkOnUi.AddOnUi(playlist.PlaylistItems, x));
                         }
                     }
                 }
 
                 foreach (var removeThis in playlistsToRemove)
                 {
-                    Playlists.RemoveOnUi(removeThis);
+                    _doWorkOnUi.RemoveOnUi(Playlists, removeThis);
                 }
             }
 
             if (VideoFilter.Count == 0)
             {
-                SpecialVideoFilters.ForEach(x => VideoFilter.AddOnUi(x));
+                SpecialVideoFilters.ForEach(x => _doWorkOnUi.AddOnUi(VideoFilter, x));
                 foreach (var playlist in playlists.OrderBy(x => x.Title))
                 {
-                    VideoFilter.AddOnUi(new VideoFilter { Title = playlist.Title, FilterType = FilterType.PlaylistTitle });
+                    _doWorkOnUi.AddOnUi(VideoFilter, new VideoFilter { Title = playlist.Title, FilterType = FilterType.PlaylistTitle });
                 }
             }
             else
@@ -333,7 +332,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     {
                         var image = await CreateBitmapImageFromByteArray(video);
                         video.Thumbnail = image;
-                        await new Action(() => Videos.Insert(~compareResult, video)).RunOnUiThreadAsync();
+                        await _doWorkOnUi.RunOnUiThreadAsync(() => Videos.Insert(~compareResult, video));
                         await _updateDataViewModel.PrependText($"Video {video.Title} (id {video.Id}) wasn't found in the right order I guess, so we inserted it");
                     }
                     // TODO: handle rename of title in playlist item - Compare based on ID, not title. Then, we can check title, or just map what we got from YouTube over the top
@@ -354,7 +353,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
                     foreach (var removeThis in videosToRemove)
                     {
-                        Videos.RemoveOnUi(removeThis);
+                        _doWorkOnUi.RemoveOnUi(Videos, removeThis);
                         await _updateDataViewModel.PrependText($"Video {video.Title} (id {video.Id}) got removed from the UI, it was no longer found");
                     }
                 }
@@ -380,7 +379,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
         private async Task SearchForVideos(string searchText)
         {
-            Videos.ClearOnUi();
+            _doWorkOnUi.ClearOnUi(Videos);
 
             if (string.IsNullOrEmpty(searchText))
             {
@@ -448,7 +447,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
         private async Task GetVideosForPlaylist(VideoFilter videoFilter)
         {
-            Videos.ClearOnUi();
+            _doWorkOnUi.ClearOnUi(Videos);
             if (videoFilter.FilterType == FilterType.PlaylistTitle)
             {
                 // Make this a method or something. I think I use this pattern elsewhere
@@ -494,7 +493,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 {
                     if (playlistItem.VideoInPlaylist)
                     {
-                        await WpfExtensions.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = false);
+                        await _doWorkOnUi.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = false);
                     }
                 }
                 return;
@@ -507,11 +506,11 @@ namespace YouTubeCleanupWpf.ViewModels
                 {
                     if (playlistItemsHashSet.Contains(playlistItem.Id) && !playlistItem.VideoInPlaylist)
                     {
-                        await WpfExtensions.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = true);
+                        await _doWorkOnUi.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = true);
                     }
                     else if (playlistItem.VideoInPlaylist)
                     {
-                        await WpfExtensions.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = false);
+                        await _doWorkOnUi.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = false);
                     }
                 }
             }
@@ -533,7 +532,7 @@ namespace YouTubeCleanupWpf.ViewModels
             WpfVideoData videoData = _mapper.Map<WpfVideoData>(video);
             var image = await CreateBitmapImageFromByteArray(videoData);
             videoData.Thumbnail = image;
-            Videos.AddOnUi(videoData);
+            _doWorkOnUi.AddOnUi(Videos, videoData);
         }
 
         private async Task<BitmapImage> CreateBitmapImageFromByteArray(WpfVideoData videoData)

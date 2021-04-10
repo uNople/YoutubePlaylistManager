@@ -15,20 +15,25 @@ namespace YouTubeCleanupWpf.Windows
         private readonly MainWindowViewModel _mainWindowViewModel;
         private readonly WpfSettings _wpfSettings;
         private readonly IAppClosingCancellationToken _appClosingCancellationToken;
+        private readonly WindowExtensions _windowExtensions;
 
-        public MainWindow([NotNull]MainWindowViewModel mainWindowViewModel, [NotNull] WpfSettings wpfSettings, [NotNull] IAppClosingCancellationToken appClosingCancellationToken)
+        public MainWindow([NotNull]MainWindowViewModel mainWindowViewModel,
+            [NotNull] WpfSettings wpfSettings,
+            [NotNull] IAppClosingCancellationToken appClosingCancellationToken,
+            [NotNull] WindowExtensions windowExtensions)
         {
             _mainWindowViewModel = mainWindowViewModel;
             _wpfSettings = wpfSettings;
             _appClosingCancellationToken = appClosingCancellationToken;
+            _windowExtensions = windowExtensions;
             DataContext = _mainWindowViewModel;
-            Task.Run(async () => await this.StartOnSelectedWindow(_wpfSettings));
+            Task.Run(async () => await _windowExtensions.StartOnSelectedWindow(this, _wpfSettings));
             InitializeComponent();
         }
         
         public new async Task Show()
         {
-            await this.StartOnSelectedWindow(_wpfSettings);
+            await _windowExtensions.StartOnSelectedWindow(this, _wpfSettings);
             base.Show();
         }
 

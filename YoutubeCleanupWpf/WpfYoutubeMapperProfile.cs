@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using YouTubeCleanupTool.Domain;
 using YouTubeCleanupTool.Domain.Entities;
 
 namespace YouTubeCleanupWpf

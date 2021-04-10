@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\YoutubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj" />
+      <ProjectReference Include="..\YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
+      <ProjectReference Include="..\YoutubeCleanupTool\YouTubeApiWrapper.csproj" />
+    </ItemGroup>
+
+</Project>

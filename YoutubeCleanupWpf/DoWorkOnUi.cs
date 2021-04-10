@@ -6,9 +6,10 @@ using System.Windows.Threading;
 
 namespace YouTubeCleanupWpf
 {
-    public static class WpfExtensions
+    public class DoWorkOnUi
     {
-        public static void AddOnUi<T>(this ICollection<T> collection, T item)
+        // TODO: Make async
+        public void AddOnUi<T>(ICollection<T> collection, T item)
         {
             if (Application.Current == null)
             {
@@ -20,7 +21,8 @@ namespace YouTubeCleanupWpf
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, addMethod, item);
         }
 
-        public static void RemoveOnUi<T>(this ICollection<T> collection, T item)
+        // TODO: make async
+        public void RemoveOnUi<T>(ICollection<T> collection, T item)
         {
             if (Application.Current == null)
             {
@@ -32,7 +34,8 @@ namespace YouTubeCleanupWpf
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, addMethod, item);
         }
 
-        public static void ClearOnUi<T>(this ICollection<T> collection)
+        // TODO: make async
+        public void ClearOnUi<T>(ICollection<T> collection)
         {
             if (Application.Current == null)
             {
@@ -43,7 +46,7 @@ namespace YouTubeCleanupWpf
             Application.Current.Dispatcher.Invoke(collection.Clear, DispatcherPriority.Normal);
         }
 
-        public static void RunOnUiThread(this Action action)
+        public void RunOnUiThread(Action action)
         {
             if (Application.Current == null)
             {
@@ -56,7 +59,7 @@ namespace YouTubeCleanupWpf
                 action);
         }
 
-        public static void RunOnUiThreadSync(this Action action)
+        public void RunOnUiThreadSync(Action action)
         {
             if (Application.Current == null)
             {
@@ -69,7 +72,7 @@ namespace YouTubeCleanupWpf
                 action);
         }
         
-        public static async Task RunOnUiThreadAsync(this Action action)
+        public async Task RunOnUiThreadAsync(Action action)
         {
             if (Application.Current == null)
             {

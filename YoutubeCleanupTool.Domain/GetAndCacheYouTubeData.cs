@@ -135,7 +135,7 @@ namespace YouTubeCleanupTool.Domain
             var videoTitles = await context.GetVideoTitles();
             foreach (var videoTitle in videoTitles)
             {
-                if (videoTitle.ToCharArray().Any(x => ((int)x) > 1000))
+                if (videoTitle.ToCharArray().Any(x => x > 1000))
                 {
                     callback(videoTitle);
                 }

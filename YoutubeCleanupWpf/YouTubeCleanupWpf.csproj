@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\YouTubeCleanup.Ui\YouTubeCleanup.Ui.csproj" />
     <ProjectReference Include="..\YouTubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj" />
     <ProjectReference Include="..\YouTubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
     <ProjectReference Include="..\YouTubeCleanupTool\YouTubeApiWrapper.csproj" />

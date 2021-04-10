@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
-using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.Converters;
 using YouTubeCleanupWpf.Windows;
 
@@ -21,6 +20,7 @@ namespace YouTubeCleanupWpf.ViewModels
     {
         private readonly ILogger<UpdateDataViewModel> _logger;
         private readonly IAppClosingCancellationToken _appClosingCancellationToken;
+        private readonly DoWorkOnUi _doWorkOnUi;
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 067
@@ -47,10 +47,14 @@ namespace YouTubeCleanupWpf.ViewModels
         public int ProgressBarValue { get; set; }
         public int ProgressBarMaxValue { get; set; }
 
-        public UpdateDataViewModel([NotNull]IErrorHandler errorHandler, [NotNull]ILogger<UpdateDataViewModel> logger, [NotNull]IAppClosingCancellationToken appClosingCancellationToken)
+        public UpdateDataViewModel([NotNull] IErrorHandler errorHandler,
+            [NotNull] ILogger<UpdateDataViewModel> logger,
+            [NotNull] IAppClosingCancellationToken appClosingCancellationToken,
+            [NotNull] DoWorkOnUi doWorkOnUi)
         {
             _logger = logger;
             _appClosingCancellationToken = appClosingCancellationToken;
+            _doWorkOnUi = doWorkOnUi;
             CloseCommand = new RunMethodWithoutParameterCommand(Hide, errorHandler.HandleError);
             CancelActiveTasksCommand = new RunMethodWithoutParameterCommand(CancelActiveTasks, errorHandler.HandleError);
             _writeLogsToUiThread = new Thread(WriteLogsToUi);
@@ -62,9 +66,9 @@ namespace YouTubeCleanupWpf.ViewModels
         private void WriteLogsToDisk()
         {
             Thread.CurrentThread.Name = "Update logs to disk thread";
-            const string logFile = "Log.txt";
+            const string LOG_FILE = "Log.txt";
             // This will just fall back to the filename, so it'll be in whatever directory the exe is in
-            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty, logFile);
+            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty, LOG_FILE);
             while (true)
             {
                 if (_appClosingCancellationToken.CancellationTokenSource.IsCancellationRequested)
@@ -124,7 +128,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     
                     // NOTE: we still need to clamp the text's length to get a responsive UI
                     var logText = _logStringBuilder.ToString();
-                    new Action(() => LogText = logText).RunOnUiThreadSync();
+                    _doWorkOnUi.RunOnUiThreadSync(() => LogText = logText);
                 }
 
                 Thread.Sleep(100);
@@ -153,19 +157,27 @@ namespace YouTubeCleanupWpf.ViewModels
 
         public async Task IncrementProgress()
         {
-            await new Action(() => ProgressBarValue++).RunOnUiThreadAsync();
+            await _doWorkOnUi.RunOnUiThreadAsync(() => ProgressBarValue++);
         }
 
         public async Task SetNewProgressMax(int progressBarMaxValue)
         {
-            await new Action(() =>
+            await _doWorkOnUi.RunOnUiThreadAsync(() =>
             {
                 IsProgressBarIndeterminate = false;
                 ProgressBarValue = 0;
                 ProgressBarMaxValue = progressBarMaxValue;
-            }).RunOnUiThreadAsync();
+            });
         }
-        
+
+        public async Task ResetProgress()
+        {
+            await _doWorkOnUi.RunOnUiThreadAsync(() =>
+            {
+                ProgressBarValue = 0;
+            });
+        }
+
         public async Task CancelActiveTasks()
         {
             await DoActiveTaskWork(async () => await Task.Run(() => 
@@ -195,13 +207,13 @@ namespace YouTubeCleanupWpf.ViewModels
         /// <param name="extraMessage"></param>
         private async Task DoActiveTaskWork(Func<Task> act, [CallerMemberName]string callingMethod = default, string extraMessage = default)
         {
-            const int perThreadTimeoutTimeMs = 500;
+            const int PER_THREAD_TIMEOUT_TIME_MS = 500;
             Interlocked.Increment(ref _inProgress);
             Interlocked.Increment(ref _waiting);
             
             async Task Log(string message) => await PrependText($"{message} - In Progress: {_inProgress}, waiting: {_waiting}, gained: {_gained}, released: {_released}, Timed out: {_timedOut} - Task work: {callingMethod} - {extraMessage}");
 
-            if (await ActiveJobsSemaphore.WaitAsync(perThreadTimeoutTimeMs))
+            if (await ActiveJobsSemaphore.WaitAsync(PER_THREAD_TIMEOUT_TIME_MS))
             {
                 Interlocked.Increment(ref _gained);
                 try
@@ -218,7 +230,7 @@ namespace YouTubeCleanupWpf.ViewModels
             else
             {
                 Interlocked.Increment(ref _timedOut);
-                await PrependText($"{callingMethod}: Couldn't gain access to lock within {perThreadTimeoutTimeMs}ms.{(!string.IsNullOrEmpty(extraMessage) ? $" {extraMessage}" : "")}");
+                await PrependText($"{callingMethod}: Couldn't gain access to lock within {PER_THREAD_TIMEOUT_TIME_MS}ms.{(!string.IsNullOrEmpty(extraMessage) ? $" {extraMessage}" : "")}");
                 await Log("Extra information:");
             }
 

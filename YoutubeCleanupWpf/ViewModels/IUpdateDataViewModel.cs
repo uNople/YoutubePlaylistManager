@@ -11,5 +11,6 @@ namespace YouTubeCleanupWpf.ViewModels
         Task SetActiveTaskComplete(Guid runGuid, string title);
         Task IncrementProgress();
         Task SetNewProgressMax(int progressBarMaxValue);
+        Task ResetProgress();
     }
 }

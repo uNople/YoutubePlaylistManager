@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using YouTubeCleanup.Ui;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
 using YouTubeCleanupWpf.Windows;
@@ -32,7 +33,7 @@ namespace YouTubeCleanupWpf
             builder.RegisterType<WindowService>().As<IWindowService>();
             builder.RegisterAutoMapper(typeof(YouTubeCleanupWpfModule).Assembly);
             builder.RegisterType<AppClosingCancellationToken>().As<IAppClosingCancellationToken>().SingleInstance();
-            builder.RegisterType<DoWorkOnUi>();
+            builder.RegisterType<DoWorkOnUi>().As<IDoWorkOnUi>();
             builder.RegisterType<WindowExtensions>();
 
             builder.Register(x =>

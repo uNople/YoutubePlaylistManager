@@ -14,7 +14,8 @@ namespace YouTubeCleanupWpf.UnitTests
                 // VideoData -> List<PlaylistData> -> VideoData -> etc
                 new DontThrowRecursionErrorsCustomization(),
                 new AutoMapperCustomization(),
-                new ErrorHandlingCustomization()
+                new ErrorHandlingCustomization(),
+                new DoWorkCustomization()
             )))
         {
         }

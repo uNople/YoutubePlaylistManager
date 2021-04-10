@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
 using Newtonsoft.Json;
+using YouTubeCleanup.Ui;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupTool.Domain.Entities;
 using YouTubeCleanupWpf.Converters;
@@ -28,7 +29,7 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IUpdateDataViewModel updateDataViewModel,
             [NotNull] IWindowService windowService,
             [NotNull] IErrorHandler errorHandler,
-            [NotNull] DoWorkOnUi doWorkOnUi
+            [NotNull] IDoWorkOnUi doWorkOnUi
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -70,7 +71,7 @@ namespace YouTubeCleanupWpf.ViewModels
         private readonly IUpdateDataViewModel _updateDataViewModel;
         private WpfVideoData _selectedVideo;
         private readonly IWindowService _windowService;
-        private readonly DoWorkOnUi _doWorkOnUi;
+        private readonly IDoWorkOnUi _doWorkOnUi;
 
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;

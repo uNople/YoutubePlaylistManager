@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
+using YouTubeCleanup.Ui;
 using YouTubeCleanupWpf.Converters;
 using YouTubeCleanupWpf.Windows;
 
@@ -20,7 +21,7 @@ namespace YouTubeCleanupWpf.ViewModels
     {
         private readonly ILogger<UpdateDataViewModel> _logger;
         private readonly IAppClosingCancellationToken _appClosingCancellationToken;
-        private readonly DoWorkOnUi _doWorkOnUi;
+        private readonly IDoWorkOnUi _doWorkOnUi;
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 067
@@ -50,7 +51,7 @@ namespace YouTubeCleanupWpf.ViewModels
         public UpdateDataViewModel([NotNull] IErrorHandler errorHandler,
             [NotNull] ILogger<UpdateDataViewModel> logger,
             [NotNull] IAppClosingCancellationToken appClosingCancellationToken,
-            [NotNull] DoWorkOnUi doWorkOnUi)
+            [NotNull] IDoWorkOnUi doWorkOnUi)
         {
             _logger = logger;
             _appClosingCancellationToken = appClosingCancellationToken;

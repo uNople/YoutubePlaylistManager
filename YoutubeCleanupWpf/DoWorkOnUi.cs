@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using YouTubeCleanup.Ui;
 
 namespace YouTubeCleanupWpf
 {
-    public class DoWorkOnUi
+    public class DoWorkOnUi : IDoWorkOnUi
     {
         // TODO: Make async
         public void AddOnUi<T>(ICollection<T> collection, T item)

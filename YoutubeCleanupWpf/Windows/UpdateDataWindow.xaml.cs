@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using YouTubeCleanup.Ui;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -11,12 +12,12 @@ namespace YouTubeCleanupWpf.Windows
     {
         private readonly UpdateDataViewModel _updateDataViewModel;
         private readonly WpfSettings _wpfSettings;
-        private readonly DoWorkOnUi _doWorkOnUi;
+        private readonly IDoWorkOnUi _doWorkOnUi;
         private readonly WindowExtensions _windowExtensions;
 
         public UpdateDataWindow([NotNull] UpdateDataViewModel updateDataViewModel, 
             [NotNull] WpfSettings wpfSettings,
-            [NotNull] DoWorkOnUi doWorkOnUi,
+            [NotNull] IDoWorkOnUi doWorkOnUi,
             [NotNull] WindowExtensions windowExtensions)
         {
             _updateDataViewModel = updateDataViewModel;

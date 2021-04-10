@@ -1,13 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows;
+using YouTubeCleanup.Ui;
 
 namespace YouTubeCleanupWpf
 {
     public class WindowExtensions
     {
-        private readonly DoWorkOnUi _doWorkOnUi;
-        public WindowExtensions([NotNull] DoWorkOnUi doWorkOnUi) => _doWorkOnUi = doWorkOnUi;
+        private readonly IDoWorkOnUi _doWorkOnUi;
+        public WindowExtensions([NotNull] IDoWorkOnUi doWorkOnUi) => _doWorkOnUi = doWorkOnUi;
 
         public async Task StartOnSelectedWindow(Window window, WpfSettings wpfSettings)
         {

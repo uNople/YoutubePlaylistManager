@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using YouTubeCleanup.Ui;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -11,12 +12,12 @@ namespace YouTubeCleanupWpf.Windows
     {
         private readonly WpfSettings _wpfSettings;
         private readonly WindowExtensions _windowExtensions;
-        private readonly DoWorkOnUi _doWorkOnUi;
+        private readonly IDoWorkOnUi _doWorkOnUi;
 
         public SettingsWindow([NotNull] SettingsWindowViewModel settingsWindowViewModel,
             [NotNull] WpfSettings wpfSettings,
             [NotNull] WindowExtensions windowExtensions,
-            [NotNull] DoWorkOnUi doWorkOnUi)
+            [NotNull] IDoWorkOnUi doWorkOnUi)
         {
             DataContext = settingsWindowViewModel;
             _wpfSettings = wpfSettings;

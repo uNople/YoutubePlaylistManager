@@ -1,6 +1,7 @@
 ﻿using System;
 using AutoFixture;
 using NSubstitute;
+using YouTubeCleanup.Ui;
 
 namespace YouTubeCleanupWpf.UnitTests
 {

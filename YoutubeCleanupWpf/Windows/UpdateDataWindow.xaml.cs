@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using YouTubeCleanup.Ui;
-using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
 {

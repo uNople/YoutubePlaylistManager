@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace YouTubeCleanupWpf.ViewModels
+namespace YouTubeCleanup.Ui
 {
     public interface IUpdateDataViewModel
     {

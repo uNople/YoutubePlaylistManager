@@ -9,5 +9,6 @@ namespace YouTubeCleanupWpf
         public event PropertyChangedEventHandler PropertyChanged;
         #pragma warning restore 0067
         public bool VideoInPlaylist { get; set; }
+        public string DisplayTitle { get; set; }
     }
 }

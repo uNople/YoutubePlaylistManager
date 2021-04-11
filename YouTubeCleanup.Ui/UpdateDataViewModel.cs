@@ -11,11 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
-using YouTubeCleanup.Ui;
-using YouTubeCleanupWpf.Converters;
-using YouTubeCleanupWpf.Windows;
 
-namespace YouTubeCleanupWpf.ViewModels
+namespace YouTubeCleanup.Ui
 {
     public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
     {

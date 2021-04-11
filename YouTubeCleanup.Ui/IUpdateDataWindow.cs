@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace YouTubeCleanupWpf.Windows
+namespace YouTubeCleanup.Ui
 {
     public interface IUpdateDataWindow
     {

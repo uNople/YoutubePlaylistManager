@@ -1,4 +1,4 @@
-﻿namespace YouTubeCleanupWpf.ViewModels
+﻿namespace YouTubeCleanup.Ui
 {
     public interface IMainWindowViewModel
     {

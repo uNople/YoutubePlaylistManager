@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanup.Ui
 {
     public interface IAppClosingCancellationToken
     {

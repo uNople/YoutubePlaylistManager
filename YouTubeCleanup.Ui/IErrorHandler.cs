@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanup.Ui
 {
     public interface IErrorHandler
     {

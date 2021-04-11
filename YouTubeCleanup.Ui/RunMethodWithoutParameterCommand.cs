@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace YouTubeCleanupWpf.Converters
+namespace YouTubeCleanup.Ui
 {
     public class RunMethodWithoutParameterCommand : ICommand
     {

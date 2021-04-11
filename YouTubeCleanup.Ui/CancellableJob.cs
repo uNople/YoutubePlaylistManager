@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace YouTubeCleanupWpf.ViewModels
+namespace YouTubeCleanup.Ui
 {
     public class CancellableJob
     {

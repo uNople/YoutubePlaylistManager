@@ -61,6 +61,8 @@ namespace YouTubeCleanupWpf
                     }
                 })
                 .OnActivating(x => x?.Instance?.InitializeSettings())
+                .As<WpfSettings>()
+                .As<IDebugSettings>()
                 .SingleInstance();
 
             var config = new ConfigurationBuilder()

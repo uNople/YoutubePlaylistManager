@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using YouTubeCleanup.Ui;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupTool.Domain.Entities;
-using YouTubeCleanupWpf.Converters;
 
 namespace YouTubeCleanupWpf.ViewModels
 {
@@ -29,7 +28,8 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IUpdateDataViewModel updateDataViewModel,
             [NotNull] IWindowService windowService,
             [NotNull] IErrorHandler errorHandler,
-            [NotNull] IDoWorkOnUi doWorkOnUi
+            [NotNull] IDoWorkOnUi doWorkOnUi,
+            [NotNull] IDebugSettings debugSettings
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -53,11 +53,29 @@ namespace YouTubeCleanupWpf.ViewModels
             _updateDataViewModel = updateDataViewModel;
             _windowService = windowService;
             _doWorkOnUi = doWorkOnUi;
+            _debugSettings = debugSettings;
+            _debugSettings.ShowIdsChanged += DebugSettingsOnShowIdsChanged;
             SpecialVideoFilters = new List<VideoFilter>()
             {
                 new() {Title = "All", FilterType = FilterType.All},
                 new() {Title = "Uncategorized", FilterType = FilterType.Uncategorized},
             };
+        }
+
+        private void DebugSettingsOnShowIdsChanged(bool showIds)
+        {
+            foreach (var videoFilter in VideoFilter)
+            {
+                if (videoFilter.FilterType == FilterType.PlaylistTitle)
+                {
+                    _doWorkOnUi.RunOnUiThread(() => videoFilter.Title = MakePlaylistTitle(videoFilter.OriginalTitle, videoFilter.Id, showIds));
+                }
+            }
+
+            foreach (var playlist in Playlists)
+            {
+                playlist.DisplayTitle = MakePlaylistTitle(playlist.Title, playlist.Id, showIds);
+            }
         }
 
         private readonly DeferTimer _selectedFilterDataFromComboBoxDeferTimer;
@@ -72,6 +90,7 @@ namespace YouTubeCleanupWpf.ViewModels
         private WpfVideoData _selectedVideo;
         private readonly IWindowService _windowService;
         private readonly IDoWorkOnUi _doWorkOnUi;
+        private readonly IDebugSettings _debugSettings;
 
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
@@ -144,7 +163,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 return;
             }
 
-            var matchingPlaylist = Playlists.First(x => x.Title == SelectedFilterFromComboBox.Title);
+            var matchingPlaylist = Playlists.First(x => x.Id == SelectedFilterFromComboBox.Id);
 
             await DoRefreshFromYouTube(async (callback, cancellationToken) =>
             {
@@ -258,11 +277,11 @@ namespace YouTubeCleanupWpf.ViewModels
 
             if (Playlists.Count == 0)
             {
-                playlists.ForEach(x => _doWorkOnUi.AddOnUi(Playlists, _mapper.Map<WpfPlaylistData>(x)));
+                playlists.ForEach(x => _doWorkOnUi.AddOnUi(Playlists, MapWpfPlaylistData(x)));
             }
             else
             {
-                var mappedPlaylists = _mapper.Map<List<WpfPlaylistData>>(playlists);
+                var mappedPlaylists = MapWpfPlaylistData(playlists);
                 foreach (var playlist in mappedPlaylists)
                 {
                     var compareResult = Playlists.ToList().BinarySearch(playlist, comparer);
@@ -301,7 +320,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 SpecialVideoFilters.ForEach(x => _doWorkOnUi.AddOnUi(VideoFilter, x));
                 foreach (var playlist in playlists.OrderBy(x => x.Title))
                 {
-                    _doWorkOnUi.AddOnUi(VideoFilter, new VideoFilter { Title = playlist.Title, FilterType = FilterType.PlaylistTitle });
+                    _doWorkOnUi.AddOnUi(VideoFilter, new VideoFilter { OriginalTitle = playlist.Title, Title = MakePlaylistTitle(playlist.Title, playlist.Id, _debugSettings.ShowIds), FilterType = FilterType.PlaylistTitle, Id = playlist.Id });
                 }
             }
             else
@@ -311,11 +330,13 @@ namespace YouTubeCleanupWpf.ViewModels
 
             if (SelectedFilterFromComboBox == null)
             {
-                await GetVideos(100);
+                const int DEFAULT_VIDEO_COUNT = 100;
+                await GetVideos(DEFAULT_VIDEO_COUNT);
+                SearchResultCount = $"{DEFAULT_VIDEO_COUNT} videos found";
             }
             else if (SelectedFilterFromComboBox.FilterType == FilterType.PlaylistTitle)
             {
-                var matchingPlaylist = Playlists.First(x => x.Title == SelectedFilterFromComboBox.Title);
+                var matchingPlaylist = Playlists.First(x => x.Id == SelectedFilterFromComboBox.Id);
                 await _updateDataViewModel.PrependText($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
 
                 var videoIds = new HashSet<string>(playlistItemsByPlaylist[matchingPlaylist.Id].Select(x => x.VideoId));
@@ -323,6 +344,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
                     .ToList();
+                SearchResultCount = $"{videos.Count} videos found";
                 await _updateDataViewModel.PrependText($"Videos from DB: {SerializeVideoCollection(videos)}");
                 await _updateDataViewModel.PrependText($"Videos from UI: {SerializeVideoCollection(Videos.ToList())}");
 
@@ -360,6 +382,23 @@ namespace YouTubeCleanupWpf.ViewModels
                 }
             }
         });
+
+        private List<WpfPlaylistData> MapWpfPlaylistData(List<PlaylistData> playlists)
+        {
+            return new List<WpfPlaylistData>(playlists.Select(MapWpfPlaylistData));
+        }
+        
+        private WpfPlaylistData MapWpfPlaylistData(PlaylistData playlistData)
+        {
+            var playlist = _mapper.Map<WpfPlaylistData>(playlistData);
+            playlist.DisplayTitle = MakePlaylistTitle(playlistData.Title, playlistData.Id, _debugSettings.ShowIds);
+            return playlist;
+        }
+
+        private static string MakePlaylistTitle(string title, string id, bool showIds)
+        {
+            return $"{title}{(showIds ? $" ({id})" : "")}";
+        }
 
         private async Task OpenChannel(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}"));
         private async Task OpenPlaylist(PlaylistData playlistData) => await Task.Run(() => OpenLink($"https://www.youtube.com/playlist?list={playlistData.Id}"));
@@ -449,14 +488,16 @@ namespace YouTubeCleanupWpf.ViewModels
         private async Task GetVideosForPlaylist(VideoFilter videoFilter)
         {
             _doWorkOnUi.ClearOnUi(Videos);
+            SearchResultCount = "...";
             if (videoFilter.FilterType == FilterType.PlaylistTitle)
             {
                 // Make this a method or something. I think I use this pattern elsewhere
-                var videoIds = new HashSet<string>(Playlists.First(x => x.Title == videoFilter.Title).PlaylistItems.Select(x => x.VideoId));
+                var videoIds = new HashSet<string>(Playlists.First(x => x.Id == videoFilter.Id).PlaylistItems.Select(x => x.VideoId));
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
                     .OrderBy(x => x, new DataSorter())
                     .ToList();
+                SearchResultCount = $"{videos.Count} videos found";
                 await _updateDataViewModel.PrependText($"Videos after selecting a playlist: {SerializeVideoCollection(_mapper.Map<List<WpfVideoData>>(videos))}");
                 foreach (var video in videos)
                 {
@@ -468,6 +509,7 @@ namespace YouTubeCleanupWpf.ViewModels
             else if (videoFilter.FilterType == FilterType.All)
             {
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos());
+                SearchResultCount = $"{videos.Count} videos found";
                 foreach (var video in videos)
                 {
                     await AddVideoToCollection(video);
@@ -479,6 +521,7 @@ namespace YouTubeCleanupWpf.ViewModels
                 // NOTE: unfortunately the watch later playlist isn't available in the YouTube data API
                 var playlistsThatMeanUncategorized = new List<string> { "Liked videos", "!WatchLater" };
                 var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetUncategorizedVideos(playlistsThatMeanUncategorized));
+                SearchResultCount = $"{videos.Count} videos found";
                 foreach (var video in videos)
                 {
                     await AddVideoToCollection(video);

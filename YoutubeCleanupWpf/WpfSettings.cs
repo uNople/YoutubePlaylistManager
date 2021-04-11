@@ -7,16 +7,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
+using YouTubeCleanup.Ui;
 using YouTubeCleanupTool.Domain;
 using Screen = System.Windows.Forms.Screen;
 
 namespace YouTubeCleanupWpf
 {
-    public class WpfSettings : INotifyPropertyChanged
+    public class WpfSettings : INotifyPropertyChanged, IDebugSettings
     {
         private const int SaveDelayMs = 500;
+
         [JsonIgnore]
         public YouTubeServiceCreatorOptions YouTubeServiceCreatorOptions { get; set; }
+
         [JsonIgnore]
         public IErrorHandler ErrorHandler { get; set; }
 #pragma warning disable 067
@@ -25,14 +28,31 @@ namespace YouTubeCleanupWpf
 
         [JsonIgnore]
         public ObservableCollection<string> Monitors { get; set; }
-        
+
         [JsonIgnore]
         public ObservableCollection<string> Themes { get; set; }
+
         private List<Screen> ScreenCollection { get; set; }
-        
+
         [JsonIgnore]
         public Screen CurrentScreen { get; set; }
+
         private DeferTimer _saveSettingsDeferTimer;
+
+        private bool _showIds;
+
+        public event IDebugSettings.ChangedEventHandler ShowIdsChanged;
+
+        public bool ShowIds
+        {
+            get => _showIds;
+            set
+            {
+                _showIds = value;
+                ShowIdsChanged?.Invoke(value);
+                _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
+            }
+        }
 
         public WpfSettings(YouTubeServiceCreatorOptions youTubeServiceCreatorOptions, IErrorHandler errorHandler)
         {
@@ -57,6 +77,7 @@ namespace YouTubeCleanupWpf
         }
 
         private string _databasePath = "Application.db";
+
         public string DatabasePath
         {
             get => _databasePath;
@@ -70,6 +91,7 @@ namespace YouTubeCleanupWpf
         }
 
         private string _clientSecretPath = @"C:\temp\client_secret.json";
+
         public string ClientSecretPath
         {
             get => _clientSecretPath;
@@ -83,6 +105,7 @@ namespace YouTubeCleanupWpf
         }
 
         private string _selectedMonitor;
+
         public string SelectedMonitor
         {
             get => _selectedMonitor;
@@ -116,7 +139,7 @@ namespace YouTubeCleanupWpf
             try
             {
                 Application.Current.Resources.MergedDictionaries.Clear();
-                Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
+                Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary) Application.LoadComponent(uri));
             }
             catch (Exception ex)
             {

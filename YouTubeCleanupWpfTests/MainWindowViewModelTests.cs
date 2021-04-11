@@ -123,7 +123,8 @@ namespace YouTubeCleanupWpf.UnitTests
             mainWindowViewModel.SelectedFilterFromComboBox = new VideoFilter()
             {
                 FilterType = FilterType.PlaylistTitle,
-                Title = playlistData.Title
+                Title = playlistData.Title,
+                Id = playlistData.Id
             };
 
             mainWindowViewModel.Playlists.Add(playlistData);
@@ -165,7 +166,8 @@ namespace YouTubeCleanupWpf.UnitTests
             mainWindowViewModel.SelectedFilterFromComboBox = new VideoFilter()
             {
                 FilterType = FilterType.PlaylistTitle,
-                Title = playlistData.Title
+                Title = playlistData.Title,
+                Id = playlistData.Id
             };
             
             mainWindowViewModel.Playlists.Add(playlistData);

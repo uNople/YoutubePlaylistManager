@@ -23,5 +23,11 @@
         <ComboBox ItemsSource="{Binding WpfSettings.Monitors, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding WpfSettings.SelectedMonitor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" Width="308"/>
         <Label Content="Theme" HorizontalAlignment="Left" Margin="10,117,0,0" VerticalAlignment="Top" Width="135"/>
         <ComboBox ItemsSource="{Binding WpfSettings.Themes, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding WpfSettings.SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="10,143,0,0" VerticalAlignment="Top" Width="308"/>
+        <GroupBox Header="Debug info" Margin="0,211,440,10">
+            <Grid>
+                <CheckBox Content="Show IDs in playlist titles" IsChecked="{Binding WpfSettings.ShowIds, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="146"/>
+            </Grid>
+        </GroupBox>
+
     </Grid>
 </Window>

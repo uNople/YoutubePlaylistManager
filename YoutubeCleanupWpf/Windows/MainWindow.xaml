@@ -88,7 +88,7 @@
                                 <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.(viewModels:MainWindowViewModel.OpenPlaylistCommand), UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
                             </Grid.InputBindings>
                             <CheckBox VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" IsChecked="{Binding VideoInPlaylist}" Command="{Binding ElementName=Ui, Path=DataContext.(viewModels:MainWindowViewModel.CheckedOrUncheckedVideoInPlaylistCommand), UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding .}" />
-                            <Label VerticalAlignment="Center" Padding="2,0,0,0" Margin="0" Grid.Column="1" Grid.Row="0" Content="{Binding Title}" />
+                            <Label VerticalAlignment="Center" Padding="2,0,0,0" Margin="0" Grid.Column="1" Grid.Row="0" Content="{Binding DisplayTitle, UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

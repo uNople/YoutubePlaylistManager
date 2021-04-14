@@ -97,8 +97,8 @@ namespace YouTubeCleanupWpf.UnitTests
             await mainWindowViewModel.LoadData();
             mainWindowViewModel.Playlists.Should().BeEquivalentTo(new List<WpfPlaylistData>
             {
-                new() { Id = "1", Title = "a"},
-                new() { Id = "2", Title = "c"}
+                new() { Id = "1", Title = "a", DisplayTitle = "a"},
+                new() { Id = "2", Title = "c", DisplayTitle = "c"}
             });
 
             await mainWindowViewModel.LoadData();

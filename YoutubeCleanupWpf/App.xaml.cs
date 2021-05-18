@@ -32,7 +32,9 @@ namespace YouTubeCleanupWpf
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Unexpected error: {ex}");
+                var message = $"Unexpected error: {ex}";
+                MessageBox.Show(message);
+                container.Resolve<ILogger>().Fatal(message);
                 throw;
             }
         }

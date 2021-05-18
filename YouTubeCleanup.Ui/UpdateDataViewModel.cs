@@ -10,13 +10,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Extensions.Logging;
+using YouTubeCleanupTool.Domain;
 
 namespace YouTubeCleanup.Ui
 {
     public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
     {
-        private readonly ILogger<UpdateDataViewModel> _logger;
+        private readonly ILogger _logger;
         private readonly IAppClosingCancellationToken _appClosingCancellationToken;
         private readonly IDoWorkOnUi _doWorkOnUi;
 #pragma warning disable 067
@@ -28,10 +28,8 @@ namespace YouTubeCleanup.Ui
         public IUpdateDataWindow ParentWindow { get; set; }
         public IMainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> UiLogs { get; } = new();
-        private ConcurrentQueue<string> DiskLogs { get; } = new();
         private Thread _writeLogsToUiThread;
-        private Thread _writeLogsToDiskThread;
-        private readonly StringBuilder _logStringBuilder = new StringBuilder();
+        private readonly StringBuilder _logStringBuilder = new();
         public string CurrentTitle { get; set; }
         private Dictionary<Guid, CancellableJob> ActiveJobs { get; set; } = new();
         private SemaphoreSlim ActiveJobsSemaphore { get; set; } = new(1, 1);
@@ -46,9 +44,9 @@ namespace YouTubeCleanup.Ui
         public int ProgressBarMaxValue { get; set; }
 
         public UpdateDataViewModel([NotNull] IErrorHandler errorHandler,
-            [NotNull] ILogger<UpdateDataViewModel> logger,
             [NotNull] IAppClosingCancellationToken appClosingCancellationToken,
-            [NotNull] IDoWorkOnUi doWorkOnUi)
+            [NotNull] IDoWorkOnUi doWorkOnUi,
+            [NotNull] ILogger logger)
         {
             _logger = logger;
             _appClosingCancellationToken = appClosingCancellationToken;
@@ -57,43 +55,7 @@ namespace YouTubeCleanup.Ui
             CancelActiveTasksCommand = new RunMethodWithoutParameterCommand(CancelActiveTasks, errorHandler.HandleError);
             _writeLogsToUiThread = new Thread(WriteLogsToUi);
             _writeLogsToUiThread.Start();
-            _writeLogsToDiskThread = new Thread(WriteLogsToDisk);
-            _writeLogsToDiskThread.Start();
-        }
-
-        private void WriteLogsToDisk()
-        {
-            Thread.CurrentThread.Name = "Update logs to disk thread";
-            const string LOG_FILE = "Log.txt";
-            // This will just fall back to the filename, so it'll be in whatever directory the exe is in
-            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty, LOG_FILE);
-            while (true)
-            {
-                if (_appClosingCancellationToken.CancellationTokenSource.IsCancellationRequested)
-                {
-                    _writeLogsToDiskThread.Interrupt();
-                    _writeLogsToDiskThread = null;
-                    return;
-                }
-
-                var messages = new List<string>();
-                while (DiskLogs.TryDequeue(out var message))
-                {
-                    messages.Add(message);
-                }
-
-                try
-                {
-                    File.AppendAllLines(path, messages);
-                }
-                catch (Exception ex)
-                {
-                    UiLogs.Enqueue($"Access to path {path} denied. Error: {ex}");
-                    messages.ForEach(DiskLogs.Enqueue);
-                }
-
-                Thread.Sleep(100);
-            }
+            logger.LogChanged += PrependText;
         }
 
         private void WriteLogsToUi()
@@ -113,7 +75,7 @@ namespace YouTubeCleanup.Ui
                 var shouldAppend = false;
                 while (UiLogs.TryDequeue(out var message))
                 {
-                    _logger.LogTrace(message);
+                    // TODO: _logger.LogTrace(message);
                     _logStringBuilder.Insert(0, message + Environment.NewLine);
                     shouldAppend = true;
                 }
@@ -132,14 +94,10 @@ namespace YouTubeCleanup.Ui
                 Thread.Sleep(100);
             }
         }
-
-        public async Task PrependText(string message)
+        
+        public void PrependText(string message)
         {
-            await Task.Run(() =>
-            {
-                UiLogs.Enqueue(message);
-                DiskLogs.Enqueue($"{DateTime.Now:o} {message}");
-            });
+            UiLogs.Enqueue(message);
         }
 
         public async Task CreateNewActiveTask(Guid runGuid, string title, CancellationTokenSource cancellationTokenSource)
@@ -209,7 +167,7 @@ namespace YouTubeCleanup.Ui
             Interlocked.Increment(ref _inProgress);
             Interlocked.Increment(ref _waiting);
             
-            async Task Log(string message) => await PrependText($"{message} - In Progress: {_inProgress}, waiting: {_waiting}, gained: {_gained}, released: {_released}, Timed out: {_timedOut} - Task work: {callingMethod} - {extraMessage}");
+            void LogStats(string message) => _logger.Debug($"{message} - In Progress: {_inProgress}, waiting: {_waiting}, gained: {_gained}, released: {_released}, Timed out: {_timedOut} - Task work: {callingMethod} - {extraMessage}");
 
             if (await ActiveJobsSemaphore.WaitAsync(PER_THREAD_TIMEOUT_TIME_MS))
             {
@@ -228,12 +186,12 @@ namespace YouTubeCleanup.Ui
             else
             {
                 Interlocked.Increment(ref _timedOut);
-                await PrependText($"{callingMethod}: Couldn't gain access to lock within {PER_THREAD_TIMEOUT_TIME_MS}ms.{(!string.IsNullOrEmpty(extraMessage) ? $" {extraMessage}" : "")}");
-                await Log("Extra information:");
+                _logger.Error($"{callingMethod}: Couldn't gain access to lock within {PER_THREAD_TIMEOUT_TIME_MS}ms.{(!string.IsNullOrEmpty(extraMessage) ? $" {extraMessage}" : "")}");
+                LogStats("Extra information:");
             }
 
             Interlocked.Decrement(ref _inProgress);
-            await Log("Finish");
+            LogStats("Finish");
         }
         
         public Task Hide()

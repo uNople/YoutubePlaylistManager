@@ -29,7 +29,8 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IWindowService windowService,
             [NotNull] IErrorHandler errorHandler,
             [NotNull] IDoWorkOnUi doWorkOnUi,
-            [NotNull] IDebugSettings debugSettings
+            [NotNull] IDebugSettings debugSettings,
+            [NotNull] ILogger logger
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -54,6 +55,7 @@ namespace YouTubeCleanupWpf.ViewModels
             _windowService = windowService;
             _doWorkOnUi = doWorkOnUi;
             _debugSettings = debugSettings;
+            _logger = logger;
             _debugSettings.ShowIdsChanged += DebugSettingsOnShowIdsChanged;
             SpecialVideoFilters = new List<VideoFilter>()
             {
@@ -91,6 +93,7 @@ namespace YouTubeCleanupWpf.ViewModels
         private readonly IWindowService _windowService;
         private readonly IDoWorkOnUi _doWorkOnUi;
         private readonly IDebugSettings _debugSettings;
+        private readonly ILogger _logger;
 
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
@@ -167,11 +170,11 @@ namespace YouTubeCleanupWpf.ViewModels
 
             await DoRefreshFromYouTube(async (callback, cancellationToken) =>
             {
-                await _updateDataViewModel.PrependText("Updating playlist");
+                _logger.Info("Updating playlist");
                 await _getAndCacheYouTubeData.GetPlaylistItemsForPlaylist(callback, matchingPlaylist, cancellationToken);
-                await _updateDataViewModel.PrependText("Updating videos");
+                _logger.Info("Updating videos");
                 await  _getAndCacheYouTubeData.GetVideos(callback, false, cancellationToken);
-                await _updateDataViewModel.PrependText("Completed! - You can close the window now.");
+                _logger.Info("Completed! - You can close the window now.");
             }, $"Update playlist {matchingPlaylist.Title}");
         }
 
@@ -188,13 +191,13 @@ namespace YouTubeCleanupWpf.ViewModels
                  * - Select out things like how many of each thing we have vs how long a run takes on average
                  * - Exclude runs that did things like reauth, or runs that were cancelled
                  */
-                await _updateDataViewModel.PrependText("Updating playlists");
+                _logger.Info("Updating playlists");
                 await _getAndCacheYouTubeData.GetPlaylists(callback, cancellationToken);
-                await _updateDataViewModel.PrependText("Updating playlist items");
+                _logger.Info("Updating playlist items");
                 await _getAndCacheYouTubeData.GetPlaylistItems(callback, cancellationToken);
-                await _updateDataViewModel.PrependText("Updating videos");
+                _logger.Info("Updating videos");
                 await _getAndCacheYouTubeData.GetVideos(callback, false, cancellationToken);
-                await _updateDataViewModel.PrependText("Completed! - You can close the window now.");
+                _logger.Info("Completed! - You can close the window now.");
             }, "Update All Playlists from YouTube");
         }
 
@@ -216,7 +219,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
                 async Task Callback(IData data, InsertStatus status, CancellationToken cancellationToken)
                 {
-                    await _updateDataViewModel.PrependText($"{data.GetType().Name} - {data.Title} - {status}");
+                    _logger.Info($"{data.GetType().Name} - {data.Title} - {status}");
                     await _updateDataViewModel.IncrementProgress();
                 }
 
@@ -337,16 +340,16 @@ namespace YouTubeCleanupWpf.ViewModels
             else if (SelectedFilterFromComboBox.FilterType == FilterType.PlaylistTitle)
             {
                 var matchingPlaylist = Playlists.First(x => x.Id == SelectedFilterFromComboBox.Id);
-                await _updateDataViewModel.PrependText($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
+                _logger.Debug($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
 
                 var videoIds = new HashSet<string>(playlistItemsByPlaylist[matchingPlaylist.Id].Select(x => x.VideoId));
-                await _updateDataViewModel.PrependText($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.Title}'. Ids: {string.Join(", ", videoIds)}");
+                _logger.Debug($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.Title}'. Ids: {string.Join(", ", videoIds)}");
                 var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
                     .ToList();
                 SearchResultCount = $"{videos.Count} videos found";
-                await _updateDataViewModel.PrependText($"Videos from DB: {SerializeVideoCollection(videos)}");
-                await _updateDataViewModel.PrependText($"Videos from UI: {SerializeVideoCollection(Videos.ToList())}");
+                _logger.Debug($"Videos from DB: {SerializeVideoCollection(videos)}");
+                _logger.Debug($"Videos from UI: {SerializeVideoCollection(Videos.ToList())}");
 
                 foreach (var video in videos)
                 {
@@ -356,7 +359,7 @@ namespace YouTubeCleanupWpf.ViewModels
                         var image = await CreateBitmapImageFromByteArray(video);
                         video.Thumbnail = image;
                         await _doWorkOnUi.RunOnUiThreadAsync(() => Videos.Insert(~compareResult, video));
-                        await _updateDataViewModel.PrependText($"Video {video.Title} (id {video.Id}) wasn't found in the right order I guess, so we inserted it");
+                        _logger.Debug($"Video {video.Title} (id {video.Id}) wasn't found in the right order I guess, so we inserted it");
                     }
                     // TODO: handle rename of title in playlist item - Compare based on ID, not title. Then, we can check title, or just map what we got from YouTube over the top
                     // Note for why:
@@ -377,7 +380,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     foreach (var removeThis in videosToRemove)
                     {
                         _doWorkOnUi.RemoveOnUi(Videos, removeThis);
-                        await _updateDataViewModel.PrependText($"Video {video.Title} (id {video.Id}) got removed from the UI, it was no longer found");
+                        _logger.Debug($"Video {video.Title} (id {video.Id}) got removed from the UI, it was no longer found");
                     }
                 }
             }
@@ -498,13 +501,13 @@ namespace YouTubeCleanupWpf.ViewModels
                     .OrderBy(x => x, new DataSorter())
                     .ToList();
                 SearchResultCount = $"{videos.Count} videos found";
-                await _updateDataViewModel.PrependText($"Videos after selecting a playlist: {SerializeVideoCollection(_mapper.Map<List<WpfVideoData>>(videos))}");
+                _logger.Debug($"Videos after selecting a playlist: {SerializeVideoCollection(_mapper.Map<List<WpfVideoData>>(videos))}");
                 foreach (var video in videos)
                 {
                     await AddVideoToCollection(video);
                 }
                 
-                await _updateDataViewModel.PrependText($"Videos after selecting a playlist: {SerializeVideoCollection(Videos.ToList())}");
+                _logger.Debug($"Videos after selecting a playlist: {SerializeVideoCollection(Videos.ToList())}");
             }
             else if (videoFilter.FilterType == FilterType.All)
             {
@@ -600,7 +603,7 @@ namespace YouTubeCleanupWpf.ViewModels
             }
             catch (Exception ex)
             {
-                await _updateDataViewModel.PrependText($"Error creating thumbnail image: {ex}");
+                _logger.Error($"Error creating thumbnail image: {ex}");
                 return null;
             }
         }

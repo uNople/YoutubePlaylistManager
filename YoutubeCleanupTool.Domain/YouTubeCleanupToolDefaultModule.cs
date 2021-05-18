@@ -9,6 +9,7 @@ namespace YouTubeCleanupTool.Domain
         {
             builder.RegisterType<GetAndCacheYouTubeData>().As<IGetAndCacheYouTubeData>();
             builder.RegisterInstance(HttpClient).As<IHttpClientWrapper>();
+            builder.RegisterType<Logger>().As<ILogger>().SingleInstance();
         }
     }
 }

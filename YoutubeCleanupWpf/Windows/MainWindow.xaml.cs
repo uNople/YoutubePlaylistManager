@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows;
 using YouTubeCleanup.Ui;
+using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
 
 namespace YouTubeCleanupWpf.Windows
@@ -17,16 +18,19 @@ namespace YouTubeCleanupWpf.Windows
         private readonly WpfSettings _wpfSettings;
         private readonly IAppClosingCancellationToken _appClosingCancellationToken;
         private readonly WindowExtensions _windowExtensions;
+        private readonly ILogger _logger;
 
         public MainWindow([NotNull]MainWindowViewModel mainWindowViewModel,
             [NotNull] WpfSettings wpfSettings,
             [NotNull] IAppClosingCancellationToken appClosingCancellationToken,
-            [NotNull] WindowExtensions windowExtensions)
+            [NotNull] WindowExtensions windowExtensions,
+            [NotNull] ILogger logger)
         {
             _mainWindowViewModel = mainWindowViewModel;
             _wpfSettings = wpfSettings;
             _appClosingCancellationToken = appClosingCancellationToken;
             _windowExtensions = windowExtensions;
+            _logger = logger;
             DataContext = _mainWindowViewModel;
             Task.Run(async () => await _windowExtensions.StartOnSelectedWindow(this, _wpfSettings));
             InitializeComponent();
@@ -49,6 +53,7 @@ namespace YouTubeCleanupWpf.Windows
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.ToString());
+                    _logger.Error(ex.ToString());
                 }
             });
         }

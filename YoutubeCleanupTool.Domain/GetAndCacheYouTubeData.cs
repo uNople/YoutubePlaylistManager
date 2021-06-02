@@ -13,15 +13,18 @@ namespace YouTubeCleanupTool.Domain
         private readonly IYouTubeApi _youTubeApi;
         private readonly IYouTubeCleanupToolDbContextFactory _youTubeCleanupToolDbContextFactory;
         private readonly IHttpClientWrapper _httpClientWrapper;
+        private readonly ILogger _logger;
 
         public GetAndCacheYouTubeData([NotNull] IYouTubeApi youTubeApi,
             [NotNull] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-            [NotNull] IHttpClientWrapper httpClientWrapper
+            [NotNull] IHttpClientWrapper httpClientWrapper,
+            [NotNull] ILogger logger
             )
         {
             _youTubeApi = youTubeApi;
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
             _httpClientWrapper = httpClientWrapper;
+            _logger = logger;
         }
 
         public async Task GetPlaylists(Func<IData, InsertStatus, CancellationToken, Task> callback, CancellationToken cancellationToken)

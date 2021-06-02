@@ -21,6 +21,8 @@ namespace YouTubeCleanupWpf
             builder.RegisterModule<YouTubeCleanupWpfModule>();
             builder.RegisterModule<YouTubeCleanupToolDataModule>();
             var container = builder.Build();
+            var logger = container.Resolve<ILogger>();
+            logger.Trace("App starting");
             try
             {
                 // TODO: this seems flaky - if we don't initialize WpfSettings first, then the default DB settings don't get changed
@@ -33,8 +35,8 @@ namespace YouTubeCleanupWpf
             catch (Exception ex)
             {
                 var message = $"Unexpected error: {ex}";
+                logger.Fatal(message);
                 MessageBox.Show(message);
-                container.Resolve<ILogger>().Fatal(message);
                 throw;
             }
         }

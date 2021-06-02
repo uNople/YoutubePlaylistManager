@@ -35,5 +35,10 @@ namespace YouTubeCleanupTool.Domain
             if (secondString == null) return false;
             return str?.Contains(secondString, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
+
+        /// <summary>
+        /// Can't do this on the interface, otherwise we need to cast before using this.
+        /// </summary>
+        public static string DisplayInfo<T>(this T data) where T : IData => $"{data.Title} (Id {data.Id})";
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -17,10 +18,12 @@ namespace YouTubeCleanupTool.Domain
         private Thread _writeLogsToDiskThread;
         private ConcurrentQueue<string> DiskLogs { get; } = new();
         private string LOG_FILE { get; set; } = "Log.txt";
+        private readonly int _currentProcessId;
         public Logger(
             [NotNull] IAppClosingCancellationToken appClosingCancellationToken)
         {
             _appClosingCancellationToken = appClosingCancellationToken;
+            _currentProcessId = Process.GetCurrentProcess().Id;
             _writeLogsToDiskThread = new Thread(WriteLogsToDisk);
             _writeLogsToDiskThread.Start();
         }
@@ -29,32 +32,22 @@ namespace YouTubeCleanupTool.Domain
         {
             Thread.CurrentThread.Name = "Update logs to disk thread";
             // This will just fall back to the filename, so it'll be in whatever directory the exe is in
-            string CalculateLogFileName() => Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty, LOG_FILE);
-            var path = CalculateLogFileName();
+            string path = CalculateLogFileName();
             while (true)
             {
                 if (_appClosingCancellationToken.CancellationTokenSource.IsCancellationRequested)
                 {
+                    Log(ILogger.LogLevel.Trace, "App exiting");
+                    // Try to write logs on app exit
+                    // If it fails, it's no biggie, since we're exiting anyway
+                    TryWriteLogs(path);
                     _writeLogsToDiskThread.Interrupt();
                     _writeLogsToDiskThread = null;
                     return;
                 }
 
-                var messages = new List<string>();
-                while (DiskLogs.TryDequeue(out var message))
+                if (!TryWriteLogs(path))
                 {
-                    messages.Add(message);
-                }
-
-                try
-                {
-                    File.AppendAllLines(path, messages);
-                }
-                catch (Exception ex)
-                {
-                    Log(ILogger.LogLevel.Error, $"Access to path {path} denied. Error: {ex}");
-                    messages.ForEach(DiskLogs.Enqueue);
-                    LOG_FILE = $"Log.txt.{DateTime.Now.ToString("o").Replace(":", ".")}";
                     path = CalculateLogFileName();
                 }
 
@@ -62,11 +55,37 @@ namespace YouTubeCleanupTool.Domain
             }
         }
 
+        private bool TryWriteLogs(string path)
+        {
+            bool success = true;
+            var messages = new List<string>();
+            while (DiskLogs.TryDequeue(out var message))
+            {
+                messages.Add(message);
+            }
+
+            try
+            {
+                File.AppendAllLines(path, messages);
+            }
+            catch (Exception ex)
+            {
+                Log(ILogger.LogLevel.Error, $"Access to path {path} denied. Error: {ex}");
+                messages.ForEach(DiskLogs.Enqueue);
+                LOG_FILE = $"Log.txt.{DateTime.Now.ToString("o").Replace(":", ".")}";
+                success = false;
+            }
+
+            return success;
+        }
+
+        private string CalculateLogFileName() => Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty, LOG_FILE);
+
         public event ILogger.OnLog LogChanged;
 
         public void Log(ILogger.LogLevel category, string message)
         {
-            var formattedMessage = $"{DateTime.Now:o} [{Thread.CurrentThread.ManagedThreadId}] {message}";
+            var formattedMessage = $"{DateTime.Now:o} [{_currentProcessId}] [{Thread.CurrentThread.ManagedThreadId}] [{Thread.CurrentThread.Name}] {message}";
             DiskLogs.Enqueue(formattedMessage);
             LogChanged?.Invoke(message);
         }

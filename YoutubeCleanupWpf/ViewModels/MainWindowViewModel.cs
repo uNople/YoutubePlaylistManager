@@ -30,7 +30,8 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IErrorHandler errorHandler,
             [NotNull] IDoWorkOnUi doWorkOnUi,
             [NotNull] IDebugSettings debugSettings,
-            [NotNull] ILogger logger
+            [NotNull] ILogger logger,
+            [NotNull] IEntropyService entropyService
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;
@@ -211,6 +212,7 @@ namespace YouTubeCleanupWpf.ViewModels
             UpdateHappening = true;
             var cancellationTokenSource = new CancellationTokenSource();
             var runGuid = Guid.NewGuid();
+            
             try
             {
                 await _updateDataViewModel.CreateNewActiveTask(runGuid, title, cancellationTokenSource);
@@ -219,7 +221,7 @@ namespace YouTubeCleanupWpf.ViewModels
 
                 async Task Callback(IData data, InsertStatus status, CancellationToken cancellationToken)
                 {
-                    _logger.Info($"{data.GetType().Name} - {data.Title} - {status}");
+                    _logger.Info($"{data.GetType().Name} - {data.DisplayInfo()} - {status}");
                     await _updateDataViewModel.IncrementProgress();
                 }
 
@@ -340,10 +342,10 @@ namespace YouTubeCleanupWpf.ViewModels
             else if (SelectedFilterFromComboBox.FilterType == FilterType.PlaylistTitle)
             {
                 var matchingPlaylist = Playlists.First(x => x.Id == SelectedFilterFromComboBox.Id);
-                _logger.Debug($"Dealing with playlist '{matchingPlaylist.Title}' (id {matchingPlaylist.Id})");
+                _logger.Debug($"Dealing with playlist '{matchingPlaylist.DisplayInfo()}");
 
                 var videoIds = new HashSet<string>(playlistItemsByPlaylist[matchingPlaylist.Id].Select(x => x.VideoId));
-                _logger.Debug($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.Title}'. Ids: {string.Join(", ", videoIds)}");
+                _logger.Debug($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.DisplayInfo()}'. Ids: {string.Join(", ", videoIds)}");
                 var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                     .Where(x => videoIds.Contains(x.Id))
                     .ToList();
@@ -359,7 +361,7 @@ namespace YouTubeCleanupWpf.ViewModels
                         var image = await CreateBitmapImageFromByteArray(video);
                         video.Thumbnail = image;
                         await _doWorkOnUi.RunOnUiThreadAsync(() => Videos.Insert(~compareResult, video));
-                        _logger.Debug($"Video {video.Title} (id {video.Id}) wasn't found in the right order I guess, so we inserted it");
+                        _logger.Debug($"Video {video.DisplayInfo()} wasn't found in the right order I guess, so we inserted it");
                     }
                     // TODO: handle rename of title in playlist item - Compare based on ID, not title. Then, we can check title, or just map what we got from YouTube over the top
                     // Note for why:
@@ -380,7 +382,7 @@ namespace YouTubeCleanupWpf.ViewModels
                     foreach (var removeThis in videosToRemove)
                     {
                         _doWorkOnUi.RemoveOnUi(Videos, removeThis);
-                        _logger.Debug($"Video {video.Title} (id {video.Id}) got removed from the UI, it was no longer found");
+                        _logger.Debug($"Video {video.DisplayInfo()} got removed from the UI, it was no longer found");
                     }
                 }
             }
@@ -470,6 +472,7 @@ namespace YouTubeCleanupWpf.ViewModels
                         if (!playlists.Contains(playlistItem.PlaylistDataId))
                         {
                             playlists.Add(playlistItem.PlaylistDataId);
+                            _logger.Debug($"Adding video {_selectedVideo.DisplayInfo()} to playlist {wpfPlaylistData.DisplayInfo()}");
                         }
                     }
                 }
@@ -482,6 +485,7 @@ namespace YouTubeCleanupWpf.ViewModels
                         if (playlists.Contains(wpfPlaylistData.Id))
                         {
                             playlists.Remove(wpfPlaylistData.Id);
+                            _logger.Debug($"Removing video {_selectedVideo.DisplayInfo()} from playlist {wpfPlaylistData.DisplayInfo()}");
                         }
                     }
                 }

@@ -36,7 +36,9 @@ Once that's entered, we can decrypt the encrypted data saved in `WpfSettings.jso
 
 If you don't have an API key / client.json set, then it will prompt you to enter them.
 
-Future work to be done in this area: move from DPAPI to something like DES/AES (insert secure** mechanism here) so it can be cross-platform.
+Future work to be done in this area:
+- [ ] Finish implementing
+- [ ] move from DPAPI to something like DES/AES (insert secure** mechanism here) so it can be cross-platform.
 
 #### EF core
 

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows.Media.Imaging;
+using YouTubeCleanupTool.Domain;
 using YouTubeCleanupTool.Domain.Entities;
 
 namespace YouTubeCleanupWpf

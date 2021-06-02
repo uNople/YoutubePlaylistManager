@@ -24,15 +24,21 @@ namespace YouTubeApiWrapper
         private readonly IMapper _mapper;
         private readonly IAppSettings _appSettings;
         private readonly YouTubeServiceCreatorOptions _youTubeServiceCreatorOptions;
+        private readonly IEntropyService _entropyService;
+        private readonly IDpapiService _dpapiService;
         private IYouTubeServiceWrapper _youTubeServiceWrapper;
 
         public YouTubeApi([NotNull] IMapper mapper,
             [NotNull] IAppSettings appSettings,
-            [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions)
+            [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions,
+            [NotNull] IEntropyService entropyService,
+            [NotNull] IDpapiService dpapiService)
         {
             _mapper = mapper;
             _appSettings = appSettings;
             _youTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
+            _entropyService = entropyService;
+            _dpapiService = dpapiService;
         }
 
         public async IAsyncEnumerable<PlaylistData> GetPlaylists()
@@ -122,6 +128,9 @@ namespace YouTubeApiWrapper
         {
             if (_youTubeServiceWrapper != null && !getNewToken)
                 return _youTubeServiceWrapper;
+
+            //var entropy = _entropyService.GetEntropy();
+            //var decryptedApiKey = _dpapiService.Decrypt(_appSettings.ApiKey);
 
             // TODO: if requesting new scopes, delete %appdata%\_youTubeServiceCreatorOptions.FileDataStoreName\.* - this is where the refresh/accesstoken/scopes are stored
             UserCredential credential;

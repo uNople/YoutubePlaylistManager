@@ -6,5 +6,6 @@ namespace YouTubeCleanupWpf
     {
         void ShowSettingsWindow();
         Task ShowUpdateDataWindow(string title);
+        Task<byte[]> PromptForEntropy();
     }
 }

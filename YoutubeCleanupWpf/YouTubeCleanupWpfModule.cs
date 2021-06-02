@@ -36,6 +36,11 @@ namespace YouTubeCleanupWpf
             builder.RegisterType<DoWorkOnUi>().As<IDoWorkOnUi>();
             builder.RegisterType<WindowExtensions>();
 
+            // Password prompt / settings encryption things
+            builder.RegisterType<EntropyService>().As<IEntropyService>();
+            builder.RegisterType<DpapiService>().As<IDpapiService>();
+            builder.RegisterType<PasswordPrompt>().As<IPasswordPrompt>();
+
             builder.Register(x =>
                 {
                     var youTubeServiceCreatorOptions = x.Resolve<YouTubeServiceCreatorOptions>();

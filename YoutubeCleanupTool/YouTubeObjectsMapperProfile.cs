@@ -48,23 +48,26 @@ namespace YouTubeApiWrapper
             //CreateMap<VideoData, VideoData>();
         }
 
-        private List<Thumbnail> MapThumbnails(Video video)
+        public List<Thumbnail> MapThumbnails(Video video)
         {
-            Thumbnail map(Google.Apis.YouTube.v3.Data.Thumbnail thumb) => new()
+            // Ugly (and the return), but... the video thumbnails can return null for any of these
+            // so this is a bit tidier than null checking before adding to the collection
+            Thumbnail map(Google.Apis.YouTube.v3.Data.Thumbnail thumb) => thumb == null ? null : new()
             {
                 ThumbnailUrl = thumb.Url,
                 Width = thumb.Width,
                 Height = thumb.Height,
             };
-
+            
             List<Thumbnail> thumbnails = new()
             {
-                map(video.Snippet.Thumbnails.High),
-                map(video.Snippet.Thumbnails.Maxres),
-                map(video.Snippet.Thumbnails.Medium),
-                map(video.Snippet.Thumbnails.Standard)
+                map(video.Snippet?.Thumbnails?.High),
+                map(video.Snippet?.Thumbnails?.Maxres),
+                map(video.Snippet?.Thumbnails?.Medium),
+                map(video.Snippet?.Thumbnails?.Standard)
             };
-            return thumbnails;
+
+            return thumbnails.Where(x => x != null).ToList();
         }
 
         private static List<Category> MapCategories(Video video)

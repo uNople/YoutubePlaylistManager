@@ -26,7 +26,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{36D9F9BA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests.Common", "UnitTests.Common\UnitTests.Common.csproj", "{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTubeCleanup.Ui", "YouTubeCleanup.Ui\YouTubeCleanup.Ui.csproj", "{39BEDD8C-D545-4CDE-AE6B-A715D0B3A178}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanup.Ui", "YouTubeCleanup.Ui\YouTubeCleanup.Ui.csproj", "{39BEDD8C-D545-4CDE-AE6B-A715D0B3A178}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTubeApiWrapperTests", "YouTubeApiWrapperTests\YouTubeApiWrapperTests.csproj", "{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +68,10 @@ Global
 		{39BEDD8C-D545-4CDE-AE6B-A715D0B3A178}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39BEDD8C-D545-4CDE-AE6B-A715D0B3A178}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39BEDD8C-D545-4CDE-AE6B-A715D0B3A178}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{351FA735-44D5-4D25-8AFC-3FAF9FBBA24B} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
 		{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
 		{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
+		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11625CAC-0363-41BE-AF45-4A47703EE566}

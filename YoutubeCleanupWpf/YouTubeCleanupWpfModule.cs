@@ -21,7 +21,18 @@ namespace YouTubeCleanupWpf
             // NOTE: even though this isn't registered as SingleInstance, I think it ends up being SingleInstance anyway
             // Since we're starting App.xaml.cs, which only launches one MainWindow...
             builder.RegisterType<MainWindow>();
-            builder.RegisterType<UpdateDataWindow>().As<IUpdateDataWindow>();
+            // TODO: add an integration / e2e test which checks this.
+            // The test needs to:
+            // - Talk to window service
+            // - show the update data window
+            // - Call .hide() on the viewmodel
+            // - Verify this instance of IUpdateDataWindow gets called
+            // - Then re-do, and make sure the same instance gets called.
+            // The underlying thing here is that when we show the window, it's a different instance
+            // but we hold a reference to the first window (I think) in the viewmodel
+            // potentially another way of validating this is to ensure that the window that gets shown when
+            // talking to the window service is the same instance the second time around as the viewmodel knows about
+            builder.RegisterType<UpdateDataWindow>().As<IUpdateDataWindow>().SingleInstance();
             builder.RegisterType<SettingsWindow>().As<ISettingsWindow>();
             builder.RegisterType<MainWindowViewModel>().SingleInstance();
             builder.RegisterType<MessageBoxErrorHandler>().As<IErrorHandler>();

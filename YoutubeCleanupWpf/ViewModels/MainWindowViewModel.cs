@@ -30,8 +30,7 @@ namespace YouTubeCleanupWpf.ViewModels
             [NotNull] IErrorHandler errorHandler,
             [NotNull] IDoWorkOnUi doWorkOnUi,
             [NotNull] IDebugSettings debugSettings,
-            [NotNull] ILogger logger,
-            [NotNull] IEntropyService entropyService
+            [NotNull] ILogger logger
         )
         {
             _youTubeCleanupToolDbContextFactory = youTubeCleanupToolDbContextFactory;

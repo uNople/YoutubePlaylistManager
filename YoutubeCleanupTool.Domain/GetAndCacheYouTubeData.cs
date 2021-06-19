@@ -117,9 +117,9 @@ namespace YouTubeCleanupTool.Domain
             {
                 return await _httpClientWrapper.GetByteArrayAsync(video.ThumbnailUrl, cancellationToken);
             }
-            catch
+            catch (Exception ex)
             {
-                // TODO: Log?
+                _logger.Debug($"Video {video.DisplayInfo()} has no thumbnail, or we errored - Error: {ex}");
                 return new byte[0];
             }
         }
@@ -166,7 +166,7 @@ namespace YouTubeCleanupTool.Domain
             await context.SaveChangesAsync();
         }
 
-        public async Task RemovePlaylist(string playlistId)
+        private async Task RemovePlaylist(string playlistId)
         {
             var context = _youTubeCleanupToolDbContextFactory.Create();
             context.RemovePlaylist(playlistId);

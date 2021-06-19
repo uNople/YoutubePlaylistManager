@@ -1,9 +1,9 @@
-﻿using System;
+﻿using UsedImplicitly = JetBrains.Annotations.UsedImplicitlyAttribute;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -22,25 +22,33 @@ namespace YouTubeCleanup.Ui
 #pragma warning disable 067
         public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 067
+        [UsedImplicitly]
         public string LogText { get; set; }
+        [UsedImplicitly]
         public ICommand CloseCommand { get; set; }
+        [UsedImplicitly]
         public ICommand CancelActiveTasksCommand { get; set; }
         public IUpdateDataWindow ParentWindow { get; set; }
-        public IMainWindowViewModel MainWindowViewModel { get; set; }
         private ConcurrentQueue<string> UiLogs { get; } = new();
         private Thread _writeLogsToUiThread;
-        private readonly StringBuilder _logStringBuilder = new();
+        private readonly StringBuilder _logStringBuilder = new(); 
+        [UsedImplicitly]
         public string CurrentTitle { get; set; }
-        private Dictionary<Guid, CancellableJob> ActiveJobs { get; set; } = new();
-        private SemaphoreSlim ActiveJobsSemaphore { get; set; } = new(1, 1);
+
+        public Dictionary<Guid, CancellableJob> ActiveJobs { get; } = new();
+        private SemaphoreSlim ActiveJobsSemaphore { get; } = new(1, 1);
+        [UsedImplicitly]
         public bool TasksRunning { get; set; }
         private int _waiting;
         private int _gained;
         private int _released;
         private int _timedOut;
         private int _inProgress;
-        public bool IsProgressBarIndeterminate { get; set; } 
+        [UsedImplicitly]
+        public bool IsProgressBarIndeterminate { get; set; }
+        [UsedImplicitly]
         public int ProgressBarValue { get; set; }
+        [UsedImplicitly]
         public int ProgressBarMaxValue { get; set; }
 
         public UpdateDataViewModel([NotNull] IErrorHandler errorHandler,
@@ -55,7 +63,7 @@ namespace YouTubeCleanup.Ui
             CancelActiveTasksCommand = new RunMethodWithoutParameterCommand(CancelActiveTasks, errorHandler.HandleError);
             _writeLogsToUiThread = new Thread(WriteLogsToUi);
             _writeLogsToUiThread.Start();
-            logger.LogChanged += PrependText;
+            logger.LogChanged += (message) => UiLogs.Enqueue(message); ;
         }
 
         private void WriteLogsToUi()
@@ -75,7 +83,6 @@ namespace YouTubeCleanup.Ui
                 var shouldAppend = false;
                 while (UiLogs.TryDequeue(out var message))
                 {
-                    // TODO: _logger.LogTrace(message);
                     _logStringBuilder.Insert(0, message + Environment.NewLine);
                     shouldAppend = true;
                 }
@@ -83,10 +90,10 @@ namespace YouTubeCleanup.Ui
                 if (shouldAppend)
                 {
                     // Clamp the string builder to 10,000 characters (better than creating yet another string to do the truncate on)
+                    // We still need to clamp the text's length to get a responsive UI in WPF
                     if (_logStringBuilder.Length > MAX_STRING_LENGTH)
                         _logStringBuilder.Remove(MAX_STRING_LENGTH, _logStringBuilder.Length - MAX_STRING_LENGTH);
                     
-                    // NOTE: we still need to clamp the text's length to get a responsive UI
                     var logText = _logStringBuilder.ToString();
                     _doWorkOnUi.RunOnUiThreadSync(() => LogText = logText);
                 }
@@ -95,11 +102,6 @@ namespace YouTubeCleanup.Ui
             }
         }
         
-        public void PrependText(string message)
-        {
-            UiLogs.Enqueue(message);
-        }
-
         public async Task CreateNewActiveTask(Guid runGuid, string title, CancellationTokenSource cancellationTokenSource)
         {
             await DoActiveTaskWork(async () => await Task.Run(() => ActiveJobs[runGuid] = new CancellableJob {Id = runGuid, Name = title, CancellationTokenSource = cancellationTokenSource}),

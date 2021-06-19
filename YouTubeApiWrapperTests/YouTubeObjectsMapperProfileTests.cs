@@ -1,4 +1,3 @@
-using System;
 using FluentAssertions;
 using Google.Apis.YouTube.v3.Data;
 using Xunit;

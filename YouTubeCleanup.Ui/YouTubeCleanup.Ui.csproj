@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
       <PackageReference Include="PropertyChanged.Fody" Version="3.3.3" PrivateAssets="All" />
     </ItemGroup>
 

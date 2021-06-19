@@ -28,7 +28,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests.Common", "UnitTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanup.Ui", "YouTubeCleanup.Ui\YouTubeCleanup.Ui.csproj", "{39BEDD8C-D545-4CDE-AE6B-A715D0B3A178}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTubeApiWrapperTests", "YouTubeApiWrapperTests\YouTubeApiWrapperTests.csproj", "{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeApiWrapperTests", "YouTubeApiWrapperTests\YouTubeApiWrapperTests.csproj", "{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YouTubeCleanup.Ui.UnitTests", "Solution\YouTubeCleanup.Ui.UnitTests\YouTubeCleanup.Ui.UnitTests.csproj", "{C13EE29E-4557-44D8-88D3-488A73FBC922}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,6 +74,10 @@ Global
 		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C13EE29E-4557-44D8-88D3-488A73FBC922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C13EE29E-4557-44D8-88D3-488A73FBC922}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C13EE29E-4557-44D8-88D3-488A73FBC922}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C13EE29E-4557-44D8-88D3-488A73FBC922}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
 		{E6EE12DB-05C7-4BD0-9FA8-3C5D1CC9639B} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
 		{A70D0560-9CC6-4BF0-BA87-E9149FEAA4B9} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
+		{C13EE29E-4557-44D8-88D3-488A73FBC922} = {36D9F9BA-A7CE-4F8A-A392-2072796B978B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11625CAC-0363-41BE-AF45-4A47703EE566}

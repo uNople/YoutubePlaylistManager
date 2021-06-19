@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using YouTubeCleanup.Ui;
+using YouTubeCleanupTool.Domain;
 
 namespace YouTubeCleanupWpf
 {

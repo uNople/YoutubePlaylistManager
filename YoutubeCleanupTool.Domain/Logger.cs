@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace YouTubeCleanupTool.Domain
@@ -53,26 +54,58 @@ namespace YouTubeCleanupTool.Domain
 
         private bool TryWriteLogs(string path)
         {
-            bool success = true;
+            var success = true;
             var messages = new List<string>();
             while (DiskLogs.TryDequeue(out var message))
             {
                 messages.Add(message);
             }
 
-            try
+            if (messages.Any())
             {
-                File.AppendAllLines(path, messages);
-            }
-            catch (Exception ex)
-            {
-                Log(ILogger.LogLevel.Error, $"Access to path {path} denied. Error: {ex}");
-                messages.ForEach(DiskLogs.Enqueue);
-                LogFile = $"Log.txt.{DateTime.Now.ToString("o").Replace(":", ".")}";
-                success = false;
+                RollLogs(path);
+
+                try
+                {
+                    File.AppendAllLines(path, messages);
+                }
+                catch (Exception ex)
+                {
+                    Log(ILogger.LogLevel.Error, $"Access to path {path} denied. Error: {ex}");
+                    messages.ForEach(DiskLogs.Enqueue);
+                    LogFile = $"Log.txt.{PathSafeLocalCurrentDate()}";
+                    success = false;
+                }
             }
 
             return success;
+        }
+
+        private void RollLogs(string path)
+        {
+            if (!File.Exists(path))
+                return;
+            
+            const double BIT_AMOUNT_IN_BYTES = 1024d;
+            const int ROLL_LOGS_MEGABYTES_AMOUNT = 2;
+
+            try
+            {
+                var fileLengthMb = new FileInfo(path).Length / BIT_AMOUNT_IN_BYTES / BIT_AMOUNT_IN_BYTES;
+                if (fileLengthMb >= ROLL_LOGS_MEGABYTES_AMOUNT)
+                {
+                    File.Move(path, $"{path}.{PathSafeLocalCurrentDate()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ILogger.LogLevel.Error, $"Error when rolling logs at cutoff {ROLL_LOGS_MEGABYTES_AMOUNT}MB for path '{path}' on disk. Error: {ex}");
+            }
+        }
+
+        private string PathSafeLocalCurrentDate()
+        {
+            return DateTime.Now.ToString("o").Replace(":", ".");
         }
 
         private string CalculateLogFileName() => Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty, LogFile);

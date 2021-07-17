@@ -51,7 +51,7 @@
             <Label Content="{Binding SearchResultCount, UpdateSourceTrigger=PropertyChanged, FallbackValue=search result count}" HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" Width="190" Margin="10,0,0,0"/>
         </Grid>
         <Grid Column="0" Row="1">
-            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" ToolTip="Double-click to open video in your browser">
+            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="youTubeCleanupWpf:WpfVideoData">
                         <Grid>
@@ -73,7 +73,7 @@
             </ListBox>
         </Grid>
         <Grid Column="1" Row="1" Margin="10,0,0,0">
-            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Playlists, UpdateSourceTrigger=PropertyChanged}" ToolTip="Double-click to open playlist in your browser">
+            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Playlists, UpdateSourceTrigger=PropertyChanged}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="youTubeCleanupWpf:WpfPlaylistData">
                         <Grid>
@@ -99,7 +99,7 @@
             <Label Background="DarkGray" Opacity=".5" FontSize="30" FontWeight="Bold"  Content="" Margin="0,273,0,0" Height="52" VerticalAlignment="Top" />
             <Label FontSize="30" FontWeight="Bold"  Content="{Binding SelectedVideo.Title, UpdateSourceTrigger=PropertyChanged, FallbackValue=Title of video}" Margin="0,273,0,0" Height="52" VerticalAlignment="Top" />
             <TextBox Text="{Binding SelectedVideo.Description, UpdateSourceTrigger=PropertyChanged, FallbackValue=Description of video}" Margin="0,364,0,0" TextWrapping="WrapWithOverflow"/>
-            <TextBox Text="{Binding SelectedVideo.ChannelTitle, UpdateSourceTrigger=PropertyChanged, FallbackValue=Channel name}" Margin="0,330,0,0" VerticalAlignment="Top" Height="29" TextWrapping="WrapWithOverflow" ToolTip="Double-click to open the channel in your browser" >
+            <TextBox Text="{Binding SelectedVideo.ChannelTitle, UpdateSourceTrigger=PropertyChanged, FallbackValue=Channel name}" Margin="0,330,0,0" VerticalAlignment="Top" Height="29" TextWrapping="WrapWithOverflow" >
                 <TextBox.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ElementName=Ui, Path=DataContext.(viewModels:MainWindowViewModel.OpenChannelCommand), UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding SelectedVideo}" />
                 </TextBox.InputBindings>

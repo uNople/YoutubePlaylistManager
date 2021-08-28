@@ -51,7 +51,7 @@
             <Label Content="{Binding SearchResultCount, UpdateSourceTrigger=PropertyChanged, FallbackValue=search result count}" HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" Width="190" Margin="10,0,0,0"/>
         </Grid>
         <Grid Column="0" Row="1">
-            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Videos, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" SelectedItem="{Binding SelectedVideo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" KeyDown="VideoList_OnKeyDown">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="youTubeCleanupWpf:WpfVideoData">
                         <Grid>

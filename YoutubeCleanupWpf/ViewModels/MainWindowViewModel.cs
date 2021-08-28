@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
@@ -147,7 +148,7 @@ namespace YouTubeCleanupWpf.ViewModels
         public bool ShouldSelectingFilterUpdateVideos { get; set; } = true;
 
         private string _searchText;
-
+        
         public string SearchText
         {
             get => _searchText;
@@ -405,8 +406,8 @@ namespace YouTubeCleanupWpf.ViewModels
         }
 
         private async Task OpenChannel(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}"));
-        private async Task OpenPlaylist(PlaylistData playlistData) => await Task.Run(() => OpenLink($"https://www.youtube.com/playlist?list={playlistData.Id}"));
-        private async Task OpenVideo(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/watch?v={videoData.Id}"));
+        private async Task OpenPlaylist(PlaylistData playlistData) => await Task.Run(() => OpenLink(playlistData.Url));
+        private async Task OpenVideo(VideoData videoData) => await Task.Run(() => OpenLink(videoData.Url));
 
         public static void OpenLink(string url)
         {
@@ -614,6 +615,14 @@ namespace YouTubeCleanupWpf.ViewModels
         private string SerializeVideoCollection(List<WpfVideoData> videos)
         {
             return JsonConvert.SerializeObject(videos.Select(x => new { x.Title, x.Id }), Formatting.Indented);
+        }
+
+        public void CopySelectedVideoLinkToClipboard()
+        {
+            if (SelectedVideo == null)
+                return;
+            
+            Clipboard.SetText(SelectedVideo.Url);
         }
     }
 }

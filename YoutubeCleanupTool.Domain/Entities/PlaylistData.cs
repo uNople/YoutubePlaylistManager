@@ -14,5 +14,6 @@ namespace YouTubeCleanupTool.Domain.Entities
         public string Kind { get; set; }
         public string ThumbnailUrl { get; set; }
         public List<PlaylistItemData> PlaylistItems { get; set; } = new();
+        public string Url => $"https://www.youtube.com/playlist?list={Id}";
     }
 }

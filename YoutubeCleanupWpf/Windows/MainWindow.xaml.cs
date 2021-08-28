@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
 
@@ -60,6 +61,15 @@ namespace YouTubeCleanupWpf.Windows
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
             _appClosingCancellationToken.CancellationTokenSource.Cancel();
+        }
+
+        private void VideoList_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            // Could use HasFlag here, however want to just check ctrl+c, not ctrl+alt+c etc
+            if (!e.IsRepeat && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0 && e.Key == Key.C)
+            {
+                _mainWindowViewModel.CopySelectedVideoLinkToClipboard();
+            }
         }
     }
 }

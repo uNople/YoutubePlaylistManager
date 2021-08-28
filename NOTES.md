@@ -1,8 +1,18 @@
 [Issues and bugs are now on github!](https://github.com/uNople/YoutubeCleanupTool/issues)
 
+Feature completion:
+- Sort by playlist position instead of alphabetical
+- Add new playlists
+- Copy link to video
+- Copy link to playlist
+- Make playlist public / private
+- GitHub actions/auto build
+- Move architecture into puml (plant UML) files + png output
+  - Do class/architecture and flow diagrams
+
 Tests:
 - Mapper tests (in relation to mapping + saving data to the database)
-- Integration tests - spin up a real DB, but with fake data returned from the YouTube side
+- Integration tests - spin up a real DB, 'real' UI, but with fake data returned from the YouTube side
 
 Fixing the new user experience:
 - Dialog for entering api key + client secret path

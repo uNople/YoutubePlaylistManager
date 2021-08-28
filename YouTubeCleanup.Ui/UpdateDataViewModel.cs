@@ -63,7 +63,7 @@ namespace YouTubeCleanup.Ui
             CancelActiveTasksCommand = new RunMethodWithoutParameterCommand(CancelActiveTasks, errorHandler.HandleError);
             _writeLogsToUiThread = new Thread(WriteLogsToUi);
             _writeLogsToUiThread.Start();
-            logger.LogChanged += (message) => UiLogs.Enqueue(message); ;
+            logger.LogChanged += (message) => UiLogs.Enqueue(message);
         }
 
         private void WriteLogsToUi()

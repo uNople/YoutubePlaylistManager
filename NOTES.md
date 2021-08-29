@@ -1,14 +1,17 @@
 [Issues and bugs are now on github!](https://github.com/uNople/YoutubeCleanupTool/issues)
 
 Feature completion:
-- Sort by playlist position instead of alphabetical
-- Add new playlists
-- Copy link to video
-- Copy link to playlist
-- Make playlist public / private
-- GitHub actions/auto build
-- Move architecture into puml (plant UML) files + png output
-  - Do class/architecture and flow diagrams
+- [ ] Sort by playlist position instead of alphabetical
+- [ ] Add new playlists
+- [ ] Get larger thumbnails [Issue 11](https://github.com/uNople/YoutubePlaylistManager/issues/11)
+- [x] Copy link to video
+- [ ] Copy link to playlist
+- [ ] Make playlist public / private
+- [ ] GitHub actions/auto build
+- [ ] Move architecture into puml (plant UML) files + png output
+  - [ ] Do class/architecture and flow diagrams
+- [ ] Finish encryption stuff (enter password on launch / once you enter data that needs to be protected/unprotected)
+- [ ] Threading issue with search [Issue 2](https://github.com/uNople/YoutubePlaylistManager/issues/2)
 
 Tests:
 - Mapper tests (in relation to mapping + saving data to the database)

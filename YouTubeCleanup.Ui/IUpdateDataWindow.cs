@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 
-namespace YouTubeCleanup.Ui
+namespace YouTubeCleanup.Ui;
+
+public interface IUpdateDataWindow
 {
-    public interface IUpdateDataWindow
-    {
-        Task Show(string title);
-        void Hide();
-    }
+    Task Show(string title);
+    void Hide();
 }

@@ -1,15 +1,10 @@
 ﻿using System.Threading;
 using YouTubeCleanupTool.Domain;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class AppClosingCancellationToken : IAppClosingCancellationToken
 {
-    public class AppClosingCancellationToken : IAppClosingCancellationToken
-    {
-        public CancellationTokenSource CancellationTokenSource { get; }
-        public CancellationToken CancellationToken => CancellationTokenSource.Token;
-        public AppClosingCancellationToken()
-        {
-            CancellationTokenSource = new CancellationTokenSource();
-        }
-    }
+    public CancellationTokenSource CancellationTokenSource { get; } = new();
+    public CancellationToken CancellationToken => CancellationTokenSource.Token;
 }

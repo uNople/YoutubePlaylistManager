@@ -1,8 +1,7 @@
-﻿namespace YouTubeCleanupWpf.Windows
+﻿namespace YouTubeCleanupWpf.Windows;
+
+public enum ProgressBarState
 {
-    public enum ProgressBarState
-    {
-        Running,
-        Stopped
-    }
+    Running,
+    Stopped
 }

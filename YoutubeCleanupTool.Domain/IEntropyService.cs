@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 
-namespace YouTubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain;
+
+public interface IEntropyService
 {
-    public interface IEntropyService
-    {
-        Task<byte[]> GetEntropy();
-        bool HasEntropy();
-    }
+    Task<byte[]> GetEntropy();
+    bool HasEntropy();
 }

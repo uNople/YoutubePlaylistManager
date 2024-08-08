@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace YouTubeCleanup.Ui
+namespace YouTubeCleanup.Ui;
+
+public interface IErrorHandler
 {
-    public interface IErrorHandler
-    {
-        void HandleError(Exception ex);
-    }
+    void HandleError(Exception ex);
 }

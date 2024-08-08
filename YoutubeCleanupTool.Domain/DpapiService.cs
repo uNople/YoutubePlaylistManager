@@ -5,25 +5,19 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YouTubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain;
+
+public class DpapiService(IEntropyService entropyService) : IDpapiService
 {
-    public class DpapiService : IDpapiService
+    private readonly Encoding _defaultEncoding = Encoding.Unicode;
+
+    public async Task<string> Decrypt(string data)
     {
-        private readonly IEntropyService _entropyService;
-        private readonly Encoding _defaultEncoding = Encoding.Unicode;
-
-        public DpapiService(IEntropyService entropyService)
-        {
-            _entropyService = entropyService;
-        }
-
-        public async Task<string> Decrypt(string data)
-        {
             try
             {
                 // TODO: probably change this to AES/DES instead
                 Debug.Assert(OperatingSystem.IsWindows());
-                var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(data), await _entropyService.GetEntropy(), DataProtectionScope.CurrentUser);
+                var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(data), await entropyService.GetEntropy(), DataProtectionScope.CurrentUser);
                 return _defaultEncoding.GetString(decryptedData);
             }
             catch
@@ -32,16 +26,16 @@ namespace YouTubeCleanupTool.Domain
             }
         }
 
-        public async Task<string> Encrypt(string data)
-        {
+    public async Task<string> Encrypt(string data)
+    {
             // TODO: probably change this to AES/DES instead
             Debug.Assert(OperatingSystem.IsWindows());
-            var encryptedData = ProtectedData.Protect(_defaultEncoding.GetBytes(data), await _entropyService.GetEntropy(), DataProtectionScope.CurrentUser);
+            var encryptedData = ProtectedData.Protect(_defaultEncoding.GetBytes(data), await entropyService.GetEntropy(), DataProtectionScope.CurrentUser);
             return Convert.ToBase64String(encryptedData);
         }
 
-        public async Task<string> DecryptFromDisk(string path)
-        {
+    public async Task<string> DecryptFromDisk(string path)
+    {
             if (!File.Exists(path))
                 return null;
 
@@ -49,8 +43,8 @@ namespace YouTubeCleanupTool.Domain
             return await Decrypt(encrypted);
         }
 
-        public async Task EncryptAndSaveToDisk(string originalPath, string savePath)
-        {
+    public async Task EncryptAndSaveToDisk(string originalPath, string savePath)
+    {
             if (!File.Exists(originalPath))
                 return;
 
@@ -58,5 +52,4 @@ namespace YouTubeCleanupTool.Domain
             var encrypted = await Encrypt(originalFile);
             await File.WriteAllTextAsync(savePath, encrypted);
         }
-    }
 }

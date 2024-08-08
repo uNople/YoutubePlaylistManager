@@ -5,12 +5,12 @@ using Google.Apis.YouTube.v3.Data;
 using YouTubeCleanupTool.Domain.Entities;
 using Thumbnail = YouTubeCleanupTool.Domain.Entities.Thumbnail;
 
-namespace YouTubeApiWrapper
+namespace YouTubeApiWrapper;
+
+public class YouTubeObjectsMapperProfile : Profile
 {
-    public class YouTubeObjectsMapperProfile : Profile
+    public YouTubeObjectsMapperProfile()
     {
-        public YouTubeObjectsMapperProfile()
-        {
             CreateMap<Playlist, PlaylistData>()
                 .ForPath(playlistData => playlistData.Title, playlistData => playlistData.MapFrom(playlist => playlist.Snippet.Localized.Title))
                 .ForPath(playlistData => playlistData.PrivacyStatus, playlistData => playlistData.MapFrom(playlist => playlist.Status.PrivacyStatus))
@@ -48,8 +48,8 @@ namespace YouTubeApiWrapper
             //CreateMap<VideoData, VideoData>();
         }
 
-        public List<Thumbnail> MapThumbnails(Video video)
-        {
+    public List<Thumbnail> MapThumbnails(Video video)
+    {
             // Ugly (and the return), but... the video thumbnails can return null for any of these
             // so this is a bit tidier than null checking before adding to the collection
             Thumbnail map(Google.Apis.YouTube.v3.Data.Thumbnail thumb) => thumb == null ? null : new()
@@ -70,9 +70,8 @@ namespace YouTubeApiWrapper
             return thumbnails.Where(x => x != null).ToList();
         }
 
-        private static List<Category> MapCategories(Video video)
-        {
+    private static List<Category> MapCategories(Video video)
+    {
             return video.TopicDetails?.TopicCategories?.Select(x => new Category {CategoryName = x}).ToList() ?? new List<Category>();
         }
-    }
 }

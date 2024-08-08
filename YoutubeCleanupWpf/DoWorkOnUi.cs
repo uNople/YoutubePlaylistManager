@@ -5,83 +5,82 @@ using System.Windows;
 using System.Windows.Threading;
 using YouTubeCleanup.Ui;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class DoWorkOnUi : IDoWorkOnUi
 {
-    public class DoWorkOnUi : IDoWorkOnUi
+    // TODO: Make async
+    public void AddOnUi<T>(ICollection<T> collection, T item)
     {
-        // TODO: Make async
-        public void AddOnUi<T>(ICollection<T> collection, T item)
+        if (Application.Current == null)
         {
-            if (Application.Current == null)
-            {
-                collection.Add(item);
-                return;
-            }
-
-            Action<T> addMethod = collection.Add;
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, addMethod, item);
+            collection.Add(item);
+            return;
         }
 
-        // TODO: make async
-        public void RemoveOnUi<T>(ICollection<T> collection, T item)
-        {
-            if (Application.Current == null)
-            {
-                collection.Remove(item);
-                return;
-            }
+        Action<T> addMethod = collection.Add;
+        Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, addMethod, item);
+    }
 
-            Func<T, bool> addMethod = collection.Remove;
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, addMethod, item);
+    // TODO: make async
+    public void RemoveOnUi<T>(ICollection<T> collection, T item)
+    {
+        if (Application.Current == null)
+        {
+            collection.Remove(item);
+            return;
         }
 
-        // TODO: make async
-        public void ClearOnUi<T>(ICollection<T> collection)
-        {
-            if (Application.Current == null)
-            {
-                collection.Clear();
-                return;
-            }
+        Func<T, bool> addMethod = collection.Remove;
+        Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, addMethod, item);
+    }
 
-            Application.Current.Dispatcher.Invoke(collection.Clear, DispatcherPriority.Normal);
+    // TODO: make async
+    public void ClearOnUi<T>(ICollection<T> collection)
+    {
+        if (Application.Current == null)
+        {
+            collection.Clear();
+            return;
         }
 
-        public void RunOnUiThread(Action action)
-        {
-            if (Application.Current == null)
-            {
-                action();
-                return;
-            }
+        Application.Current.Dispatcher.Invoke(collection.Clear, DispatcherPriority.Normal);
+    }
 
-            Application.Current.Dispatcher.BeginInvoke(
-                DispatcherPriority.Normal,
-                action);
+    public void RunOnUiThread(Action action)
+    {
+        if (Application.Current == null)
+        {
+            action();
+            return;
         }
 
-        public void RunOnUiThreadSync(Action action)
-        {
-            if (Application.Current == null)
-            {
-                action();
-                return;
-            }
+        Application.Current.Dispatcher.BeginInvoke(
+            DispatcherPriority.Normal,
+            action);
+    }
 
-            Application.Current.Dispatcher.Invoke(
-                DispatcherPriority.Normal,
-                action);
-        }
-        
-        public async Task RunOnUiThreadAsync(Action action)
+    public void RunOnUiThreadSync(Action action)
+    {
+        if (Application.Current == null)
         {
-            if (Application.Current == null)
-            {
-                await Task.Run(action);
-                return;
-            }
-
-            await Application.Current.Dispatcher.InvokeAsync(action, DispatcherPriority.Normal);
+            action();
+            return;
         }
+
+        Application.Current.Dispatcher.Invoke(
+            DispatcherPriority.Normal,
+            action);
+    }
+
+    public async Task RunOnUiThreadAsync(Action action)
+    {
+        if (Application.Current == null)
+        {
+            await Task.Run(action);
+            return;
+        }
+
+        await Application.Current.Dispatcher.InvokeAsync(action, DispatcherPriority.Normal);
     }
 }

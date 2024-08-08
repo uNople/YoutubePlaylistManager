@@ -2,13 +2,12 @@
 using System.Windows.Media.Imaging;
 using YouTubeCleanupTool.Domain.Entities;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class WpfVideoData : VideoData, INotifyPropertyChanged
 {
-    public class WpfVideoData : VideoData, INotifyPropertyChanged
-    {
 #pragma warning disable 067
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 067
-        public BitmapImage Thumbnail { get; set; }
-    }
+    public BitmapImage Thumbnail { get; set; }
 }

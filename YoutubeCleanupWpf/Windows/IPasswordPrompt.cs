@@ -1,8 +1,7 @@
-﻿namespace YouTubeCleanupWpf.Windows
+﻿namespace YouTubeCleanupWpf.Windows;
+
+public interface IPasswordPrompt
 {
-    public interface IPasswordPrompt
-    {
-        byte[] GetEntropy();
-        bool? ShowDialog();
-    }
+    byte[] GetEntropy();
+    bool? ShowDialog();
 }

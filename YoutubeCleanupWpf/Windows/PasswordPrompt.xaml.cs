@@ -4,26 +4,26 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace YouTubeCleanupWpf.Windows
+namespace YouTubeCleanupWpf.Windows;
+
+/// <summary>
+/// Interaction logic for PasswordPrompt.xaml
+/// </summary>
+public partial class PasswordPrompt : IPasswordPrompt
 {
-    /// <summary>
-    /// Interaction logic for PasswordPrompt.xaml
-    /// </summary>
-    public partial class PasswordPrompt : IPasswordPrompt
+    private SecureString _password;
+    public PasswordPrompt()
     {
-        private SecureString _password;
-        public PasswordPrompt()
-        {
             InitializeComponent();
         }
 
-        private void PasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
-        {
+    private void PasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
+    {
             _password = ((PasswordBox) sender).SecurePassword;
         }
 
-        private void UIElement_OnKeyUp(object sender, KeyEventArgs e)
-        {
+    private void UIElement_OnKeyUp(object sender, KeyEventArgs e)
+    {
             if (e.Key is Key.Enter or Key.Return)
             {
                 DialogResult = true;
@@ -31,14 +31,14 @@ namespace YouTubeCleanupWpf.Windows
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
             DialogResult = true;
             Close();
         }
         
-        public byte[] GetEntropy()
-        {
+    public byte[] GetEntropy()
+    {
             var unicodeBytesPtr = Marshal.SecureStringToGlobalAllocUnicode(_password);
             var length = _password.Length * 2;
             var bytes = new byte[length];
@@ -58,5 +58,4 @@ namespace YouTubeCleanupWpf.Windows
                 Marshal.ZeroFreeGlobalAllocUnicode(unicodeBytesPtr);
             }
         }
-    }
 }

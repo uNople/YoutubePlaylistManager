@@ -4,40 +4,31 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class RunMethodCommand<T>(Func<T, Task> action, Action<Exception> errorCallback) : ICommand
 {
-    public class RunMethodCommand<T> : ICommand
+    public bool CanExecute(object? parameter)
     {
-        private readonly Func<T, Task> _action;
-        private readonly Action<Exception> _errorCallback;
+        return true;
+    }
 
-        public RunMethodCommand([NotNull]Func<T, Task> action, [NotNull] Action<Exception> errorCallback)
+    public async void Execute(object? parameter)
+    {
+        if (parameter is T data)
         {
-            _action = action;
-            _errorCallback = errorCallback;
-        }
-        public bool CanExecute(object? parameter)
-        {
-            return true;
-        }
-
-        public async void Execute(object? parameter)
-        {
-            if (parameter is T data)
+            try
             {
-                try
-                {
-                    await _action(data);
-                }
-                catch (Exception ex)
-                {
-                    _errorCallback(ex);
-                }
+                await action(data);
+            }
+            catch (Exception ex)
+            {
+                errorCallback(ex);
             }
         }
+    }
 
 #pragma warning disable 067
-        public event EventHandler? CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged;
 #pragma warning restore 067
-    }
 }

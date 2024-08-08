@@ -2,30 +2,23 @@
 using System.Threading.Tasks;
 using YouTubeCleanupTool.Domain;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class EntropyService([NotNull] IWindowService windowService) : IEntropyService
 {
-    public class EntropyService : IEntropyService
+    private byte[] _entropy;
+
+    public async Task<byte[]> GetEntropy()
     {
-        private readonly IWindowService _windowService;
-        private byte[] _entropy;
-
-        public EntropyService([NotNull]IWindowService windowService)
-        {
-            _windowService = windowService;
-        }
-
-        public async Task<byte[]> GetEntropy()
-        {
-            if (HasEntropy())
-                return _entropy;
-
-            _entropy = await _windowService.PromptForEntropy();
+        if (HasEntropy())
             return _entropy;
-        }
 
-        public bool HasEntropy()
-        {
-            return _entropy != null;
-        }
+        _entropy = await windowService.PromptForEntropy();
+        return _entropy;
+    }
+
+    public bool HasEntropy()
+    {
+        return _entropy != null;
     }
 }

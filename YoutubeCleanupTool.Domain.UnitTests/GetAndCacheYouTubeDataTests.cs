@@ -11,26 +11,19 @@ using Xunit;
 using Xunit.Abstractions;
 using YouTubeCleanupTool.Domain.Entities;
 
-namespace YouTubeCleanupTool.Domain.UnitTests
+namespace YouTubeCleanupTool.Domain.UnitTests;
+
+public class GetAndCacheYouTubeDataTests(ITestOutputHelper testOutputHelper)
 {
-    public class GetAndCacheYouTubeDataTests
+    [Theory, AutoNSubstituteData]
+    public async Task When_only_getting_videos_that_dont_already_exist_Then_YouTube_api_is_not_called_to_get_the_data(
+        [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+        [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
+        [Frozen] IYouTubeApi youTubeApi,
+        [Frozen] IFixture fixture,
+        GetAndCacheYouTubeData getAndCacheYouTubeData
+    )
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public GetAndCacheYouTubeDataTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
-
-        [Theory, AutoNSubstituteData]
-        public async Task When_only_getting_videos_that_dont_already_exist_Then_YouTube_api_is_not_called_to_get_the_data(
-                [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-                [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-                [Frozen] IYouTubeApi youTubeApi,
-                [Frozen] IFixture fixture,
-                GetAndCacheYouTubeData getAndCacheYouTubeData
-            )
-        {
             // TODO: add customization so we don't need to do this everywhere we have a DbContext and ContextFactory
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             var playlistItemData = fixture.CreateMany<PlaylistItemData>(3).ToList();
@@ -48,21 +41,20 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             await getAndCacheYouTubeData.GetVideos(Callback, false, CancellationToken.None);
 
             // Assert
-            // TODO: Assert we're passing in expectedGetTheseVideos to GetVideos 
-            await foreach (var _ in youTubeApi.Received(1).GetVideos(Arg.Any<List<string>>())) { }
+            // TODO: Assert we're passing in expectedGetTheseVideos to GetVideos      await foreach (var _ in youTubeApi.Received(1).GetVideos(Arg.Any<List<string>>())) { }
             await youTubeCleanupToolDbContext.Received(2).UpsertVideo(Arg.Any<VideoData>());
             await youTubeCleanupToolDbContext.Received(2).SaveChangesAsync();
         }
 
-        [Theory, AutoNSubstituteData]
-        public async Task When_getting_all_videos_Then_YouTube_api_is_called_to_get_the_data_for_everything(
-                [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-                [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-                [Frozen] IYouTubeApi youTubeApi,
-                [Frozen] IFixture fixture,
-                GetAndCacheYouTubeData getAndCacheYouTubeData
-            )
-        {
+    [Theory, AutoNSubstituteData]
+    public async Task When_getting_all_videos_Then_YouTube_api_is_called_to_get_the_data_for_everything(
+        [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+        [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
+        [Frozen] IYouTubeApi youTubeApi,
+        [Frozen] IFixture fixture,
+        GetAndCacheYouTubeData getAndCacheYouTubeData
+    )
+    {
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             var playlistItemData = fixture.CreateMany<PlaylistItemData>(3).ToList();
             youTubeCleanupToolDbContext.GetPlaylistItems().Returns(playlistItemData);
@@ -84,14 +76,14 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             await youTubeCleanupToolDbContext.Received(3).SaveChangesAsync();
         }
 
-        [Theory, AutoNSubstituteData]
-        public async Task When_getting_playlists_from_YouTube_api_Then_they_are_saved_to_the_database(
-                [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-                [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-                [Frozen] IYouTubeApi youTubeApi,
-                List<PlaylistData> playlistData,
-                GetAndCacheYouTubeData getAndCacheYouTubeData)
-        {
+    [Theory, AutoNSubstituteData]
+    public async Task When_getting_playlists_from_YouTube_api_Then_they_are_saved_to_the_database(
+        [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+        [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
+        [Frozen] IYouTubeApi youTubeApi,
+        List<PlaylistData> playlistData,
+        GetAndCacheYouTubeData getAndCacheYouTubeData)
+    {
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             youTubeApi.GetPlaylists().Returns(TestExtensions.ToAsyncEnumerable(playlistData));
 
@@ -104,15 +96,15 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             await youTubeCleanupToolDbContext.Received(1).SaveChangesAsync();
         }
 
-        [Theory, AutoNSubstituteData]
-        public async Task When_getting_playlistItems_from_YouTube_api_Then_they_are_saved_to_the_database(
-                [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-                [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-                [Frozen] IYouTubeApi youTubeApi,
-                PlaylistData playlist,
-                List<PlaylistItemData> playlistItemData,
-                GetAndCacheYouTubeData getAndCacheYouTubeData)
-        {
+    [Theory, AutoNSubstituteData]
+    public async Task When_getting_playlistItems_from_YouTube_api_Then_they_are_saved_to_the_database(
+        [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+        [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
+        [Frozen] IYouTubeApi youTubeApi,
+        PlaylistData playlist,
+        List<PlaylistItemData> playlistItemData,
+        GetAndCacheYouTubeData getAndCacheYouTubeData)
+    {
             youTubeCleanupToolDbContextFactory.Create().Returns(youTubeCleanupToolDbContext);
             youTubeCleanupToolDbContext.GetPlaylists().Returns(new List<PlaylistData> {playlist});
             youTubeApi.GetPlaylistItems(Arg.Any<string>(), Arg.Any<Func<string, Task>>()).Returns(TestExtensions.ToAsyncEnumerable(playlistItemData));
@@ -128,15 +120,15 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             await youTubeCleanupToolDbContext.Received(1).SaveChangesAsync();
         }
     
-        [Theory, AutoNSubstituteData]
-        public async Task When_getting_playlistItems_from_YouTube_api_Then_playlists_which_no_longer_exist_get_deleted_from_db(
-            [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
-            [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
-            [Frozen] IYouTubeApi youTubeApi,
-            PlaylistData playlist,
+    [Theory, AutoNSubstituteData]
+    public async Task When_getting_playlistItems_from_YouTube_api_Then_playlists_which_no_longer_exist_get_deleted_from_db(
+        [Frozen] IYouTubeCleanupToolDbContext youTubeCleanupToolDbContext,
+        [Frozen] IYouTubeCleanupToolDbContextFactory youTubeCleanupToolDbContextFactory,
+        [Frozen] IYouTubeApi youTubeApi,
+        PlaylistData playlist,
             
-            GetAndCacheYouTubeData getAndCacheYouTubeData)
-        {
+        GetAndCacheYouTubeData getAndCacheYouTubeData)
+    {
             var playlistItems = new List<PlaylistItemData>
             {
                 new()
@@ -187,10 +179,9 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             await youTubeCleanupToolDbContext.Received(1).SaveChangesAsync();
         }
         
-        private Task Callback(IData data, InsertStatus insertStatus, CancellationToken cancellationToken)
-        {
-            _testOutputHelper.WriteLine($"{data.Title} - {insertStatus}");
+    private Task Callback(IData data, InsertStatus insertStatus, CancellationToken cancellationToken)
+    {
+            testOutputHelper.WriteLine($"{data.Title} - {insertStatus}");
             return Task.CompletedTask;
         }
-    }
 }

@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace YouTubeCleanupWpf.Windows
+namespace YouTubeCleanupWpf.Windows;
+
+public interface ISettingsWindow
 {
-    public interface ISettingsWindow
-    {
-        Task Show();
-    }
+    Task Show();
 }

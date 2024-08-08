@@ -12,12 +12,12 @@ using YouTubeCleanupTool.Domain;
 using YouTubeCleanupWpf.ViewModels;
 using YouTubeCleanupWpf.Windows;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class YouTubeCleanupWpfModule : Module
 {
-    public class YouTubeCleanupWpfModule : Module
+    protected override void Load(ContainerBuilder builder)
     {
-        protected override void Load(ContainerBuilder builder)
-        {
             // NOTE: even though this isn't registered as SingleInstance, I think it ends up being SingleInstance anyway
             // Since we're starting App.xaml.cs, which only launches one MainWindow...
             builder.RegisterType<MainWindow>();
@@ -101,5 +101,4 @@ namespace YouTubeCleanupWpf
             });
             builder.Populate(services);
         }
-    }
 }

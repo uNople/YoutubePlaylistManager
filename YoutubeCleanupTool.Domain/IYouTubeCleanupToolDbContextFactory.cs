@@ -1,7 +1,6 @@
-﻿namespace YouTubeCleanupTool.Domain
+﻿namespace YouTubeCleanupTool.Domain;
+
+public interface IYouTubeCleanupToolDbContextFactory
 {
-    public interface IYouTubeCleanupToolDbContextFactory
-    {
-        IYouTubeCleanupToolDbContext Create();
-    }
+    IYouTubeCleanupToolDbContext Create();
 }

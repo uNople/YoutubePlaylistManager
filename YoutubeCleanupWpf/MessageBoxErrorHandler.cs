@@ -3,20 +3,13 @@ using System.Windows;
 using YouTubeCleanup.Ui;
 using YouTubeCleanupTool.Domain;
 
-namespace YouTubeCleanupWpf
-{
-    public class MessageBoxErrorHandler : IErrorHandler
-    {
-        private readonly ILogger _logger;
+namespace YouTubeCleanupWpf;
 
-        public MessageBoxErrorHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-        public void HandleError(Exception ex)
-        {
+public class MessageBoxErrorHandler(ILogger logger) : IErrorHandler
+{
+    public void HandleError(Exception ex)
+    {
             MessageBox.Show(ex.ToString());
-            _logger.Error(ex.ToString());
+            logger.Error(ex.ToString());
         }
-    }
 }

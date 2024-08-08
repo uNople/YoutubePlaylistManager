@@ -1,9 +1,8 @@
 ﻿using YouTubeCleanupTool.Domain;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class AppSettings : IAppSettings
 {
-    public class AppSettings : IAppSettings
-    {
-        public string ApiKey { get; set; }
-    }
+    public string ApiKey { get; set; }
 }

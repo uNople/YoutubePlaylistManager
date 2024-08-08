@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 
-namespace YouTubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain;
+
+public interface IAppClosingCancellationToken
 {
-    public interface IAppClosingCancellationToken
-    {
-        CancellationTokenSource CancellationTokenSource { get; }
-        CancellationToken CancellationToken { get; }
-    }
+    CancellationTokenSource CancellationTokenSource { get; }
+    CancellationToken CancellationToken { get; }
 }

@@ -1,9 +1,8 @@
-﻿namespace YouTubeCleanupWpf
+﻿namespace YouTubeCleanupWpf;
+
+public enum FilterType
 {
-    public enum FilterType
-    {
-        PlaylistTitle,
-        Uncategorized,
-        All
-    }
+    PlaylistTitle,
+    Uncategorized,
+    All
 }

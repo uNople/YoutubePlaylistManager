@@ -2,12 +2,12 @@
 using AutoMapper.Contrib.Autofac.DependencyInjection;
 using YouTubeCleanupTool.Domain;
 
-namespace YouTubeApiWrapper
+namespace YouTubeApiWrapper;
+
+public class YouTubeApiWrapperModule : Module
 {
-    public class YouTubeApiWrapperModule : Module
+    protected override void Load(ContainerBuilder builder)
     {
-        protected override void Load(ContainerBuilder builder)
-        {
             builder.RegisterInstance(new YouTubeServiceCreatorOptions
             {
                 DatabasePath = "Application.db",
@@ -17,5 +17,4 @@ namespace YouTubeApiWrapper
             builder.RegisterAutoMapper(typeof(YouTubeApiWrapperModule).Assembly);
             builder.RegisterType<YouTubeApi>().As<IYouTubeApi>();
         }
-    }
 }

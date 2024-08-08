@@ -3,12 +3,12 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace YouTubeCleanupWpf.Converters
+namespace YouTubeCleanupWpf.Converters;
+
+public class NullabilityToVisibilityConverter : IValueConverter
 {
-    public class NullabilityToVisibilityConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
             if (value is WpfVideoData data)
             {
                 if (data.IsDeletedFromYouTube)
@@ -18,9 +18,8 @@ namespace YouTubeCleanupWpf.Converters
             return Visibility.Hidden;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
             return Visibility.Visible;
         }
-    }
 }

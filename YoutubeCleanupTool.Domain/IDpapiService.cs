@@ -1,12 +1,11 @@
 ﻿using System.Threading.Tasks;
 
-namespace YouTubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain;
+
+public interface IDpapiService
 {
-    public interface IDpapiService
-    {
-        Task<string> Decrypt(string data);
-        Task<string> Encrypt(string data);
-        Task<string> DecryptFromDisk(string path);
-        Task EncryptAndSaveToDisk(string originalPath, string savePath);
-    }
+    Task<string> Decrypt(string data);
+    Task<string> Encrypt(string data);
+    Task<string> DecryptFromDisk(string path);
+    Task EncryptAndSaveToDisk(string originalPath, string savePath);
 }

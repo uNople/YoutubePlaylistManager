@@ -1,8 +1,7 @@
 ﻿using System.Net.Http;
 
-namespace YouTubeCleanupTool.Domain
+namespace YouTubeCleanupTool.Domain;
+
+public class HttpClientWrapper : HttpClient, IHttpClientWrapper
 {
-    public class HttpClientWrapper : HttpClient, IHttpClientWrapper
-    {
-    }
 }

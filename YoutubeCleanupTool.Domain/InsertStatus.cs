@@ -1,9 +1,8 @@
-﻿namespace YouTubeCleanupTool.Domain
+﻿namespace YouTubeCleanupTool.Domain;
+
+public enum InsertStatus
 {
-    public enum InsertStatus
-    {
-        Inserted,
-        Updated,
-        Deleted
-    }
+    Inserted,
+    Updated,
+    Deleted
 }

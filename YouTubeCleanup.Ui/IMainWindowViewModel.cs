@@ -1,6 +1,5 @@
-﻿namespace YouTubeCleanup.Ui
+﻿namespace YouTubeCleanup.Ui;
+
+public interface IMainWindowViewModel
 {
-    public interface IMainWindowViewModel
-    {
-    }
 }

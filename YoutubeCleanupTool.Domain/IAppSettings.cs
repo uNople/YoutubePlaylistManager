@@ -1,7 +1,6 @@
-﻿namespace YouTubeCleanupTool.Domain
+﻿namespace YouTubeCleanupTool.Domain;
+
+public interface IAppSettings
 {
-    public interface IAppSettings
-    {
-        string ApiKey { get; set; }
-    }
+    string ApiKey { get; set; }
 }

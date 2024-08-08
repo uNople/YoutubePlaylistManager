@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
-namespace YouTubeCleanupTool.Domain.UnitTests
+namespace YouTubeCleanupTool.Domain.UnitTests;
+
+public class DpapiServiceTests
 {
-    public class DpapiServiceTests
+    [Theory, AutoNSubstituteData]
+    public async Task When_encrypting_and_decrypting_to_disk_Then_data_is_correct(DpapiService dpapiService, string messageToEncrypt)
     {
-        [Theory, AutoNSubstituteData]
-        public async Task When_encrypting_and_decrypting_to_disk_Then_data_is_correct(DpapiService dpapiService, string messageToEncrypt)
-        {
             // set up the files on disk
             var originalFilePath = Path.GetTempFileName();
             var savePath = Path.GetTempFileName();
@@ -27,5 +27,4 @@ namespace YouTubeCleanupTool.Domain.UnitTests
             File.Delete(originalFilePath);
             File.Delete(savePath);
         }
-    }
 }

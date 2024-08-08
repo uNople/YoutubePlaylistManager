@@ -4,38 +4,29 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace YouTubeCleanup.Ui
+namespace YouTubeCleanup.Ui;
+
+public class RunMethodWithoutParameterCommand([NotNull] Func<Task> action, [NotNull] Action<Exception> errorCallback)
+    : ICommand
 {
-    public class RunMethodWithoutParameterCommand : ICommand
+    public bool CanExecute(object? parameter)
     {
-        private readonly Func<Task> _action;
-        private readonly Action<Exception> _errorCallback;
-
-        public RunMethodWithoutParameterCommand([NotNull] Func<Task> action, [NotNull] Action<Exception> errorCallback)
-        {
-            _action = action;
-            _errorCallback = errorCallback;
-        }
-
-        public bool CanExecute(object? parameter)
-        {
             return true;
         }
 
-        public async void Execute(object? parameter)
-        {
+    public async void Execute(object? parameter)
+    {
             try
             {
-                await _action();
+                await action();
             }
             catch (Exception ex)
             {
-                _errorCallback(ex);
+                errorCallback(ex);
             }
         }
         
-        #pragma warning disable 0067
-        public event EventHandler? CanExecuteChanged;
-        #pragma warning restore 0067
-    }
+#pragma warning disable 0067
+    public event EventHandler? CanExecuteChanged;
+#pragma warning restore 0067
 }

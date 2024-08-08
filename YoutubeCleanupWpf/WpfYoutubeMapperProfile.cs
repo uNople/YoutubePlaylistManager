@@ -1,17 +1,16 @@
 ﻿using AutoMapper;
 using YouTubeCleanupTool.Domain.Entities;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class WpfYouTubeMapperProfile : Profile
 {
-    public class WpfYouTubeMapperProfile : Profile
+    public WpfYouTubeMapperProfile()
     {
-        public WpfYouTubeMapperProfile()
-        {
             CreateMap<WpfVideoData, VideoData>()
                 .ReverseMap();
-
+            
             CreateMap<WpfPlaylistData, PlaylistData>()
                 .ReverseMap();
         }
-    }
 }

@@ -17,42 +17,32 @@ using YouTubeApiWrapper.Interfaces;
 using YouTubeCleanupTool.Domain;
 using YouTubeCleanupTool.Domain.Entities;
 
-namespace YouTubeApiWrapper
+namespace YouTubeApiWrapper;
+
+public class YouTubeApi(
+    [NotNull] IMapper mapper,
+    [NotNull] IAppSettings appSettings,
+    [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions,
+    [NotNull] IEntropyService entropyService,
+    [NotNull] IDpapiService dpapiService)
+    : IYouTubeApi
 {
-    public class YouTubeApi : IYouTubeApi
+    private readonly IEntropyService _entropyService = entropyService;
+    private readonly IDpapiService _dpapiService = dpapiService;
+    private IYouTubeServiceWrapper _youTubeServiceWrapper;
+
+    public async IAsyncEnumerable<PlaylistData> GetPlaylists()
     {
-        private readonly IMapper _mapper;
-        private readonly IAppSettings _appSettings;
-        private readonly YouTubeServiceCreatorOptions _youTubeServiceCreatorOptions;
-        private readonly IEntropyService _entropyService;
-        private readonly IDpapiService _dpapiService;
-        private IYouTubeServiceWrapper _youTubeServiceWrapper;
-
-        public YouTubeApi([NotNull] IMapper mapper,
-            [NotNull] IAppSettings appSettings,
-            [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions,
-            [NotNull] IEntropyService entropyService,
-            [NotNull] IDpapiService dpapiService)
-        {
-            _mapper = mapper;
-            _appSettings = appSettings;
-            _youTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
-            _entropyService = entropyService;
-            _dpapiService = dpapiService;
-        }
-
-        public async IAsyncEnumerable<PlaylistData> GetPlaylists()
-        {
             var playlists = await HandleSecretRevocation(async getNewToken => await (await CreateYouTubeService(getNewToken)).GetPlaylists());
             
             foreach (var playlist in playlists)
             {
-                yield return _mapper.Map<PlaylistData>(playlist);
+                yield return mapper.Map<PlaylistData>(playlist);
             }
         }
 
-        public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(string playlistId, Func<string, Task> playlistGotDeleted)
-        {
+    public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(string playlistId, Func<string, Task> playlistGotDeleted)
+    {
             List<PlaylistItem> playlistItems = null;
             try
             {
@@ -72,12 +62,12 @@ namespace YouTubeApiWrapper
 
             foreach (var item in playlistItems ?? new List<PlaylistItem>())
             {
-                yield return _mapper.Map<PlaylistItemData>(item);
+                yield return mapper.Map<PlaylistItemData>(item);
             }
         }
 
-        public async IAsyncEnumerable<VideoData> GetVideos(List<string> videoIdsToGet)
-        {
+    public async IAsyncEnumerable<VideoData> GetVideos(List<string> videoIdsToGet)
+    {
             foreach (var videoId in videoIdsToGet)
             {
                 var video = (await HandleSecretRevocation(async getNewToken
@@ -89,22 +79,22 @@ namespace YouTubeApiWrapper
                 }
                 else
                 {
-                    yield return _mapper.Map<VideoData>(video);
+                    yield return mapper.Map<VideoData>(video);
                 }
             }
         }
 
-        public async Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId)
-        {
+    public async Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId)
+    {
             return await HandleSecretRevocation(async getNewToken =>
             {
                 var playlistItem = await (await CreateYouTubeService(getNewToken)).AddVideoToPlaylist(playlistId, videoId);
-                return _mapper.Map<PlaylistItemData>(playlistItem);
+                return mapper.Map<PlaylistItemData>(playlistItem);
             });
         }
 
-        public async Task RemoveVideoFromPlaylist(string playlistItemId)
-        {
+    public async Task RemoveVideoFromPlaylist(string playlistItemId)
+    {
             await HandleSecretRevocation(async getNewToken =>
             {
                 await (await CreateYouTubeService(getNewToken)).RemoveVideoFromPlaylist(playlistItemId);
@@ -112,8 +102,8 @@ namespace YouTubeApiWrapper
             });
         }
 
-        private async Task<T> HandleSecretRevocation<T>(Func<bool, Task<T>> methodWhichCouldResultInNoAuthentication)
-        {
+    private async Task<T> HandleSecretRevocation<T>(Func<bool, Task<T>> methodWhichCouldResultInNoAuthentication)
+    {
             try
             {
                 return await methodWhichCouldResultInNoAuthentication(false);
@@ -124,8 +114,8 @@ namespace YouTubeApiWrapper
             }
         }
         
-        private async Task<IYouTubeServiceWrapper> CreateYouTubeService(bool getNewToken)
-        {
+    private async Task<IYouTubeServiceWrapper> CreateYouTubeService(bool getNewToken)
+    {
             if (_youTubeServiceWrapper != null && !getNewToken)
                 return _youTubeServiceWrapper;
 
@@ -134,7 +124,7 @@ namespace YouTubeApiWrapper
 
             // TODO: if requesting new scopes, delete %appdata%\_youTubeServiceCreatorOptions.FileDataStoreName\.* - this is where the refresh/accesstoken/scopes are stored
             UserCredential credential;
-            using (var stream = new FileStream(_youTubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream(youTubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
             {
                 var installedApp = new AuthorizationCodeInstalledApp(
                     new GoogleAuthorizationCodeFlow(
@@ -143,7 +133,7 @@ namespace YouTubeApiWrapper
                             ClientSecrets = GoogleClientSecrets.Load(stream).Secrets,
                             // Console app should only need ReadOnly. the UI needs write access
                             Scopes = new List<string> { YouTubeService.Scope.YoutubeReadonly, YouTubeService.Scope.Youtube },
-                            DataStore = new FileDataStore(_youTubeServiceCreatorOptions.FileDataStoreName)
+                            DataStore = new FileDataStore(youTubeServiceCreatorOptions.FileDataStoreName)
                         }),
                         new LocalServerCodeReceiver());
                 credential = await installedApp.AuthorizeAsync("user", CancellationToken.None);
@@ -157,11 +147,10 @@ namespace YouTubeApiWrapper
             // Create the service.
             _youTubeServiceWrapper = new YouTubeServiceWrapper(new BaseClientService.Initializer()
             {
-                ApiKey = _appSettings.ApiKey,
+                ApiKey = appSettings.ApiKey,
                 HttpClientInitializer = credential,
                 ApplicationName = "YouTube cleanup tool",
             });
             return _youTubeServiceWrapper;
         }
-    }
 }

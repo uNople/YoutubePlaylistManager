@@ -11,57 +11,52 @@ using YouTubeCleanup.Ui;
 using YouTubeCleanupTool.Domain;
 using Screen = System.Windows.Forms.Screen;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public class WpfSettings(YouTubeServiceCreatorOptions youTubeServiceCreatorOptions, IErrorHandler errorHandler)
+    : INotifyPropertyChanged, IDebugSettings
 {
-    public class WpfSettings : INotifyPropertyChanged, IDebugSettings
-    {
-        private const int SaveDelayMs = 500;
+    private const int SaveDelayMs = 500;
 
-        [JsonIgnore]
-        public YouTubeServiceCreatorOptions YouTubeServiceCreatorOptions { get; set; }
+    [JsonIgnore]
+    public YouTubeServiceCreatorOptions YouTubeServiceCreatorOptions { get; set; } = youTubeServiceCreatorOptions;
 
-        [JsonIgnore]
-        public IErrorHandler ErrorHandler { get; set; }
+    [JsonIgnore]
+    public IErrorHandler ErrorHandler { get; set; } = errorHandler;
 #pragma warning disable 067
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 067
 
-        [JsonIgnore]
-        public ObservableCollection<string> Monitors { get; set; }
+    [JsonIgnore]
+    public ObservableCollection<string> Monitors { get; set; }
 
-        [JsonIgnore]
-        public ObservableCollection<string> Themes { get; set; }
+    [JsonIgnore]
+    public ObservableCollection<string> Themes { get; set; }
 
-        private List<Screen> ScreenCollection { get; set; }
+    private List<Screen> ScreenCollection { get; set; }
 
-        [JsonIgnore]
-        public Screen CurrentScreen { get; set; }
+    [JsonIgnore]
+    public Screen CurrentScreen { get; set; }
 
-        private DeferTimer _saveSettingsDeferTimer;
+    private DeferTimer _saveSettingsDeferTimer;
 
-        private bool _showIds;
+    private bool _showIds;
 
-        public event IDebugSettings.ChangedEventHandler ShowIdsChanged;
+    public event IDebugSettings.ChangedEventHandler ShowIdsChanged;
 
-        public bool ShowIds
+    public bool ShowIds
+    {
+        get => _showIds;
+        set
         {
-            get => _showIds;
-            set
-            {
                 _showIds = value;
                 ShowIdsChanged?.Invoke(value);
                 _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
             }
-        }
+    }
 
-        public WpfSettings(YouTubeServiceCreatorOptions youTubeServiceCreatorOptions, IErrorHandler errorHandler)
-        {
-            ErrorHandler = errorHandler;
-            YouTubeServiceCreatorOptions = youTubeServiceCreatorOptions;
-        }
-
-        public void InitializeSettings()
-        {
+    public void InitializeSettings()
+    {
             ScreenCollection = Screen.AllScreens.ToList();
             Monitors = new ObservableCollection<string>(ScreenCollection.Select(x => x.DeviceName));
             SetCurrentScreen(SelectedMonitor);
@@ -71,67 +66,67 @@ namespace YouTubeCleanupWpf
             _saveSettingsDeferTimer = new DeferTimer(SaveSetting, ErrorHandler.HandleError);
         }
 
-        private async Task SaveSetting()
-        {
+    private async Task SaveSetting()
+    {
             await Task.Run(() => File.WriteAllText("WpfSettings.json", JsonConvert.SerializeObject(this, Formatting.Indented)));
         }
 
-        private string _databasePath = "Application.db";
+    private string _databasePath = "Application.db";
 
-        public string DatabasePath
+    public string DatabasePath
+    {
+        get => _databasePath;
+        set
         {
-            get => _databasePath;
-            set
-            {
                 _databasePath = value;
                 if (YouTubeServiceCreatorOptions != null)
                     YouTubeServiceCreatorOptions.DatabasePath = value;
                 _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
             }
-        }
+    }
 
-        private string _clientSecretPath = @"C:\temp\client_secret.json";
+    private string _clientSecretPath = @"C:\temp\client_secret.json";
 
-        public string ClientSecretPath
+    public string ClientSecretPath
+    {
+        get => _clientSecretPath;
+        set
         {
-            get => _clientSecretPath;
-            set
-            {
                 _clientSecretPath = value;
                 if (YouTubeServiceCreatorOptions != null)
                     YouTubeServiceCreatorOptions.ClientSecretPath = value;
                 _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
             }
-        }
+    }
 
-        private string _selectedMonitor;
+    private string _selectedMonitor;
 
-        public string SelectedMonitor
+    public string SelectedMonitor
+    {
+        get => _selectedMonitor;
+        set
         {
-            get => _selectedMonitor;
-            set
-            {
                 _selectedMonitor = value;
                 SetCurrentScreen(value);
                 _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
             }
-        }
+    }
 
-        private string _selectedTheme;
+    private string _selectedTheme;
 
-        public string SelectedTheme
+    public string SelectedTheme
+    {
+        get => _selectedTheme;
+        set
         {
-            get => _selectedTheme;
-            set
-            {
                 _selectedTheme = value;
                 _saveSettingsDeferTimer?.DeferByMilliseconds(SaveDelayMs);
                 LoadTheme(value);
             }
-        }
+    }
 
-        private void LoadTheme(string themeName)
-        {
+    private void LoadTheme(string themeName)
+    {
             if (string.IsNullOrWhiteSpace(themeName))
                 return;
 
@@ -148,9 +143,8 @@ namespace YouTubeCleanupWpf
             }
         }
 
-        private void SetCurrentScreen(string selectedMonitor)
-        {
+    private void SetCurrentScreen(string selectedMonitor)
+    {
             CurrentScreen = ScreenCollection?.FirstOrDefault(x => x.DeviceName == selectedMonitor) ?? ScreenCollection?.FirstOrDefault();
         }
-    }
 }

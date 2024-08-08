@@ -2,23 +2,23 @@
 using System.Threading.Tasks;
 using YouTubeCleanup.Ui;
 
-namespace YouTubeCleanupWpf.Windows
-{
-    /// <summary>
-    /// Interaction logic for UpdateDataWindow.xaml
-    /// </summary>
-    public partial class UpdateDataWindow : IUpdateDataWindow
-    {
-        private readonly UpdateDataViewModel _updateDataViewModel;
-        private readonly WpfSettings _wpfSettings;
-        private readonly IDoWorkOnUi _doWorkOnUi;
-        private readonly WindowExtensions _windowExtensions;
+namespace YouTubeCleanupWpf.Windows;
 
-        public UpdateDataWindow([NotNull] UpdateDataViewModel updateDataViewModel, 
-            [NotNull] WpfSettings wpfSettings,
-            [NotNull] IDoWorkOnUi doWorkOnUi,
-            [NotNull] WindowExtensions windowExtensions)
-        {
+/// <summary>
+/// Interaction logic for UpdateDataWindow.xaml
+/// </summary>
+public partial class UpdateDataWindow : IUpdateDataWindow
+{
+    private readonly UpdateDataViewModel _updateDataViewModel;
+    private readonly WpfSettings _wpfSettings;
+    private readonly IDoWorkOnUi _doWorkOnUi;
+    private readonly WindowExtensions _windowExtensions;
+
+    public UpdateDataWindow([NotNull] UpdateDataViewModel updateDataViewModel, 
+        [NotNull] WpfSettings wpfSettings,
+        [NotNull] IDoWorkOnUi doWorkOnUi,
+        [NotNull] WindowExtensions windowExtensions)
+    {
             _updateDataViewModel = updateDataViewModel;
             _updateDataViewModel.ParentWindow = this;
             DataContext = _updateDataViewModel;
@@ -29,8 +29,8 @@ namespace YouTubeCleanupWpf.Windows
             InitializeComponent();
         }
 
-        public async Task Show(string title)
-        {
+    public async Task Show(string title)
+    {
             await _doWorkOnUi.RunOnUiThreadAsync(() => _updateDataViewModel.CurrentTitle = title);
 
             // show + bring to front
@@ -44,11 +44,10 @@ namespace YouTubeCleanupWpf.Windows
             Focus();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
             e.Cancel = true;
             _updateDataViewModel.Hide();
             Hide();
         }
-    }
 }

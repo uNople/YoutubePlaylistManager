@@ -1,19 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using YouTubeApiWrapper.Interfaces;
 
-namespace YouTubeApiWrapper
-{
-    public class YouTubeServiceWrapper : YouTubeService, IYouTubeServiceWrapper
-    {
-        public YouTubeServiceWrapper(Initializer initializer) : base(initializer)
-        {
-        }
+namespace YouTubeApiWrapper;
 
-        public async Task<List<Video>> GetVideos(string id)
-        {
+public class YouTubeServiceWrapper(BaseClientService.Initializer initializer)
+    : YouTubeService(initializer), IYouTubeServiceWrapper
+{
+    public async Task<List<Video>> GetVideos(string id)
+    {
             // https://developers.google.com/youtube/v3/docs/videos/list
             // playlist LL and LM to get liked videos / liked music
             var items = Videos.List("contentDetails,id,snippet,status,player,projectDetails,recordingDetails,statistics,topicDetails");
@@ -21,16 +19,16 @@ namespace YouTubeApiWrapper
             return await HandlePagination<Video>(items);
         }
 
-        public async Task<List<PlaylistItem>> GetPlaylistItems(string playlistId)
-        {
+    public async Task<List<PlaylistItem>> GetPlaylistItems(string playlistId)
+    {
             // https://developers.google.com/youtube/v3/docs/playlistItems/list
             var playlistItems = PlaylistItems.List("contentDetails,id,snippet,status");
             playlistItems.PlaylistId = playlistId;
             return await HandlePagination<PlaylistItem>(playlistItems);
         }
 
-        public async Task<List<Playlist>> GetPlaylists()
-        {
+    public async Task<List<Playlist>> GetPlaylists()
+    {
             // auditDetails requires youtubepartner-channel-audit scope
             // brandingSettings, contentOwnerDetails requires something?
             // statistics topicDetails
@@ -47,14 +45,14 @@ namespace YouTubeApiWrapper
             return result;
         }
 
-        private static async Task<List<Playlist>> GetAnotherPlaylist(PlaylistsResource.ListRequest playlistRequest, string playlistName)
-        {
+    private static async Task<List<Playlist>> GetAnotherPlaylist(PlaylistsResource.ListRequest playlistRequest, string playlistName)
+    {
             playlistRequest.Id = playlistName;
             return await HandlePagination<Playlist>(playlistRequest);
         }
 
-        public async Task<PlaylistItem> AddVideoToPlaylist(string playlistId, string videoId)
-        {
+    public async Task<PlaylistItem> AddVideoToPlaylist(string playlistId, string videoId)
+    {
             var playlistItem = new PlaylistItem
             {
                 Snippet = new PlaylistItemSnippet
@@ -71,13 +69,13 @@ namespace YouTubeApiWrapper
             return await PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
         }
 
-        public async Task RemoveVideoFromPlaylist(string playlistItemId)
-        {
+    public async Task RemoveVideoFromPlaylist(string playlistItemId)
+    {
             await PlaylistItems.Delete(playlistItemId).ExecuteAsync();
         }
 
-        private static async Task<List<TResult>> HandlePagination<TResult>(dynamic request)
-        {
+    private static async Task<List<TResult>> HandlePagination<TResult>(dynamic request)
+    {
             var result = new List<TResult>();
             request.MaxResults = 50;
             var response = await request.ExecuteAsync();
@@ -92,5 +90,4 @@ namespace YouTubeApiWrapper
 
             return result;
         }
-    }
 }

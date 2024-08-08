@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
 
-namespace YouTubeCleanupWpf
+namespace YouTubeCleanupWpf;
+
+public interface IWindowService
 {
-    public interface IWindowService
-    {
-        void ShowSettingsWindow();
-        Task ShowUpdateDataWindow(string title);
-        Task<byte[]> PromptForEntropy();
-    }
+    void ShowSettingsWindow();
+    Task ShowUpdateDataWindow(string title);
+    Task<byte[]> PromptForEntropy();
 }

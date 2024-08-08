@@ -2,7 +2,6 @@ pipeline {
     agent any
     
     environment {
-        DOTNET_ROOT = tool name: 'dotnet-sdk', type: 'com.microsoft.jenkins.dotnet.DotNetSDK'
         GITHUB_CREDENTIALS = credentials('github-username-pat')
     }
     
@@ -16,7 +15,7 @@ pipeline {
         stage('Restore') {
             steps {
                 script {
-                    sh '${DOTNET_ROOT}/dotnet restore'
+                    sh 'dotnet restore'
                 }
             }
         }
@@ -24,7 +23,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh '${DOTNET_ROOT}/dotnet build --configuration Release'
+                    sh 'dotnet build --configuration Release'
                 }
             }
         }
@@ -32,7 +31,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh '${DOTNET_ROOT}/dotnet test --collect:"XPlat Code Coverage" --results-directory $(pwd)/TestResults --logger trx'
+                    sh 'dotnet test --collect:"XPlat Code Coverage" --results-directory $(pwd)/TestResults --logger trx'
                 }
             }
             post {

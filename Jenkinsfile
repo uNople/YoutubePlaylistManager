@@ -15,31 +15,39 @@ pipeline {
         
         stage('Restore') {
             steps {
-                sh '${DOTNET_ROOT}/dotnet restore'
+                script {
+                    sh '${DOTNET_ROOT}/dotnet restore'
+                }
             }
         }
         
         stage('Build') {
             steps {
-                sh '${DOTNET_ROOT}/dotnet build --configuration Release'
+                script {
+                    sh '${DOTNET_ROOT}/dotnet build --configuration Release'
+                }
             }
         }
         
         stage('Test') {
             steps {
-                sh '${DOTNET_ROOT}/dotnet test --collect:"XPlat Code Coverage" --results-directory $(pwd)/TestResults --logger trx'
+                script {
+                    sh '${DOTNET_ROOT}/dotnet test --collect:"XPlat Code Coverage" --results-directory $(pwd)/TestResults --logger trx'
+                }
             }
             post {
                 always {
-                    junit '**/TestResults/*.trx'
-                    publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'TestResults',
-                        reportFiles: 'index.html',
-                        reportName: 'Code Coverage Report'
-                    ])
+                    script {
+                        junit '**/TestResults/*.trx'
+                        publishHTML(target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'TestResults',
+                            reportFiles: 'index.html',
+                            reportName: 'Code Coverage Report'
+                        ])
+                    }
                 }
             }
         }
@@ -47,7 +55,9 @@ pipeline {
     
     post {
         always {
-            cleanWs()
+            script {
+                cleanWs()
+            }
         }
     }
 }

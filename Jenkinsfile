@@ -46,10 +46,8 @@ pipeline {
     }
     
     post {
-        cleanup {
-            node {
-                cleanWs()
-            }
+        always {
+            cleanWs()
         }
     }
 }

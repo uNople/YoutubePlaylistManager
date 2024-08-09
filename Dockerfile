@@ -4,13 +4,9 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 # Set the working directory
 WORKDIR /app
 
-# Copy the project files
-COPY *.sln .
-COPY */*.csproj ./
+COPY . .
 RUN dotnet restore YouTubePlaylistManager.sln
 
-# Copy the rest of the code and build the application
-COPY . .
 RUN dotnet build --configuration Release
 
 # Run tests and collect code coverage

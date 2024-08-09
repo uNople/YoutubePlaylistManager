@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy the project files
 COPY *.sln .
 COPY */*.csproj ./
-RUN dotnet restore
+RUN dotnet restore YouTubePlaylistManager.sln
 
 # Copy the rest of the code and build the application
 COPY . .

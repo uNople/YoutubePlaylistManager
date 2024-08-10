@@ -4,6 +4,7 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0-windows7.0</TargetFramework>
         <UseWPF>true</UseWPF>
+        <IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
         <UseWindowsForms>true</UseWindowsForms>
         <UserSecretsId>61d9295c-1565-4cb4-9027-d2fc8f548972</UserSecretsId>
         <ApplicationIcon>icon_2I6_icon.ico</ApplicationIcon>

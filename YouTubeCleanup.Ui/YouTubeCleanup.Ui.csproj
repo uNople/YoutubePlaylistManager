@@ -2,17 +2,18 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0-windows7.0</TargetFramework>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\YoutubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj" />
-      <ProjectReference Include="..\YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
-      <ProjectReference Include="..\YoutubeCleanupTool\YouTubeApiWrapper.csproj" />
+        <ProjectReference Include="..\YoutubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj"/>
+        <ProjectReference Include="..\YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj"/>
+        <ProjectReference Include="..\YoutubeCleanupTool\YouTubeApiWrapper.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
-      <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
+        <PackageReference Include="JetBrains.Annotations" Version="2024.2.0"/>
+        <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All"/>
     </ItemGroup>
 
 </Project>

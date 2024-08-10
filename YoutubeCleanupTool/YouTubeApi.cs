@@ -22,135 +22,136 @@ namespace YouTubeApiWrapper;
 public class YouTubeApi(
     [NotNull] IMapper mapper,
     [NotNull] IAppSettings appSettings,
-    [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions,
-    [NotNull] IEntropyService entropyService,
-    [NotNull] IDpapiService dpapiService)
+    [NotNull] YouTubeServiceCreatorOptions youTubeServiceCreatorOptions)
     : IYouTubeApi
 {
-    private readonly IEntropyService _entropyService = entropyService;
-    private readonly IDpapiService _dpapiService = dpapiService;
     private IYouTubeServiceWrapper _youTubeServiceWrapper;
 
     public async IAsyncEnumerable<PlaylistData> GetPlaylists()
     {
-            var playlists = await HandleSecretRevocation(async getNewToken => await (await CreateYouTubeService(getNewToken)).GetPlaylists());
-            
-            foreach (var playlist in playlists)
-            {
-                yield return mapper.Map<PlaylistData>(playlist);
-            }
-        }
+        var playlists = await HandleSecretRevocation(async getNewToken =>
+            await (await CreateYouTubeService(getNewToken)).GetPlaylists());
 
-    public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(string playlistId, Func<string, Task> playlistGotDeleted)
+        foreach (var playlist in playlists)
+        {
+            yield return mapper.Map<PlaylistData>(playlist);
+        }
+    }
+
+    public async IAsyncEnumerable<PlaylistItemData> GetPlaylistItems(string playlistId,
+        Func<string, Task> playlistGotDeleted)
     {
-            List<PlaylistItem> playlistItems = null;
-            try
+        List<PlaylistItem> playlistItems = null;
+        try
+        {
+            playlistItems = await HandleSecretRevocation(async getNewToken =>
+                await (await CreateYouTubeService(getNewToken)).GetPlaylistItems(playlistId));
+        }
+        catch (Google.GoogleApiException ex)
+        {
+            if (ex.Message.ContainsCi("[playlistNotFound]"))
             {
-                playlistItems = await HandleSecretRevocation(async getNewToken => await (await CreateYouTubeService(getNewToken)).GetPlaylistItems(playlistId));
+                await playlistGotDeleted(playlistId);
             }
-            catch (Google.GoogleApiException ex)
+            else
             {
-                if (ex.Message.ContainsCi("[playlistNotFound]"))
-                {
-                    await playlistGotDeleted(playlistId);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            foreach (var item in playlistItems ?? new List<PlaylistItem>())
-            {
-                yield return mapper.Map<PlaylistItemData>(item);
+                throw;
             }
         }
+
+        foreach (var item in playlistItems ?? new List<PlaylistItem>())
+        {
+            yield return mapper.Map<PlaylistItemData>(item);
+        }
+    }
 
     public async IAsyncEnumerable<VideoData> GetVideos(List<string> videoIdsToGet)
     {
-            foreach (var videoId in videoIdsToGet)
-            {
-                var video = (await HandleSecretRevocation(async getNewToken
-                    => await (await CreateYouTubeService(getNewToken)).GetVideos(videoId))).FirstOrDefault();
+        foreach (var videoId in videoIdsToGet)
+        {
+            var video = (await HandleSecretRevocation(async getNewToken
+                => await (await CreateYouTubeService(getNewToken)).GetVideos(videoId))).FirstOrDefault();
 
-                if (video == null)
-                {
-                    yield return new VideoData { Id = videoId, Title = "deleted", IsDeletedFromYouTube = true };
-                }
-                else
-                {
-                    yield return mapper.Map<VideoData>(video);
-                }
+            if (video == null)
+            {
+                yield return new VideoData { Id = videoId, Title = "deleted", IsDeletedFromYouTube = true };
+            }
+            else
+            {
+                yield return mapper.Map<VideoData>(video);
             }
         }
+    }
 
     public async Task<PlaylistItemData> AddVideoToPlaylist(string playlistId, string videoId)
     {
-            return await HandleSecretRevocation(async getNewToken =>
-            {
-                var playlistItem = await (await CreateYouTubeService(getNewToken)).AddVideoToPlaylist(playlistId, videoId);
-                return mapper.Map<PlaylistItemData>(playlistItem);
-            });
-        }
+        return await HandleSecretRevocation(async getNewToken =>
+        {
+            var playlistItem = await (await CreateYouTubeService(getNewToken)).AddVideoToPlaylist(playlistId, videoId);
+            return mapper.Map<PlaylistItemData>(playlistItem);
+        });
+    }
 
     public async Task RemoveVideoFromPlaylist(string playlistItemId)
     {
-            await HandleSecretRevocation(async getNewToken =>
-            {
-                await (await CreateYouTubeService(getNewToken)).RemoveVideoFromPlaylist(playlistItemId);
-                return Task.CompletedTask;
-            });
-        }
+        await HandleSecretRevocation(async getNewToken =>
+        {
+            await (await CreateYouTubeService(getNewToken)).RemoveVideoFromPlaylist(playlistItemId);
+            return Task.CompletedTask;
+        });
+    }
 
     private async Task<T> HandleSecretRevocation<T>(Func<bool, Task<T>> methodWhichCouldResultInNoAuthentication)
     {
-            try
-            {
-                return await methodWhichCouldResultInNoAuthentication(false);
-            }
-            catch (TokenResponseException)
-            {
-                return await methodWhichCouldResultInNoAuthentication(true);
-            }
+        try
+        {
+            return await methodWhichCouldResultInNoAuthentication(false);
         }
-        
+        catch (TokenResponseException)
+        {
+            return await methodWhichCouldResultInNoAuthentication(true);
+        }
+    }
+
     private async Task<IYouTubeServiceWrapper> CreateYouTubeService(bool getNewToken)
     {
-            if (_youTubeServiceWrapper != null && !getNewToken)
-                return _youTubeServiceWrapper;
-
-            //var entropy = _entropyService.GetEntropy();
-            //var decryptedApiKey = _dpapiService.Decrypt(_appSettings.ApiKey);
-
-            // TODO: if requesting new scopes, delete %appdata%\_youTubeServiceCreatorOptions.FileDataStoreName\.* - this is where the refresh/accesstoken/scopes are stored
-            UserCredential credential;
-            using (var stream = new FileStream(youTubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
-            {
-                var installedApp = new AuthorizationCodeInstalledApp(
-                    new GoogleAuthorizationCodeFlow(
-                        new GoogleAuthorizationCodeFlow.Initializer
-                        {
-                            ClientSecrets = GoogleClientSecrets.Load(stream).Secrets,
-                            // Console app should only need ReadOnly. the UI needs write access
-                            Scopes = new List<string> { YouTubeService.Scope.YoutubeReadonly, YouTubeService.Scope.Youtube },
-                            DataStore = new FileDataStore(youTubeServiceCreatorOptions.FileDataStoreName)
-                        }),
-                        new LocalServerCodeReceiver());
-                credential = await installedApp.AuthorizeAsync("user", CancellationToken.None);
-            }
-
-            if (getNewToken)
-            {
-                await credential.RefreshTokenAsync(CancellationToken.None);
-            }
-
-            // Create the service.
-            _youTubeServiceWrapper = new YouTubeServiceWrapper(new BaseClientService.Initializer()
-            {
-                ApiKey = appSettings.ApiKey,
-                HttpClientInitializer = credential,
-                ApplicationName = "YouTube cleanup tool",
-            });
+        if (_youTubeServiceWrapper != null && !getNewToken)
             return _youTubeServiceWrapper;
+
+        //var entropy = _entropyService.GetEntropy();
+        //var decryptedApiKey = _dpapiService.Decrypt(_appSettings.ApiKey);
+
+        // TODO: if requesting new scopes, delete %appdata%\_youTubeServiceCreatorOptions.FileDataStoreName\.* - this is where the refresh/accesstoken/scopes are stored
+        UserCredential credential;
+        using (var stream =
+               new FileStream(youTubeServiceCreatorOptions.ClientSecretPath, FileMode.Open, FileAccess.Read))
+        {
+            var installedApp = new AuthorizationCodeInstalledApp(
+                new GoogleAuthorizationCodeFlow(
+                    new GoogleAuthorizationCodeFlow.Initializer
+                    {
+                        ClientSecrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets,
+                        // Console app should only need ReadOnly. the UI needs write access
+                        Scopes = new List<string>
+                            { YouTubeService.Scope.YoutubeReadonly, YouTubeService.Scope.Youtube },
+                        DataStore = new FileDataStore(youTubeServiceCreatorOptions.FileDataStoreName)
+                    }),
+                new LocalServerCodeReceiver());
+            credential = await installedApp.AuthorizeAsync("user", CancellationToken.None);
         }
+
+        if (getNewToken)
+        {
+            await credential.RefreshTokenAsync(CancellationToken.None);
+        }
+
+        // Create the service.
+        _youTubeServiceWrapper = new YouTubeServiceWrapper(new BaseClientService.Initializer()
+        {
+            ApiKey = appSettings.ApiKey,
+            HttpClientInitializer = credential,
+            ApplicationName = "YouTube cleanup tool",
+        });
+        return _youTubeServiceWrapper;
+    }
 }

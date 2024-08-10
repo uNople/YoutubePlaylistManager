@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -60,7 +59,7 @@ public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
 
     private void WriteLogsToUi()
     {
-        const int MAX_STRING_LENGTH = 10000;
+        const int maxStringLength = 10000;
         Thread.CurrentThread.Name = "Update logs in ui thread";
         while (true)
         {
@@ -83,8 +82,8 @@ public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
             {
                 // Clamp the string builder to 10,000 characters (better than creating yet another string to do the truncate on)
                 // We still need to clamp the text's length to get a responsive UI in WPF
-                if (_logStringBuilder.Length > MAX_STRING_LENGTH)
-                    _logStringBuilder.Remove(MAX_STRING_LENGTH, _logStringBuilder.Length - MAX_STRING_LENGTH);
+                if (_logStringBuilder.Length > maxStringLength)
+                    _logStringBuilder.Remove(maxStringLength, _logStringBuilder.Length - maxStringLength);
 
                 var logText = _logStringBuilder.ToString();
                 _doWorkOnUi.RunOnUiThreadSync(() => LogText = logText);
@@ -159,7 +158,7 @@ public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
     private async Task DoActiveTaskWork(Func<Task> act, [CallerMemberName] string callingMethod = default,
         string extraMessage = default)
     {
-        const int PER_THREAD_TIMEOUT_TIME_MS = 500;
+        const int perThreadTimeoutTimeMs = 500;
         Interlocked.Increment(ref _inProgress);
         Interlocked.Increment(ref _waiting);
 
@@ -167,7 +166,7 @@ public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
             _logger.Debug(
                 $"{message} - In Progress: {_inProgress}, waiting: {_waiting}, gained: {_gained}, released: {_released}, Timed out: {_timedOut} - Task work: {callingMethod} - {extraMessage}");
 
-        if (await ActiveJobsSemaphore.WaitAsync(PER_THREAD_TIMEOUT_TIME_MS))
+        if (await ActiveJobsSemaphore.WaitAsync(perThreadTimeoutTimeMs))
         {
             Interlocked.Increment(ref _gained);
             try
@@ -185,7 +184,7 @@ public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
         {
             Interlocked.Increment(ref _timedOut);
             _logger.Error(
-                $"{callingMethod}: Couldn't gain access to lock within {PER_THREAD_TIMEOUT_TIME_MS}ms.{(!string.IsNullOrEmpty(extraMessage) ? $" {extraMessage}" : "")}");
+                $"{callingMethod}: Couldn't gain access to lock within {perThreadTimeoutTimeMs}ms.{(!string.IsNullOrEmpty(extraMessage) ? $" {extraMessage}" : "")}");
             LogStats("Extra information:");
         }
 

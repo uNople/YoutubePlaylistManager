@@ -1,50 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
-    <UserSecretsId>61d9295c-1565-4cb4-9027-d2fc8f548972</UserSecretsId>
-    <ApplicationIcon>icon_2I6_icon.ico</ApplicationIcon>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows7.0</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <UseWindowsForms>true</UseWindowsForms>
+        <UserSecretsId>61d9295c-1565-4cb4-9027-d2fc8f548972</UserSecretsId>
+        <ApplicationIcon>icon_2I6_icon.ico</ApplicationIcon>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="icon_2I6_icon.ico" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="icon_2I6_icon.ico"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Autofac" Version="8.0.0" />
-    <PackageReference Include="Autofac.Configuration" Version="7.0.0" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Autofac" Version="8.0.0"/>
+        <PackageReference Include="Autofac.Configuration" Version="7.0.0"/>
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0"/>
+        <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\YouTubeCleanup.Ui\YouTubeCleanup.Ui.csproj" />
-    <ProjectReference Include="..\YouTubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj" />
-    <ProjectReference Include="..\YouTubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj" />
-    <ProjectReference Include="..\YouTubeCleanupTool\YouTubeApiWrapper.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\YouTubeCleanup.Ui\YouTubeCleanup.Ui.csproj"/>
+        <ProjectReference Include="..\YouTubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj"/>
+        <ProjectReference Include="..\YouTubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj"/>
+        <ProjectReference Include="..\YouTubeCleanupTool\YouTubeApiWrapper.csproj"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="icon_2I6_icon.ico" />
-  </ItemGroup>
+    <ItemGroup>
+        <Resource Include="icon_2I6_icon.ico"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
 </Project>

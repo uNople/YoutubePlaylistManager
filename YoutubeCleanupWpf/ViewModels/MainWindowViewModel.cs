@@ -40,18 +40,24 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         VideoFilter = new ObservableCollection<VideoFilter>();
         _mapper = mapper;
         _getAndCacheYouTubeData = getAndCacheYouTubeData;
-        CheckedOrUncheckedVideoInPlaylistCommand = new RunMethodCommand<WpfPlaylistData>(async o => await UpdateVideoInPlaylist(o), errorHandler.HandleError);
+        CheckedOrUncheckedVideoInPlaylistCommand =
+            new RunMethodCommand<WpfPlaylistData>(async o => await UpdateVideoInPlaylist(o), errorHandler.HandleError);
         OpenPlaylistCommand = new RunMethodCommand<PlaylistData>(OpenPlaylist, errorHandler.HandleError);
         OpenChannelCommand = new RunMethodCommand<VideoData>(OpenChannel, errorHandler.HandleError);
         OpenVideoCommand = new RunMethodCommand<VideoData>(OpenVideo, errorHandler.HandleError);
         SearchCommand = new RunMethodWithoutParameterCommand(Search, errorHandler.HandleError);
         RefreshDataCommand = new RunMethodWithoutParameterCommand(UpdateAllPlaylists, errorHandler.HandleError);
         UpdateSettingsCommand = new RunMethodWithoutParameterCommand(UpdateSettings, errorHandler.HandleError);
-        RefreshSelectedPlaylistCommand = new RunMethodWithoutParameterCommand(UpdateSelectedPlaylist, errorHandler.HandleError);
+        RefreshSelectedPlaylistCommand =
+            new RunMethodWithoutParameterCommand(UpdateSelectedPlaylist, errorHandler.HandleError);
         ShowLogsCommand = new RunMethodWithoutParameterCommand(ShowLogsWindow, errorHandler.HandleError);
-        _searchTypeDelayDeferTimer = new DeferTimer(async () => await SearchForVideos(SearchText), errorHandler.HandleError);
-        _selectedFilterDataFromComboBoxDeferTimer = new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox), errorHandler.HandleError);
-        _selectedVideoChangedDeferTimer = new DeferTimer(async () => await SelectedVideoChanged(SelectedVideo), errorHandler.HandleError);
+        _searchTypeDelayDeferTimer =
+            new DeferTimer(async () => await SearchForVideos(SearchText), errorHandler.HandleError);
+        _selectedFilterDataFromComboBoxDeferTimer =
+            new DeferTimer(async () => await GetVideosForPlaylist(SelectedFilterFromComboBox),
+                errorHandler.HandleError);
+        _selectedVideoChangedDeferTimer = new DeferTimer(async () => await SelectedVideoChanged(SelectedVideo),
+            errorHandler.HandleError);
         _updateDataViewModel = updateDataViewModel;
         _windowService = windowService;
         _doWorkOnUi = doWorkOnUi;
@@ -60,8 +66,8 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         _debugSettings.ShowIdsChanged += DebugSettingsOnShowIdsChanged;
         SpecialVideoFilters = new List<VideoFilter>()
         {
-            new() {Title = "All", FilterType = FilterType.All},
-            new() {Title = "Uncategorized", FilterType = FilterType.Uncategorized},
+            new() { Title = "All", FilterType = FilterType.All },
+            new() { Title = "Uncategorized", FilterType = FilterType.Uncategorized },
         };
     }
 
@@ -71,7 +77,8 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         {
             if (videoFilter.FilterType == FilterType.PlaylistTitle)
             {
-                _doWorkOnUi.RunOnUiThread(() => videoFilter.Title = MakePlaylistTitle(videoFilter.OriginalTitle, videoFilter.Id, showIds));
+                _doWorkOnUi.RunOnUiThread(() =>
+                    videoFilter.Title = MakePlaylistTitle(videoFilter.OriginalTitle, videoFilter.Id, showIds));
             }
         }
 
@@ -127,6 +134,7 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     }
 
     private VideoFilter _selectedFilterDataFromComboBox;
+
     public VideoFilter SelectedFilterFromComboBox
     {
         get => _selectedFilterDataFromComboBox;
@@ -148,7 +156,7 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     public bool ShouldSelectingFilterUpdateVideos { get; set; } = true;
 
     private string _searchText;
-        
+
     public string SearchText
     {
         get => _searchText;
@@ -172,9 +180,10 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         await DoRefreshFromYouTube(async (callback, cancellationToken) =>
             {
                 _logger.Info("Updating playlist");
-                await _getAndCacheYouTubeData.GetPlaylistItemsForPlaylist(callback, matchingPlaylist, cancellationToken);
+                await _getAndCacheYouTubeData.GetPlaylistItemsForPlaylist(callback, matchingPlaylist,
+                    cancellationToken);
                 _logger.Info("Updating videos");
-                await  _getAndCacheYouTubeData.GetVideos(callback, false, cancellationToken);
+                await _getAndCacheYouTubeData.GetVideos(callback, false, cancellationToken);
                 _logger.Info("Completed! - You can close the window now.");
             }, $"Update playlist {matchingPlaylist.Title}");
     }
@@ -206,13 +215,14 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     {
         await _windowService.ShowUpdateDataWindow("Logs");
     }
-        
-    private async Task DoRefreshFromYouTube(Func<Func<IData, InsertStatus, CancellationToken, Task>, CancellationToken, Task> refresh, string title)
+
+    private async Task DoRefreshFromYouTube(
+        Func<Func<IData, InsertStatus, CancellationToken, Task>, CancellationToken, Task> refresh, string title)
     {
         UpdateHappening = true;
         var cancellationTokenSource = new CancellationTokenSource();
         var runGuid = Guid.NewGuid();
-            
+
         try
         {
             await _updateDataViewModel.CreateNewActiveTask(runGuid, title, cancellationTokenSource);
@@ -267,8 +277,11 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
 
     public async Task LoadData() => await DoNotRunFilterUpdate(async () =>
     {
-        var playlists = (await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists())?.OrderBy(x => x, new DataSorter()).ToList() ?? new List<PlaylistData>();
-        var playlistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems() ?? new List<PlaylistItemData>();
+        var playlists =
+            (await _youTubeCleanupToolDbContextFactory.Create().GetPlaylists())?.OrderBy(x => x, new DataSorter())
+            .ToList() ?? new List<PlaylistData>();
+        var playlistItems = await _youTubeCleanupToolDbContextFactory.Create().GetPlaylistItems() ??
+                            new List<PlaylistItemData>();
         var playlistItemsByPlaylist = playlistItems.GroupBy(x => x.PlaylistDataId)
             // TODO: figure out why sometimes playlist items have a null playlist
             .Where(x => x.Key != null)
@@ -309,7 +322,8 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
                     _doWorkOnUi.ClearOnUi(playlist.PlaylistItems);
                     if (playlistItemsByPlaylist.ContainsKey(playlist.Id))
                     {
-                        playlistItemsByPlaylist[playlist.Id].ForEach(x => _doWorkOnUi.AddOnUi(playlist.PlaylistItems, x));
+                        playlistItemsByPlaylist[playlist.Id]
+                            .ForEach(x => _doWorkOnUi.AddOnUi(playlist.PlaylistItems, x));
                     }
                 }
             }
@@ -325,7 +339,13 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
             SpecialVideoFilters.ForEach(x => _doWorkOnUi.AddOnUi(VideoFilter, x));
             foreach (var playlist in playlists.OrderBy(x => x.Title))
             {
-                _doWorkOnUi.AddOnUi(VideoFilter, new VideoFilter { OriginalTitle = playlist.Title, Title = MakePlaylistTitle(playlist.Title, playlist.Id, _debugSettings.ShowIds), FilterType = FilterType.PlaylistTitle, Id = playlist.Id });
+                _doWorkOnUi.AddOnUi(VideoFilter,
+                    new VideoFilter
+                    {
+                        OriginalTitle = playlist.Title,
+                        Title = MakePlaylistTitle(playlist.Title, playlist.Id, _debugSettings.ShowIds),
+                        FilterType = FilterType.PlaylistTitle, Id = playlist.Id
+                    });
             }
         }
         else
@@ -335,9 +355,9 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
 
         if (SelectedFilterFromComboBox == null)
         {
-            const int DEFAULT_VIDEO_COUNT = 100;
-            await GetVideos(DEFAULT_VIDEO_COUNT);
-            SearchResultCount = $"{DEFAULT_VIDEO_COUNT} videos found";
+            const int defaultVideoCount = 100;
+            await GetVideos(defaultVideoCount);
+            SearchResultCount = $"{defaultVideoCount} videos found";
         }
         else if (SelectedFilterFromComboBox.FilterType == FilterType.PlaylistTitle)
         {
@@ -345,7 +365,8 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
             _logger.Debug($"Dealing with playlist '{matchingPlaylist.DisplayInfo()}");
 
             var videoIds = new HashSet<string>(playlistItemsByPlaylist[matchingPlaylist.Id].Select(x => x.VideoId));
-            _logger.Debug($"{videoIds.Count} videos exist in playlist '{matchingPlaylist.DisplayInfo()}'. Ids: {string.Join(", ", videoIds)}");
+            _logger.Debug(
+                $"{videoIds.Count} videos exist in playlist '{matchingPlaylist.DisplayInfo()}'. Ids: {string.Join(", ", videoIds)}");
             var videos = _mapper.Map<List<WpfVideoData>>(await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                 .Where(x => videoIds.Contains(x.Id))
                 .ToList();
@@ -361,7 +382,8 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
                     var image = await CreateBitmapImageFromByteArray(video);
                     video.Thumbnail = image;
                     await _doWorkOnUi.RunOnUiThreadAsync(() => Videos.Insert(~compareResult, video));
-                    _logger.Debug($"Video {video.DisplayInfo()} wasn't found in the right order I guess, so we inserted it");
+                    _logger.Debug(
+                        $"Video {video.DisplayInfo()} wasn't found in the right order I guess, so we inserted it");
                 }
                 // TODO: handle rename of title in playlist item - Compare based on ID, not title. Then, we can check title, or just map what we got from YouTube over the top
                 // Note for why:
@@ -372,7 +394,6 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
                 var videosToRemove = new List<WpfVideoData>();
                 foreach (var videoData in Videos)
                 {
-                        
                     if (!videosById.ContainsKey(videoData.Id))
                     {
                         videosToRemove.Add(videoData);
@@ -392,7 +413,7 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     {
         return new List<WpfPlaylistData>(playlists.Select(MapWpfPlaylistData));
     }
-        
+
     private WpfPlaylistData MapWpfPlaylistData(PlaylistData playlistData)
     {
         var playlist = _mapper.Map<WpfPlaylistData>(playlistData);
@@ -405,7 +426,9 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         return $"{title}{(showIds ? $" ({id})" : "")}";
     }
 
-    private async Task OpenChannel(VideoData videoData) => await Task.Run(() => OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}"));
+    private async Task OpenChannel(VideoData videoData) =>
+        await Task.Run(() => OpenLink($"https://www.youtube.com/channel/{videoData.ChannelId}"));
+
     private async Task OpenPlaylist(PlaylistData playlistData) => await Task.Run(() => OpenLink(playlistData.Url));
     private async Task OpenVideo(VideoData videoData) => await Task.Run(() => OpenLink(videoData.Url));
 
@@ -466,13 +489,15 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
             // The playlist has just been ticked, so we want to add the video into this playlist
             if (wpfPlaylistData.VideoInPlaylist)
             {
-                var playlistItem = await _getAndCacheYouTubeData.AddVideoToPlaylist(wpfPlaylistData.Id, _selectedVideo.Id);
+                var playlistItem =
+                    await _getAndCacheYouTubeData.AddVideoToPlaylist(wpfPlaylistData.Id, _selectedVideo.Id);
                 if (_videosToPlaylistMap.TryGetValue(_selectedVideo.Id, out var playlists))
                 {
                     if (!playlists.Contains(playlistItem.PlaylistDataId))
                     {
                         playlists.Add(playlistItem.PlaylistDataId);
-                        _logger.Debug($"Adding video {_selectedVideo.DisplayInfo()} to playlist {wpfPlaylistData.DisplayInfo()}");
+                        _logger.Debug(
+                            $"Adding video {_selectedVideo.DisplayInfo()} to playlist {wpfPlaylistData.DisplayInfo()}");
                     }
                 }
             }
@@ -485,7 +510,8 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
                     if (playlists.Contains(wpfPlaylistData.Id))
                     {
                         playlists.Remove(wpfPlaylistData.Id);
-                        _logger.Debug($"Removing video {_selectedVideo.DisplayInfo()} from playlist {wpfPlaylistData.DisplayInfo()}");
+                        _logger.Debug(
+                            $"Removing video {_selectedVideo.DisplayInfo()} from playlist {wpfPlaylistData.DisplayInfo()}");
                     }
                 }
             }
@@ -499,18 +525,20 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         if (videoFilter.FilterType == FilterType.PlaylistTitle)
         {
             // Make this a method or something. I think I use this pattern elsewhere
-            var videoIds = new HashSet<string>(Playlists.First(x => x.Id == videoFilter.Id).PlaylistItems.Select(x => x.VideoId));
+            var videoIds =
+                new HashSet<string>(Playlists.First(x => x.Id == videoFilter.Id).PlaylistItems.Select(x => x.VideoId));
             var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetVideos())
                 .Where(x => videoIds.Contains(x.Id))
                 .OrderBy(x => x, new DataSorter())
                 .ToList();
             SearchResultCount = $"{videos.Count} videos found";
-            _logger.Debug($"Videos after selecting a playlist: {SerializeVideoCollection(_mapper.Map<List<WpfVideoData>>(videos))}");
+            _logger.Debug(
+                $"Videos after selecting a playlist: {SerializeVideoCollection(_mapper.Map<List<WpfVideoData>>(videos))}");
             foreach (var video in videos)
             {
                 await AddVideoToCollection(video);
             }
-                
+
             _logger.Debug($"Videos after selecting a playlist: {SerializeVideoCollection(Videos.ToList())}");
         }
         else if (videoFilter.FilterType == FilterType.All)
@@ -527,7 +555,8 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
             // TODO: Create some way of indicating a playlist is a "dumping ground" playlist - meaning videos only in that should be uncategorized
             // NOTE: unfortunately the watch later playlist isn't available in the YouTube data API
             var playlistsThatMeanUncategorized = new List<string> { "Liked videos", "!WatchLater" };
-            var videos = (await _youTubeCleanupToolDbContextFactory.Create().GetUncategorizedVideos(playlistsThatMeanUncategorized));
+            var videos = (await _youTubeCleanupToolDbContextFactory.Create()
+                .GetUncategorizedVideos(playlistsThatMeanUncategorized));
             SearchResultCount = $"{videos.Count} videos found";
             foreach (var video in videos)
             {
@@ -547,9 +576,10 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
                     await _doWorkOnUi.RunOnUiThreadAsync(() => playlistItem.VideoInPlaylist = false);
                 }
             }
+
             return;
         }
-            
+
         if (_videosToPlaylistMap.TryGetValue(video.Id, out var playlistItems))
         {
             var playlistItemsHashSet = new HashSet<string>(playlistItems);
@@ -611,7 +641,7 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
             return null;
         }
     }
-        
+
     private string SerializeVideoCollection(List<WpfVideoData> videos)
     {
         return JsonConvert.SerializeObject(videos.Select(x => new { x.Title, x.Id }), Formatting.Indented);
@@ -621,7 +651,7 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     {
         if (SelectedVideo == null)
             return;
-            
+
         Clipboard.SetText(SelectedVideo.Url);
     }
 }

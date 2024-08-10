@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeApiWrapper", "YoutubeCleanupTool\YouTubeApiWrapper.csproj", "{C2B84319-11E5-478B-A66E-EC592936A6EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeApiWrapper", "YouTubeCleanupTool\YouTubeApiWrapper.csproj", "{C2B84319-11E5-478B-A66E-EC592936A6EE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Help", "Help", "{78B20DB0-EBCF-4BD5-B452-8F646688D575}"
 	ProjectSection(SolutionItems) = preProject
@@ -12,13 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Help", "Help", "{78B20DB0-E
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain", "YoutubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj", "{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain", "YouTubeCleanupTool.Domain\YouTubeCleanupTool.Domain.csproj", "{0B1DAB57-FE4F-45F2-B8E1-C5C0CEEAC139}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.DataAccess", "YoutubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj", "{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.DataAccess", "YouTubeCleanupTool.DataAccess\YouTubeCleanupTool.DataAccess.csproj", "{03700D71-2DAB-4DF0-BA6D-A457DC35B2A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain.UnitTests", "YoutubeCleanupTool.Domain.UnitTests\YouTubeCleanupTool.Domain.UnitTests.csproj", "{351FA735-44D5-4D25-8AFC-3FAF9FBBA24B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupTool.Domain.UnitTests", "YouTubeCleanupTool.Domain.UnitTests\YouTubeCleanupTool.Domain.UnitTests.csproj", "{351FA735-44D5-4D25-8AFC-3FAF9FBBA24B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupWpf", "YoutubeCleanupWpf\YouTubeCleanupWpf.csproj", "{1F01C4B1-68CA-4752-B73F-3E0ED9A63876}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupWpf", "YouTubeCleanupWpf\YouTubeCleanupWpf.csproj", "{1F01C4B1-68CA-4752-B73F-3E0ED9A63876}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeCleanupWpf.UnitTests", "YouTubeCleanupWpfTests\YouTubeCleanupWpf.UnitTests.csproj", "{A007DF6F-300A-4B6E-8692-E5A1EBBA0A47}"
 EndProject

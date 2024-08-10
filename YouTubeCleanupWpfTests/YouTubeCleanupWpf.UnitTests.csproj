@@ -21,7 +21,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\UnitTests.Common\UnitTests.Common.csproj"/>
-        <ProjectReference Include="..\YoutubeCleanupWpf\YouTubeCleanupWpf.csproj"/>
+        <ProjectReference Include="..\YouTubeCleanupWpf\YouTubeCleanupWpf.csproj"/>
     </ItemGroup>
 
 </Project>

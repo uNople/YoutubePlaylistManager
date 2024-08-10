@@ -6,6 +6,8 @@ WORKDIR /app
 
 COPY . .
 
+RUN echo "Listing contents of /app:" && ls -R /app
+
 RUN dotnet restore YouTubePlaylistManager.sln
 
 RUN dotnet build --configuration Release

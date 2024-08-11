@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label ‘windows’
+    }
     
     environment {
         DOCKER_IMAGE = 'youtube-playlist-manager:latest'
@@ -35,7 +37,7 @@ pipeline {
             steps {
                 script {
                     // Publish test results and code coverage to Jenkins
-                    junit 'TestResults/test_results.trx'
+                    junit '**/*.trx'
                     publishHTML(target: [
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,

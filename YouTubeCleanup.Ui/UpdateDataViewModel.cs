@@ -63,7 +63,7 @@ public class UpdateDataViewModel : INotifyPropertyChanged, IUpdateDataViewModel
         Thread.CurrentThread.Name = "Update logs in ui thread";
         while (true)
         {
-            if (_appClosingCancellationToken.CancellationTokenSource.IsCancellationRequested)
+            if (_appClosingCancellationToken?.CancellationTokenSource?.IsCancellationRequested is null or true)
             {
                 _logStringBuilder.Clear();
                 _writeLogsToUiThread.Interrupt();
